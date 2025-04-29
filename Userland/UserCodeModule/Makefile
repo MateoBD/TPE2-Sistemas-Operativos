@@ -8,6 +8,7 @@ OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 STATICLIBS=
 
 all: $(MODULE)
+	rm -rf $(OBJECTS) $(OBJECTS_ASM)
 
 $(MODULE): $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 	$(GCC) $(GCCFLAGS) -T userCodeModule.ld _loader.c -o ../$(MODULE) $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
