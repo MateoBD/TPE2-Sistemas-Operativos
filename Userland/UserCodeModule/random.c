@@ -9,9 +9,7 @@
 static unsigned int seed = 3723141;
 
 int random() {
-    time* t = getTime();
-    seed = seed * 1103515245 + 12345 * (t->sec);
-    seed += (t->min);
+    seed = seed * 1103515245 + 12345;
     seed = (unsigned int)(seed * 7 / 65536) % 32768;
     return seed;
 }

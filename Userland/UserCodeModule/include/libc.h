@@ -11,14 +11,8 @@
 
 #define NULL (void*)0
 
-#define DIM_X 1024          // Ancho de pantalla [EN PIXELES]
-#define DIM_Y 768           // Alto de pantalla [EN PIXELES]
-
-#define BASE_CHAR_WIDTH 8           // Ancho de un char base [EN PIXELES]
-#define BASE_CHAR_HEIGHT 16         // Ancho de un char base [EN PIXELES]
-
-#define BASE_DIM_CHAR_Y (DIM_Y/BASE_CHAR_HEIGHT)      // Ancho de pantalla [EN CHARS BASE]
-#define BASE_DIM_CHAR_X (DIM_X/BASE_CHAR_WIDTH)       // Alto de pantalla [EN CHARS BASE]
+#define DIM_X 128          // Ancho de pantalla [EN CHARS]
+#define DIM_Y 48           // Alto de pantalla [EN CHARS]
 
 #define NOT_DRAWBLE -1
 #define NOT_KEY -2

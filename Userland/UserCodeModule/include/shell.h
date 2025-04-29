@@ -4,7 +4,6 @@
 
 #ifndef _SHELL_H_
 #define _SHELL_H_
-#include <snake.h>
 
 /**
  * @brief Entry point for the shell program.
