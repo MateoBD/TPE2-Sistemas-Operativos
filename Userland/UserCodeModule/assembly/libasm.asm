@@ -13,6 +13,7 @@ sys_call:
     mov rsi, rdx
     mov rdx, rcx
     mov r8, r10
+    
 
     int 80h
 

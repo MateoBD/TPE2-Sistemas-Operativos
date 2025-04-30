@@ -1,5 +1,5 @@
-#ifndef LIBASM_H
-#define LIBASM_H
+#ifndef _LIBASM_H_
+#define _LIBASM_H_
 
 #include <stdint.h>
 
@@ -21,7 +21,7 @@
  * @param r8 The fourth argument for the system call.
  * @return The result of the system call.
  */
-extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t r10, uint64_t r8);
+extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r8);
 
 /**
  * @brief Executes an cero division exeption.
