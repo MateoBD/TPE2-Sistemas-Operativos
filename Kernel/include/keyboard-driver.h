@@ -1,5 +1,5 @@
-#ifndef KEYBOARD_DRIVER_H
-#define KEYBOARD_DRIVER_H
+#ifndef _KEYBOARD_DRIVER_H_
+#define _KEYBOARD_DRIVER_H_
 // Function declarations and macros for the Keyboard driver
 
 #define NOT_DRAWBLE -1
@@ -28,14 +28,14 @@ void keyboard_handler();
  * 
  * @return char 1 if there is a next key, 0 otherwise.
  */
-char hasNextKey();
+char has_next_key();
 
 /**
  * @brief Retrieves the next key from the keyboard buffer.
  * 
  * @return char The next key.
  */
-int nextKey();
+int next_key();
 
 
 #endif // KEYBOARD_DRIVER_H

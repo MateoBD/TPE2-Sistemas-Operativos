@@ -4,21 +4,21 @@
 #include <stdint.h>
 
 // Function to get the current system year
-char getSystemYear();
+char get_system_year();
 
 // Function to get the current system month
-char getSystemMonth();
+char get_system_month();
 
 // Function to get the current day of the month
-char getSystemDayOfMonth();
+char get_system_day_of_month();
 
 // Function to get the current system hour
-char getSystemHour();
+char get_system_hour();
 
 // Function to get the current system minute
-char getSystemMin();
+char get_system_min();
 
 // Function to get the current system second
-char getSystemSec();
+char get_system_sec();
 
 #endif // TIMES_H

@@ -1,36 +1,42 @@
-GLOBAL getSystemYear
-GLOBAL getSystemMonth
-GLOBAL getSystemDayOfMonth
-GLOBAL getSystemHour
-GLOBAL getSystemMin
-GLOBAL getSystemSec
-getSystemYear:
-	mov al, 9 
-	out 70h, al 
-	in al, 71h 
-	ret
-getSystemMonth:
-	mov al, 8 
-	out 70h, al 
-	in al, 71h 
-	ret
-getSystemDayOfMonth:
-	mov al, 7 
-	out 70h, al 
-	in al, 71h 
-	ret
-getSystemHour:;+3
-	mov al, 4
-	out 70h, al 
-	in al, 71h 
-	ret
-getSystemMin:
-	mov al, 2 
-	out 70h, al 
-	in al, 71h 
-	ret
-getSystemSec:
-	mov al, 0 
-	out 70h, al 
-	in al, 71h 
-	ret
+GLOBAL get_system_year
+GLOBAL get_system_month
+GLOBAL get_system_day_of_month
+GLOBAL get_system_hour
+GLOBAL get_system_min
+GLOBAL get_system_sec
+
+get_system_year:
+    mov al, 9 
+    out 70h, al 
+    in al, 71h 
+    ret
+
+get_system_month:
+    mov al, 8 
+    out 70h, al 
+    in al, 71h 
+    ret
+
+get_system_day_of_month:
+    mov al, 7 
+    out 70h, al 
+    in al, 71h 
+    ret
+
+get_system_hour:;+3
+    mov al, 4
+    out 70h, al 
+    in al, 71h 
+    ret
+
+get_system_min:
+    mov al, 2 
+    out 70h, al 
+    in al, 71h 
+    ret
+
+get_system_sec:
+    mov al, 0 
+    out 70h, al 
+    in al, 71h 
+    ret

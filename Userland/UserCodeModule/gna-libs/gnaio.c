@@ -1,15 +1,16 @@
 #include <gnaio.h>
 
+#include <libasm.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <gnalib.h>
-#include <libasm.h>
+#include <gnastring.h>
 
 #define BUFFER_SIZE 5120
 static char output_buffer[BUFFER_SIZE];
 
 // Helper function to process format string
-static int process_format(char *buf, int *out_size, uint32_t size, const char *format, va_list args) 
+static int process_format(char *buf, uint32_t *out_size, uint32_t size, const char *format, va_list args)
 {
     if (out_size)
         *out_size = 0;
@@ -28,7 +29,7 @@ static int process_format(char *buf, int *out_size, uint32_t size, const char *f
 
     if (size > 0 && size < strlen(format))
         return -1;
-    
+
     uint32_t count = 0;
     uint32_t i = 0;
     char c;
@@ -133,11 +134,25 @@ int printf(const char *format, ...)
     va_list args;
     va_start(args, format);
 
-    int size = 0;
+    uint32_t size = 0;
 
     int count = process_format(output_buffer, &size, BUFFER_SIZE, format, args);
 
-    // Write to stdout
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0);
+
+    va_end(args);
+    return count;
+}
+
+int nprintf(uint32_t size, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+
+    uint32_t out_size = 0;
+    int count = process_format(output_buffer, &out_size, 0, format, args);
+
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0);
 
     va_end(args);
     return count;
@@ -153,7 +168,6 @@ int fprintf(int fd, const char *format, ...)
     int count = process_format(output_buffer, &out_size, BUFFER_SIZE, format, args);
 
     // Write to the specified file descriptor
-
 
     va_end(args);
     return count;
@@ -172,7 +186,7 @@ int sprintf(char *buf, const char *format, ...)
     return count;
 }
 
-int snprintf(char *buf, int size, const char *format, ...)
+int snprintf(char *buf, uint32_t size, const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -186,8 +200,7 @@ int snprintf(char *buf, int size, const char *format, ...)
 
 void puts(const char *str)
 {
-    // TODO: Implement actual system call to write to stdout
-    // For now, this is a simple placeholder
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)str, strlen(str), 0);
 }
 
 void putchar(char c)
@@ -197,54 +210,42 @@ void putchar(char c)
 
 int putc(int fd, char c)
 {
-    // TODO: Implement actual system call to write to file descriptor
-    // For now, this is a simple placeholder that only handles stdout
-    if (fd == FD_STDOUT)
-    {
-        // Call system function to output character
-        // This is system-dependent
-        // Assuming there's a low-level write_char function
-        write_char(c);
-        return c;
-    }
-    return EOF;
+    sys_call(SYS_WRITE, fd, (uint64_t)&c, 1, 0);
+    return 0;
 }
 
 int getchar(void)
 {
     // This should call the system's character input function
-    char c;
-    if (read_char(FD_STDIN, &c) > 0)
+    int c = -1;
+    if (( c = getc(FD_STDIN)) > 0)
         return c;
     return EOF;
 }
 
 int getc(int fd)
 {
-    // This should call the system's character input function
-    return 0;
+    char c;
+    if (sys_call(SYS_READ, fd, (uint64_t)&c, 1, 0) > 0)
+        return c;
+    return EOF;
 }
 
 int set_cursor(uint8_t x, uint8_t y)
 {
-    // TODO: Implement cursor positioning
-    // This is system-dependent
-    // Assuming there's a low-level cursor control function
-    
+    return sys_call(SYS_SET_CURSOR, x, y, 0, 0);
 }
 
 void set_color(uint8_t fg_color, uint8_t bg_color)
 {
-    //TODO: Implement color setting
-    // This is system-dependent
-    // Assuming there's a low-level color setting function
-
+    sys_call(SYS_SET_COLOR, fg_color, bg_color, 0, 0);
 }
 
 void clean_screen(void)
 {
-    // TODO: Implement screen clearing
-    // This is system-dependent
-    // Assuming there's a low-level screen clearing function
-
+    set_cursor(0, 0);
+    for (int i = 0; i < BUFFER_SIZE; i++)
+        output_buffer[i] = 0;
+    nprintf(BUFFER_SIZE, output_buffer);
+    set_cursor(0, 0);
 }

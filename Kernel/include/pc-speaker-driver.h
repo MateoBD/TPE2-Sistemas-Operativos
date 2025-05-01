@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-void playSound(uint32_t nFrequence);
-void stopSound();
+void play_sound(uint32_t n_frequency);
+void stop_sound();
 
 #endif // PC_SPEAKER_DRIVER_H

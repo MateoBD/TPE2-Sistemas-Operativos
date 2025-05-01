@@ -1,6 +1,8 @@
 #ifndef _GNALIB_H_
 #define _GNALIB_H_
 
+#include <stdint.h>
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
@@ -18,14 +20,16 @@ typedef struct {
 
 uint64_t get_ticks();
 
+uint64_t time();
+
 time_t get_time();
 
 int itoa(uint64_t value, char * buffer, int base, int n);
 
-void sleep(uint64_t seconds);
+void sleep(uint32_t seconds);
 
-void srand(uint64_t seed);
+void srand(uint32_t seed);
 
-uint64_t rand();
+uint32_t rand();
 
 #endif

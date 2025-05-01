@@ -2,14 +2,14 @@
 #define _TIME_H_
 #include <stdint.h>
 
-typedef struct time{
+typedef struct {
     char day;
     char month;
     char year;
     char hour;
     char min;
     char sec;
-}time;
+} time_struct_t;
 
 /**
  * @brief Timer interrupt handler.
@@ -18,7 +18,7 @@ typedef struct time{
  */
 void timer_handler();
 
-unsigned long getTicks();
+unsigned long get_ticks();
 
 /**
  * @brief Retrieves the number of ticks elapsed since the system started.
@@ -56,6 +56,6 @@ void sleep(int ticks);
  *
  * @return A time structure containing the current system time.
  */
-time * getTime();
+time_struct_t get_time();
 // char * getTime();
 #endif

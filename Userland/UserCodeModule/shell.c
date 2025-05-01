@@ -1,10 +1,11 @@
 #include <shell.h>
-#include <libc.h>
 #include <stdint.h>
 #include <libasm.h>
-#include <sounds.h>
-#include <random.h>
+#include <gnaio.h>
+#include <gnalib.h>
 
 void shell() {
-    print("Welcome to the shell!\n");
+    clean_screen();
+    printf("Welcome to GNA Shell!\n");
+    return;
 }

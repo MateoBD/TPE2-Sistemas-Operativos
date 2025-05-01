@@ -1,10 +1,11 @@
 #include <gnalib.h>
 #include <stdint.h>
 #include <libasm.h>
+#include <stdint.h>
 
 uint64_t get_ticks()
 {
-    uint64_t ticks;
+    uint64_t ticks = 0;
     // syscall
     return ticks;
 }
@@ -14,8 +15,7 @@ uint64_t get_ticks()
 #define SECONDS_PER_DAY (24 * SECONDS_PER_HOUR)
 #define DAYS_PER_YEAR 365
 
-#define IS_LEAP_YEAR(year) \
-    (((year) % 4 == 0 && (year) % 100 != 0) || ((year) % 400 == 0))
+#define IS_LEAP_YEAR(year) (((year) % 4 == 0 && (year) % 100 != 0) || ((year) % 400 == 0))
 
 uint64_t time()
 {
@@ -23,12 +23,12 @@ uint64_t time()
 
     const int days_in_month[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    uint64_t total_years = t.year + 2000 - 1970;
+    uint64_t total_years = t.year - 1970;
 
     uint64_t days = total_years * DAYS_PER_YEAR;
 
     uint64_t leap_days = 0;
-    for (int y = 1970; y < t.year + 2000; y++)
+    for (int y = 1970; y < t.year; y++)
     {
         if (IS_LEAP_YEAR(y))
         {
@@ -41,9 +41,7 @@ uint64_t time()
     {
         days += days_in_month[m];
         
-        if (m == 2 &&
-                ((t.year + 2000) % 4 == 0 && (t.year + 2000) % 100 != 0) ||
-            ((t.year + 2000) % 400 == 0))
+        if (m == 2 && IS_LEAP_YEAR(t.year))
         {
             days++;
         }
@@ -61,7 +59,7 @@ uint64_t time()
 
 time_t get_time()
 {
-    time_t t;
+    time_t t = {0};
     // syscall
     return t;
 }
@@ -85,7 +83,7 @@ int itoa(uint64_t value, char *buffer, int base, int n)
     return i;
 }
 
-void sleep(uint64_t seconds)
+void sleep(uint32_t seconds)
 {
     // syscall
     return;

@@ -3,6 +3,42 @@
 
 #include <stdint.h>
 
+enum enum_syscalls 
+{
+    SYS_WRITE = 0,
+    SYS_READ,
+    SYS_PIPE,
+    SYS_CLOSE,
+    SYS_SET_CURSOR,
+    SYS_SET_COLOR,
+    SYS_MMAP,
+    SYS_MUNMAP,
+    SYS_BRK,
+    SYS_MPROTECT,
+    SYS_FORK,
+    SYS_EXECVE,
+    SYS_EXIT,
+    SYS_WAIT,
+    SYS_GETPID,
+    SYS_KILL,
+    SYS_GETPRIORITY,
+    SYS_SETPRIORITY,
+    SYS_SCHED_YIELD,
+    SYS_SLEEP,
+    SYS_PLAY_SOUND,
+    SYS_STOP_SOUND,
+    SYS_SEM_OPEN,
+    SYS_SEM_CLOSE,
+    SYS_SEM_UNLINK,
+    SYS_SEM_WAIT,
+    SYS_SEM_POST,
+    SYS_SEM_GETVALUE,
+    SYS_SHM_OPEN,
+    SYS_SHM_UNLINK,
+    SYS_SHM_MAP,
+    SYS_SHM_UNMAP,
+};
+
 /**
  * @file libasm.h
  * @brief Header file for assembly functions used in the UserCodeModule.

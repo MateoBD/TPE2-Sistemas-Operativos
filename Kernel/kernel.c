@@ -1,90 +1,91 @@
 #include <stdint.h>
 #include <string.h>
 #include <lib.h>
-#include <moduleLoader.h>
-#include <videoDriver.h>
+#include <module-loader.h>
+#include <video-driver.h>
 #include <idtLoader.h>
-#include <keyboardDriver.h>
+#include <keyboard-driver.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
 extern uint8_t bss;
-extern uint8_t endOfKernelBinary;
-extern uint8_t endOfKernel;
+extern uint8_t end_of_kernel_binary;
+extern uint8_t end_of_kernel;
 
-static const uint64_t PageSize = 0x1000;
+static const uint64_t page_size = 0x1000;
 
-static void * const userCodeModuleAddress = (void*)0x400000;
-static void * const userDataModuleAddress = (void*)0x500000;
+static void * const user_code_module_address = (void*)0x400000;
+static void * const user_data_module_address = (void*)0x500000;
 
-typedef int (*EntryPoint)();
+typedef int (*entry_point)();
 
-
-void clearBSS(void * bssAddress, uint64_t bssSize)
+void clear_bss(void *bss_address, uint64_t bss_size)
 {
-	memset(bssAddress, 0, bssSize);
+    memset(bss_address, 0, bss_size);
 }
 
-void * getStackBase()
+void *get_stack_base()
 {
-	return (void*)(
-		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
-	);
+    return (void*)(
+        (uint64_t)&end_of_kernel
+        + page_size * 8              //The size of the stack itself, 32KiB
+        - sizeof(uint64_t)           //Begin at the top of the stack
+    );
 }
 
-void * initializeKernelBinary()
+void *initialize_kernel_binary()
 {
-	char buffer[10];
+    char buffer[10];
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
+    vd_print("[x64BareBones]");
+    vd_draw_char('\n');
 
-	ncPrint("CPU Vendor:");
-	ncPrint(cpuVendor(buffer));
-	ncNewline();
+    vd_print("CPU Vendor:");
+    vd_print(cpu_vendor(buffer));
+    vd_draw_char('\n');
 
-	ncPrint("[Loading modules]");
-	ncNewline();
-	void * moduleAddresses[] = {
-		userCodeModuleAddress,
-		userDataModuleAddress
-	};
+    vd_print("[Loading modules]");
+    vd_draw_char('\n');
+    void *module_addresses[] = {
+        user_code_module_address,
+        user_data_module_address
+    };
 
-	loadModules(&endOfKernelBinary, moduleAddresses);
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+    load_modules(&end_of_kernel_binary, module_addresses);
+    vd_print("[Done]");
+    vd_draw_char('\n');
+    vd_draw_char('\n');
 
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
+    vd_print("[Initializing kernel's binary]");
+    vd_draw_char('\n');
 
-	clearBSS(&bss, &endOfKernel - &bss);
+    clear_bss(&bss, &end_of_kernel - &bss);
 
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
+    vd_print("  text: 0x");
+    vd_print_hex((uint64_t)&text);
+    vd_draw_char('\n');
+    vd_print("  rodata: 0x");
+    vd_print_hex((uint64_t)&rodata);
+    vd_draw_char('\n');
+    vd_print("  data: 0x");
+    vd_print_hex((uint64_t)&data);
+    vd_draw_char('\n');
+    vd_print("  bss: 0x");
+    vd_print_hex((uint64_t)&bss);
+    vd_draw_char('\n');
 
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
-	return getStackBase();
+    vd_print("[Done]");
+    vd_draw_char('\n');
+    vd_draw_char('\n');
+    return get_stack_base();
 }
 
-int main() {	
-	load_idt();
-    ((EntryPoint)userCodeModuleAddress)();
-	haltcpu();
+extern void haltcpu(void);
+
+int main() {    
+    load_idt();
+    ((entry_point)user_code_module_address)();
+    haltcpu();
     return 0;
 }

@@ -36,11 +36,13 @@ enum colors
 
 int printf(const char * format, ...);
 
+int nprintf(uint32_t size, const char * format, ...);
+
 int fprintf(int fd, const char * format, ...);
 
 int sprintf(char * buf, const char * format, ...);
 
-int snprintf(char * buf, int size, const char * format, ...);
+int snprintf(char * buf, uint32_t size, const char * format, ...);
 
 // int scanf(const char * format, ...);
 
