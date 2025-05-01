@@ -1,20 +1,25 @@
 #!/bin/bash
 
+# Set audio driver based on OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  # Para Linux
-  qemu-system-x86_64 \
-    -hda Image/x64BareBonesImage.qcow2 \
-    -m 512 \
-    -audiodev pa,id=speaker \
-    -machine pcspk-audiodev=speaker
+    AUDIO_DRIVER="pa"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  # Para Mac
-  qemu-system-x86_64 \
+    AUDIO_DRIVER="coreaudio"
+else
+    echo "Sistema operativo no soportado"
+    exit 1
+fi
+
+if [[ "$1" == "gdb" ]]; then
+    GDB="-s -d int"
+else
+    GDB=""
+fi
+
+# Run QEMU with appropriate audio driver
+qemu-system-x86_64 \
     -hda Image/x64BareBonesImage.qcow2 \
     -m 512 \
-    -audiodev coreaudio,id=speaker \
-    -machine pcspk-audiodev=speaker
-else
-  echo "Sistema operativo no soportado"
-  exit 1
-fi
+    -audiodev $AUDIO_DRIVER,id=speaker \
+    -machine pcspk-audiodev=speaker \
+    $GDB

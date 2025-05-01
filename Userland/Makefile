@@ -12,7 +12,7 @@ userDataModule:
 
 clean:
 	cd UserCodeModule; make clean
-	rm -rf *.bin
+	rm -rf *.bin *.elf
 
 
 .PHONY: userCodeModule all clean
