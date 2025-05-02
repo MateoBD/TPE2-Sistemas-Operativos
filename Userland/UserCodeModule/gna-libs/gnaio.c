@@ -138,7 +138,7 @@ int printf(const char *format, ...)
 
     int count = process_format(output_buffer, &size, BUFFER_SIZE, format, args);
 
-    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0);
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0, 0, 0);
 
     va_end(args);
     return count;
@@ -152,7 +152,7 @@ int nprintf(uint32_t size, const char *format, ...)
     uint32_t out_size = 0;
     int count = process_format(output_buffer, &out_size, 0, format, args);
 
-    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0);
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)output_buffer, size, 0, 0, 0);
 
     va_end(args);
     return count;
@@ -200,7 +200,7 @@ int snprintf(char *buf, uint32_t size, const char *format, ...)
 
 void puts(const char *str)
 {
-    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)str, strlen(str), 0);
+    sys_call(SYS_WRITE, FD_STDOUT, (uint64_t)str, strlen(str), 0, 0, 0);
 }
 
 void putchar(char c)
@@ -210,7 +210,7 @@ void putchar(char c)
 
 int putc(int fd, char c)
 {
-    sys_call(SYS_WRITE, fd, (uint64_t)&c, 1, 0);
+    sys_call(SYS_WRITE, fd, (uint64_t)&c, 1, 0, 0, 0);
     return 0;
 }
 
@@ -226,19 +226,19 @@ int getchar(void)
 int getc(int fd)
 {
     char c;
-    if (sys_call(SYS_READ, fd, (uint64_t)&c, 1, 0) > 0)
+    if (sys_call(SYS_READ, fd, (uint64_t)&c, 1, 0, 0, 0) > 0)
         return c;
     return EOF;
 }
 
 int set_cursor(uint8_t x, uint8_t y)
 {
-    return sys_call(SYS_SET_CURSOR, x, y, 0, 0);
+    return sys_call(SYS_SET_CURSOR, x, y, 0, 0, 0, 0);
 }
 
 void set_color(uint8_t fg_color, uint8_t bg_color)
 {
-    sys_call(SYS_SET_COLOR, fg_color, bg_color, 0, 0);
+    sys_call(SYS_SET_COLOR, fg_color, bg_color, 0, 0, 0, 0);
 }
 
 void clean_screen(void)

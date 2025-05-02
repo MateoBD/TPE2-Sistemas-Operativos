@@ -53,11 +53,13 @@ enum enum_syscalls
  * @param rax The system call number.
  * @param rdi The first argument for the system call.
  * @param rsi The second argument for the system call.
- * @param r10 The third argument for the system call.
- * @param r8 The fourth argument for the system call.
+ * @param rdx The third argument for the system call.
+ * @param r10 The fourth argument for the system call.
+ * @param r8 The fifth argument for the system call.
+ * @param r9 The sixth argument for the system call.
  * @return The result of the system call.
  */
-extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r8);
+extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9);
 
 /**
  * @brief Executes an cero division exeption.
