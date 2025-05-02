@@ -1,8 +1,12 @@
 include ../Makefile.inc
 
 MODULE=0000-userCodeModule.bin
+<<<<<<< HEAD
 ELF_MODULE=0000-userCodeModule.elf
 SOURCES=$(wildcard [^_]*.c)
+=======
+SOURCES=$(wildcard [^_]*.c) $(wildcard gna-libs/*.c)
+>>>>>>> refactor
 SOURCES_ASM=$(wildcard assembly/*.asm)
 OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
@@ -22,6 +26,6 @@ $(MODULE): $(OBJECTS) $(OBJECTS_ASM) $(STATICLIBS)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf asm/*.o *.o
+	rm -rf asm/*.o *.o gna-libs/*.o
 
 .PHONY: all clean print

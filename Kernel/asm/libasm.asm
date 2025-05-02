@@ -1,7 +1,7 @@
 GLOBAL outb
 GLOBAL inb
-GLOBAL cpuVendor
-GLOBAL testSysCall
+GLOBAL cpu_vendor
+GLOBAL test_sysCall
 
 section .text
 	
@@ -16,7 +16,7 @@ outb:
     out dx,al
     ret
 
-cpuVendor:
+cpu_vendor:
 	push rbp
 	mov rbp, rsp
 

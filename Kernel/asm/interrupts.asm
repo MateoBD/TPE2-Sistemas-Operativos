@@ -1,14 +1,14 @@
 
 GLOBAL _cli
 GLOBAL _sti
-GLOBAL picMasterMask
-GLOBAL picSlaveMask
+GLOBAL pic_master_mask
+GLOBAL pic_slave_mask
 GLOBAL haltcpu
 GLOBAL _hlt
 
-GLOBAL saveRegisters
-GLOBAL getRegisters
-GLOBAL setEscFlag
+GLOBAL save_registers
+GLOBAL get_registers
+GLOBAL set_esc_flag
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -22,15 +22,15 @@ GLOBAL _int80Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 
-EXTERN irqDispatcher
-EXTERN sysCallDispatcher
-EXTERN exceptionDispatcher
-EXTERN getStackBase
-EXTERN showRegisters
+EXTERN irq_dispatcher
+EXTERN syscall_dispatcher
+EXTERN exception_dispatcher
+EXTERN get_stack_base
+EXTERN show_registers
 
 SECTION .text
 
-%macro pushState 0
+%macro push_state 0
 	push rax
 	push rbx
 	push rcx
@@ -48,7 +48,7 @@ SECTION .text
 	push r15
 %endmacro
 
-%macro popState 0
+%macro pop_state 0
 	pop r15
 	pop r14
 	pop r13
@@ -66,26 +66,26 @@ SECTION .text
 	pop rax
 %endmacro
 
-%macro irqHandlerMaster 1
-	pushState
+%macro irq_handler_master 1
+	push_state
     mov byte [esc_flag], 0
 
 	mov rdi, %1 ; pasaje de parametro
-	call irqDispatcher
+	call irq_dispatcher
 
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
 
-	popState
+	pop_state
     cmp byte [esc_flag], 1
     jne .donot_save_registers
-    catchRegisters
+    catch_registers
     .donot_save_registers:
     iretq
 %endmacro
 
-%macro catchRegisters 0
+%macro catch_registers 0
     mov qword [regs_backup], rax
     mov rax, regs_backup
     add rax, 8
@@ -130,13 +130,13 @@ SECTION .text
     mov byte [registers_saved], 1   ; seteo flag de que se guardaron registros [ESTO ESTABA MAL]
 %endmacro
 
-%macro exceptionHandler 1
-    catchRegisters
+%macro exception_handler 1
+    catch_registers
 
 	mov rdi, %1 ; pasaje de parametro
-	call exceptionDispatcher
+	call exception_dispatcher
 
-    call getStackBase
+    call get_stack_base
     mov [rsp+8*3], rax
     mov rax, userland
     mov [rsp], rax
@@ -158,7 +158,7 @@ _sti:
 	sti
 	ret
 
-picMasterMask:
+pic_master_mask:
 	push rbp
     mov rbp, rsp
     mov ax, di
@@ -166,7 +166,7 @@ picMasterMask:
     pop rbp
     retn
 
-picSlaveMask:
+pic_slave_mask:
 	push    rbp
     mov     rbp, rsp
     mov     ax, di  ; ax = mascara de 16 bits
@@ -177,27 +177,27 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	irq_handler_master 0
 
 ;Keyboard
 _irq01Handler:
-	irqHandlerMaster 1
+	irq_handler_master 1
 
 ;Cascade pic never called
 _irq02Handler:
-	irqHandlerMaster 2
+	irq_handler_master 2
 
 ;Serial Port 2 and 4
 _irq03Handler:
-	irqHandlerMaster 3
+	irq_handler_master 3
 
 ;Serial Port 1 and 3
 _irq04Handler:
-	irqHandlerMaster 4
+	irq_handler_master 4
 
 ;USB
 _irq05Handler:
-	irqHandlerMaster 5
+	irq_handler_master 5
 
 _int80Handler:
 	
@@ -208,27 +208,28 @@ _int80Handler:
 	mov rsi, rdi 
 	mov rdi, rax
 	
-	call sysCallDispatcher
+	call syscall_dispatcher
 
 	iretq
 
 ;Zero Division Exception
 _exception0Handler:
-	exceptionHandler 0
+	exception_handler 0
 
 ;Zero Division Exception
 _exception6Handler:
-	exceptionHandler 6
+	exception_handler 6
+    
 haltcpu:
 	cli
 	hlt
 	ret
 
-saveRegisters:
-    catchRegisters
+save_registers:
+    catch_registers
     ret
 
-getRegisters:
+get_registers:
     mov rax, 0       ; ret null
     cmp byte [registers_saved], 1
     jne .not_saved
@@ -236,7 +237,7 @@ getRegisters:
 .not_saved:
     ret
 
-setEscFlag:
+set_esc_flag:
     mov byte [esc_flag], 1
     ret
 

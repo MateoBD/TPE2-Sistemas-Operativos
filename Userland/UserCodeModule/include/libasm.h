@@ -1,7 +1,43 @@
-#ifndef LIBASM_H
-#define LIBASM_H
+#ifndef _LIBASM_H_
+#define _LIBASM_H_
 
 #include <stdint.h>
+
+enum enum_syscalls 
+{
+    SYS_WRITE = 0,
+    SYS_READ,
+    SYS_PIPE,
+    SYS_CLOSE,
+    SYS_SET_CURSOR,
+    SYS_SET_COLOR,
+    SYS_MMAP,
+    SYS_MUNMAP,
+    SYS_BRK,
+    SYS_MPROTECT,
+    SYS_FORK,
+    SYS_EXECVE,
+    SYS_EXIT,
+    SYS_WAIT,
+    SYS_GETPID,
+    SYS_KILL,
+    SYS_GETPRIORITY,
+    SYS_SETPRIORITY,
+    SYS_SCHED_YIELD,
+    SYS_SLEEP,
+    SYS_PLAY_SOUND,
+    SYS_STOP_SOUND,
+    SYS_SEM_OPEN,
+    SYS_SEM_CLOSE,
+    SYS_SEM_UNLINK,
+    SYS_SEM_WAIT,
+    SYS_SEM_POST,
+    SYS_SEM_GETVALUE,
+    SYS_SHM_OPEN,
+    SYS_SHM_UNLINK,
+    SYS_SHM_MAP,
+    SYS_SHM_UNMAP,
+};
 
 /**
  * @file libasm.h
@@ -17,11 +53,13 @@
  * @param rax The system call number.
  * @param rdi The first argument for the system call.
  * @param rsi The second argument for the system call.
- * @param r10 The third argument for the system call.
- * @param r8 The fourth argument for the system call.
+ * @param rdx The third argument for the system call.
+ * @param r10 The fourth argument for the system call.
+ * @param r8 The fifth argument for the system call.
+ * @param r9 The sixth argument for the system call.
  * @return The result of the system call.
  */
-extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t r10, uint64_t r8);
+extern uint64_t sys_call(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9);
 
 /**
  * @brief Executes an cero division exeption.

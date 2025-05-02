@@ -1,10 +1,10 @@
-GLOBAL getKey
+GLOBAL get_key
 
-EXTERN setEscFlag
+EXTERN set_esc_flag
 
 section .text
 
-getKey:
+get_key:
     in al, 64h         ; Leer el estado del 8042
 	test al, 1           ; Verificar si el bit 0 (hay datos) está en 1
 	jz .exit        ; Si el bit 0 es 1, hay datos en el puerto 0x60h
@@ -14,5 +14,5 @@ getKey:
 .exit:
 	ret
 .save_registers:
-    call setEscFlag
+    call set_esc_flag
     ret

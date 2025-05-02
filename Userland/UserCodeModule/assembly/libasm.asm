@@ -7,15 +7,20 @@ GLOBAL _sti
 GLOBAL _cliHlt
 
 sys_call:
+    push rbp
+    mov rbp, rsp
 
     mov rax, rdi
     mov rdi, rsi
     mov rsi, rdx
     mov rdx, rcx
-    mov r8, r10
-
+    mov r10, r8
+    mov r8, r9
+    mov r9, [rbp+16]
+    
     int 80h
 
+    pop rbp
     ret
 ;test division by zero exeption
 _div:
