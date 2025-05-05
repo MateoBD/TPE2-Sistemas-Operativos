@@ -84,7 +84,9 @@ sys_call_t sys_call_arr[] =
 
 uint64_t syscall_dispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9) {
     uint64_t ret;
-
+    if (rax >= sizeof(sys_call_arr) / sizeof(sys_call_t)) {
+        return -1; // Invalid syscall number
+    }
     ret = sys_call_arr[rax](rdi, rsi, rdx, r10, r8, r9);
 
     return ret;

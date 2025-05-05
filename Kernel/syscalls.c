@@ -10,14 +10,14 @@
 
 uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    if (rdi < 0 || (char *)rsi == NULL || r10 <= 0)
+    if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
     {
         return -1; // Invalid file descriptor or buffer
     }
 
     if (rdi == STDOUT)
     {
-        vd_nprint((char *)rsi, (uint32_t) r10);
+        vd_nprint((char *)rsi, (uint32_t) rdx);
     }
     else if (rdi == STDERR)
     {
@@ -35,7 +35,7 @@ uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
 
 uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    if (rdi < 0 || (char *)rsi == NULL || r10 <= 0)
+    if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
     {
         return -1; // Invalid file descriptor or buffer
     }

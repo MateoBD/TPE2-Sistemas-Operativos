@@ -200,17 +200,26 @@ _irq05Handler:
 	irq_handler_master 5
 
 _int80Handler:
-	
-	mov r9, r8
-	mov r8, r10
-	mov rcx, rdx
-	mov rdx, rsi
-	mov rsi, rdi 
-	mov rdi, rax
-	
-	call syscall_dispatcher
+    push rbp
+    mov rbp, rsp
 
-	iretq
+    ; dejar el valor que está en [rsp] (7mo arg) intacto
+    ; por eso no tocamos rsp
+
+    mov r9, r8
+    mov r8, r10
+    mov rcx, rdx
+    mov rdx, rsi
+    mov rsi, rdi
+    mov rdi, rax
+
+    call syscall_dispatcher
+
+    mov rsp, rbp
+    pop rbp
+    iretq
+
+
 
 ;Zero Division Exception
 _exception0Handler:
