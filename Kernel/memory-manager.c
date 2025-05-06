@@ -21,7 +21,7 @@ MemoryManagerADT newMemoryManagerADT(void * const restrict manager_memory, void 
 {
     MemoryManagerADT new_memory_manager = (MemoryManagerADT) manager_memory;
     new_memory_manager->start_of_memory = managed_memory;
-    new_memory_manager->page_frames = (MemoryFragment*) (manager_memory + sizeof(MemoryManagerADT));
+    new_memory_manager->page_frames = (MemoryFragment*) (manager_memory + sizeof(struct MemoryManagerCDT));
     new_memory_manager->page_frames_dim = 0;
     new_memory_manager->page_frames[0].start = new_memory_manager->start_of_memory;
     return new_memory_manager;
@@ -49,6 +49,7 @@ void * allocMemory(MemoryManagerADT const restrict self, const uint64_t size)
             {
                 self->page_frames[i].size = size;
                 self->page_frames[i+1].start = self->page_frames[i].start + size;
+                self->page_frames_dim++;
             }
             toReturn = self->page_frames[i].start;
             self->page_frames[i].used = 1;
