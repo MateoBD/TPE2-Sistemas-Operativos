@@ -1,8 +1,6 @@
 #include <shell.h>
-#include <stdint.h>
-#include <libasm.h>
 #include <gnaio.h>
-#include <gnalib.h>
+#include <libasm.h>
 
 void shell() {
     clean_screen();
