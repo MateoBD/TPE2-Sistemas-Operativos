@@ -12,12 +12,14 @@ typedef struct
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-MemoryManagerADT newMemoryManagerADT(void * const restrict manager_memory, void * const restrict managed_memory);
+MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, void * const restrict managed_memory);
 
-void * allocMemory(MemoryManagerADT const restrict self, const uint64_t size);
+void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size);
 
-int freeMemory(MemoryManagerADT const restrict self, void * const restrict ptr);
+int free_memory(MemoryManagerADT const restrict self, void * const restrict ptr);
 
-MemoryState getStateMemory(MemoryManagerADT const restrict self);
+MemoryState get_state_memory(MemoryManagerADT const restrict self);
+
+void print_state_memory(MemoryManagerADT const restrict self);
 
 #endif
