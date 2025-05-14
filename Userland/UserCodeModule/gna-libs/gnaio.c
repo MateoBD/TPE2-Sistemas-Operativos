@@ -27,7 +27,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
     if (size > 0 && size < 2)
         return -1;
 
-    if (size > 0 && size < strlen(format))
+    if (size > 0 && strlen(format) >= size)
         return -1;
 
     uint32_t count = 0;

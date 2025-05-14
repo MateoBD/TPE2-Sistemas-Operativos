@@ -5,6 +5,8 @@
 #include <video-driver.h>
 #include <idtLoader.h>
 #include <keyboard-driver.h>
+#include <buddy-mm.h>
+#include <memory-manager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -85,6 +87,7 @@ extern void haltcpu(void);
 
 int main() {    
     load_idt();
+    buddy_init((void*)0x800000,(void*)(0x400000+sizeof(struct MemoryManagerCDT)));
     ((entry_point)user_code_module_address)();
     haltcpu();
     return 0;

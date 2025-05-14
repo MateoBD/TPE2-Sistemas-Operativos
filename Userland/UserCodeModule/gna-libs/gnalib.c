@@ -101,3 +101,11 @@ uint32_t rand()
     random_next = (random_next * 1103515245 + 12345) % RAND_MAX;
     return random_next;
 }
+
+void * malloc(uint64_t size){
+    return (void *)sys_call(30,size,0,0,0,0,0);
+}
+
+void free(void *ptr){
+    sys_call(31,(uint64_t)ptr,0,0,0,0,0);
+}

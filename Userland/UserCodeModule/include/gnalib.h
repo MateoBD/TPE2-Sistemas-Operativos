@@ -32,4 +32,12 @@ void srand(uint32_t seed);
 
 uint32_t rand();
 
+void *malloc(uint64_t size);
+
+void free(void *ptr);
+
+void * memset(void * destiation, int32_t c, uint64_t length);
+
+uint8_t memcheck(void *start, uint8_t value, uint32_t size);
+
 #endif
