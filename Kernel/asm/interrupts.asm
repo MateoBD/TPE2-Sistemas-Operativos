@@ -66,22 +66,54 @@ SECTION .text
 	pop rax
 %endmacro
 
+%macro push_state_no_rax 0
+	push rbx
+	push rcx
+	push rdx
+	push rbp
+	push rdi
+	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+%endmacro
+
+%macro pop_state_no_rax 0
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+%endmacro
+
+%macro signal_eoi 0
+    mov al, 20h
+    out 20h, al
+%endmacro
+
 %macro irq_handler_master 1
 	push_state
-    mov byte [esc_flag], 0
 
 	mov rdi, %1 ; pasaje de parametro
 	call irq_dispatcher
 
-	; signal pic EOI (End of Interrupt)
-	mov al, 20h
-	out 20h, al
+	signal_eoi
 
 	pop_state
-    cmp byte [esc_flag], 1
-    jne .donot_save_registers
-    catch_registers
-    .donot_save_registers:
     iretq
 %endmacro
 
@@ -177,11 +209,33 @@ pic_slave_mask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irq_handler_master 0
+	push_state
+
+    mov rdi, rsp
+    call scheduler
+    mov rsp, rax
+
+	signal_eoi
+
+	pop_state
+    iretq
 
 ;Keyboard
 _irq01Handler:
-	irq_handler_master 1
+    push_state
+    mov byte [esc_flag], 0
+
+	mov rdi, %1 ; pasaje de parametro
+	call irq_dispatcher
+
+	signal_eoi
+
+	pop_state
+    cmp byte [esc_flag], 1
+    jne .donot_save_registers
+    catch_registers
+    .donot_save_registers:
+    iretq
 
 ;Cascade pic never called
 _irq02Handler:
@@ -203,6 +257,8 @@ _int80Handler:
     push rbp
     mov rbp, rsp
 
+    push_state_no_rax
+
     ; dejar el valor que está en [rsp] (7mo arg) intacto
     ; por eso no tocamos rsp
 
@@ -214,6 +270,8 @@ _int80Handler:
     mov rdi, rax
 
     call syscall_dispatcher
+
+    pop_state_no_rax
 
     mov rsp, rbp
     pop rbp

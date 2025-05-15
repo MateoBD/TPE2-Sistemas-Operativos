@@ -3,6 +3,8 @@
 #include <keyboard-driver.h>
 #include <pc-speaker-driver.h>
 #include <stdint.h>
+#include <memory-manager.h>
+#include <scheduler-lib.h>
 
 #define RED 0x0C
 
@@ -90,15 +92,13 @@ uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, ui
     return 0;
 }
 
-uint64_t sys_fork(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
-{
-    // Implementation of sys_write
-    return 0;
-}
+#define STACK_SIZE 0x1000 // 4KB stack size
 
-uint64_t sys_execve(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_create(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+
+    create_process(rip, argc, argv);
+
     return 0;
 }
 
