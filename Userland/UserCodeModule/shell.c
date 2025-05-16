@@ -3,7 +3,6 @@
 #include <libasm.h>
 
 void shell() {
-    clean_screen();
-    printf("Welcome to GNA Shell!\n");
+    printf("Welcome to GNA Shell!\n%s%d\n%x\n%c%", "GNA Shell v1.0\n",-1,10,'G');
     return;
 }
