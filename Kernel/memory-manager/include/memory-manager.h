@@ -12,6 +12,8 @@ typedef struct
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
+MemoryManagerADT memory_manager;
+
 MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, void * const restrict managed_memory);
 
 void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size);
