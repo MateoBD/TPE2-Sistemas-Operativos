@@ -95,7 +95,7 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     return process->pid;
 }
 
-void * schedule(void * current_stack)
+void * scheduler(void * current_stack)
 {
     PCB * next = NULL;
 

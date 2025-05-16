@@ -27,6 +27,7 @@ EXTERN syscall_dispatcher
 EXTERN exception_dispatcher
 EXTERN get_stack_base
 EXTERN show_registers
+EXTERN scheduler
 
 SECTION .text
 
@@ -225,7 +226,7 @@ _irq01Handler:
     push_state
     mov byte [esc_flag], 0
 
-	mov rdi, %1 ; pasaje de parametro
+	mov rdi, 1 ; pasaje de parametro
 	call irq_dispatcher
 
 	signal_eoi
