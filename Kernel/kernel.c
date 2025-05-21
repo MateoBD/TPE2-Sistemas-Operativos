@@ -85,6 +85,8 @@ extern void haltcpu(void);
 
 int main() {    
     load_idt();
+    vd_clear_screen();
+    vd_set_cursor(0, 0);
     ((entry_point)user_code_module_address)();
     haltcpu();
     return 0;
