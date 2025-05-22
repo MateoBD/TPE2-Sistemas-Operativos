@@ -5,6 +5,7 @@
 #include <video-driver.h>
 #include <idtLoader.h>
 #include <keyboard-driver.h>
+#include <heap.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -83,10 +84,11 @@ void *initialize_kernel_binary()
 
 extern void haltcpu(void);
 
-int main() {    
+int main() {
     load_idt();
     vd_clear_screen();
     vd_set_cursor(0, 0);
+    memory_manager=memory_manager_init((MemoryManagerADT)&end_of_kernel,(void*) MEMORY_START);
     ((entry_point)user_code_module_address)();
     haltcpu();
     return 0;

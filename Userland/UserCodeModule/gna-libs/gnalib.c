@@ -3,6 +3,7 @@
 #include <libasm.h>
 #include <stdint.h>
 
+
 uint64_t get_ticks()
 {
     uint64_t ticks = 0;
@@ -83,9 +84,9 @@ int itoa(uint64_t value, char *buffer, int base, int n)
     return i;
 }
 
-void sleep(uint32_t seconds)
+void sleep(uint64_t ticks)
 {
-    // syscall
+    sys_call(SYS_SLEEP, ticks, 0, 0, 0, 0, 0);
     return;
 }
 
@@ -100,4 +101,24 @@ uint32_t rand()
 {
     random_next = (random_next * 1103515245 + 12345) % RAND_MAX;
     return random_next;
+}
+
+void * my_malloc(uint64_t size)
+{
+    return (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+}
+
+void my_free(void *address)
+{
+    sys_call(SYS_MUNMAP, (uint64_t)address, 0, 0, 0, 0, 0);
+}
+
+void * memset(void * destiation, int32_t c, uint64_t length) {
+	uint8_t chr = (uint8_t)c;
+	char * dst = (char*)destiation;
+
+	while(length--)
+		dst[length] = chr;
+
+	return destiation;
 }
