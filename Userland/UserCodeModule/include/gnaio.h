@@ -68,4 +68,6 @@ void set_color(uint8_t fg_color, uint8_t bg_color);
 
 void clean_screen(void);
 
+void print_memory_state();
+
 #endif

@@ -9,6 +9,21 @@
 #define BUFFER_SIZE 5120
 static char output_buffer[BUFFER_SIZE];
 
+// Helper function to calculate the number of digits in a number
+static int calc_amount_of_digits(int num, int base)
+{
+    int count = 0;
+    if (num < 0)
+        num = -num;
+
+    while (num > 0)
+    {
+        num /= base;
+        count++;
+    }
+    return count;
+}
+
 // Helper function to process format string
 static int process_format(char *buf, uint32_t *out_size, uint32_t size, const char *format, va_list args)
 {
@@ -33,7 +48,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
     uint32_t count = 0;
     uint32_t i = 0;
     char c;
-    char temp[64];
+    char temp[128];
 
     while ((c = format[i++]) != 0 && (size == 0 || count < size - 1))
     {
@@ -50,8 +65,18 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
             {
             case 'd':
             {
+                int is_negative = 0;
                 int num = va_arg(args, int);
-                int len = itoa(num, temp, 10, 0);
+                if (num < 0)
+                {
+                    is_negative = 1;
+                    if (buf)
+                        buf[count] = '-';
+                    count++;
+                    num = -num;
+                }
+                int amount_of_digits = calc_amount_of_digits(num,10);
+                int len = itoa(num, temp, 10, ((amount_of_digits+is_negative)<=64) ? amount_of_digits : 64);
                 for (int j = 0; j < len && (size == 0 || count < size - 1); j++)
                 {
                     if (buf)
@@ -63,7 +88,19 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
             case 'x':
             {
                 int num = va_arg(args, int);
-                int len = itoa(num, temp, 16, 0);
+                int is_negative = 0;
+                if (num < 0)
+                {
+                    if (buf)
+                        buf[count] = '-';
+                    count++;
+                    num = -num;
+                    is_negative = 1;
+                }
+                buf[count++] = '0';
+                buf[count++] = 'x';
+                int amount_of_digits = calc_amount_of_digits(num,10);
+                int len = itoa(num, temp, 16, ((amount_of_digits+is_negative+2)<=128) ? amount_of_digits : 64);
                 for (int j = 0; j < len && (size == 0 || count < size - 1); j++)
                 {
                     if (buf)
@@ -238,7 +275,7 @@ int set_cursor(uint8_t x, uint8_t y)
 
 void set_color(uint8_t fg_color, uint8_t bg_color)
 {
-    sys_call(SYS_SET_COLOR, fg_color, bg_color, 0, 0, 0, 0);
+    sys_call(SYS_SET_COLOR, bg_color*16+fg_color, 0, 0, 0, 0, 0);
 }
 
 void clean_screen(void)
@@ -248,4 +285,13 @@ void clean_screen(void)
         output_buffer[i] = 0;
     nprintf(BUFFER_SIZE, output_buffer);
     set_cursor(0, 0);
+}
+
+void print_memory_state(){
+    HeapState state;
+    get_heap_state(&state);
+    printf("Memory manager: %s\n", state.mm_type);
+    printf("Total memory: %d\n", state.total_memory);
+    printf("Used memory:  %d\n", state.used_memory);
+    printf("Free memory:  %d\n", state.free_memory);
 }

@@ -1,6 +1,7 @@
 include ../Makefile.inc
 
 MODULE=0000-userCodeModule.bin
+ELF_MODULE=0000-userCodeModule.elf
 SOURCES=$(wildcard [^_]*.c) $(wildcard gna-libs/*.c)
 SOURCES_ASM=$(wildcard assembly/*.asm)
 OBJECTS=$(SOURCES:.c=.o)

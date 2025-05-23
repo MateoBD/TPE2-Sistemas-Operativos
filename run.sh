@@ -11,10 +11,11 @@ else
 fi
 
 if [[ "$1" == "gdb" ]]; then
-    GDB="-s -d int"
+    GDB="-s -S"
 else
     GDB=""
 fi
+
 
 # Run QEMU with appropriate audio driver
 qemu-system-x86_64 \

@@ -18,6 +18,14 @@ typedef struct {
     char sec;
 } time_t;
 
+typedef struct
+{
+    uint64_t total_memory;
+    uint64_t used_memory;
+    uint64_t free_memory;
+    char mm_type[6];
+} HeapState;
+
 uint64_t get_ticks();
 
 uint64_t time();
@@ -26,10 +34,20 @@ time_t get_time();
 
 int itoa(uint64_t value, char * buffer, int base, int n);
 
-void sleep(uint32_t seconds);
+void sleep(uint64_t ticks);
 
 void srand(uint32_t seed);
 
 uint32_t rand();
+
+void * memset(void * destiny, int32_t c, uint64_t length);
+
+void *my_malloc(uint64_t size);
+
+void *my_calloc(uint64_t size);
+
+void my_free(void *address);
+
+void get_heap_state(HeapState *state);
 
 #endif

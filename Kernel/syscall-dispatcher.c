@@ -42,6 +42,7 @@ enum enum_syscalls
     SYS_SHM_UNLINK,
     SYS_SHM_MAP,
     SYS_SHM_UNMAP,
+    SYS_MEM_INFO,
 };
 
 typedef uint64_t (*sys_call_t)(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9);
@@ -80,6 +81,7 @@ sys_call_t sys_call_arr[] =
     [SYS_SHM_UNLINK] = (sys_call_t) sys_shm_unlink,
     [SYS_SHM_MAP] = (sys_call_t) sys_shm_map,
     [SYS_SHM_UNMAP] = (sys_call_t) sys_shm_unmap,
+    [SYS_MEM_INFO]= (sys_call_t) sys_mem_info,
 };
 
 uint64_t syscall_dispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9) {

@@ -3,10 +3,11 @@
 #include <keyboard-driver.h>
 #include <pc-speaker-driver.h>
 #include <stdint.h>
+#include <heap.h>
+#include <time.h>
+#include <stddef.h>
 
 #define RED 0x0C
-
-#define NULL ((void *) 0)
 
 uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
@@ -68,13 +69,12 @@ uint64_t sys_set_color(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
 
 uint64_t sys_mmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return (uint64_t)memory_alloc(memory_manager,rdi);
 }
 
 uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    memory_free(memory_manager,(void *)rdi);
     return 0;
 }
 
@@ -146,7 +146,7 @@ uint64_t sys_sched_yield(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10,
 
 uint64_t sys_sleep(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    sleep((int)rdi);
     return 0;
 }
 
@@ -219,5 +219,12 @@ uint64_t sys_shm_map(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uin
 uint64_t sys_shm_unmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
     // Implementation of sys_write
+    return 0;
+}
+
+uint64_t sys_mem_info(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+{
+    
+    (memory_state_get(memory_manager,(HeapState *)rdi));
     return 0;
 }
