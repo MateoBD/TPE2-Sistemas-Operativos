@@ -221,3 +221,10 @@ uint64_t sys_shm_unmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
     // Implementation of sys_write
     return 0;
 }
+
+uint64_t sys_mem_info(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+{
+    
+    (memory_state_get(memory_manager,(HeapState *)rdi));
+    return 0;
+}

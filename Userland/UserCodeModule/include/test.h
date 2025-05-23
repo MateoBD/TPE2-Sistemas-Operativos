@@ -2,6 +2,6 @@
 #define TEST_H
 #include <stdint.h>
 
-int64_t test_mm(uint64_t max_mem);
+int64_t test_mm();
 
 #endif

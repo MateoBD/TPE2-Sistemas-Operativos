@@ -58,28 +58,29 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
   return 1;
 }
 
-int64_t test_mm(uint64_t max_mem) {
+int64_t test_mm() {
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
-  uint64_t max_memory=max_mem;
-  if ((max_memory) <= 0) {
-    set_color(red, black);
-    printf("ERROR in test_mm: max_memory must be a value greater than 0\n");
-    return -1;
-  }
 
-  while (1) {
+  HeapState state;
+  get_heap_state(&state);
+  state.free_memory=1;
 
+  while (1){
     rq = 0;
     total = 0;
-
     // Request as many blocks as we can
-    while (rq < MAX_BLOCKS && total < max_memory) {
-      mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
+    while (state.free_memory!=0) {
+      mm_rqs[rq].size = GetUniform(state.total_memory - total - 1) + 1;
       mm_rqs[rq].address = my_malloc(mm_rqs[rq].size);
-
       if (mm_rqs[rq].address) {
+        get_heap_state(&state);
+        set_color(magenta, black);
+        printf("allocating at least %d bytes at %x\n", mm_rqs[rq].size, mm_rqs[rq].address);
+        print_memory_state();
+        sleep(64);
+        clean_screen();
         total += mm_rqs[rq].size;
         rq++;
       }
@@ -102,9 +103,16 @@ int64_t test_mm(uint64_t max_mem) {
 
     // Free
     for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address)
+      if (mm_rqs[i].address){
+        get_heap_state(&state);
+        set_color(green, black);
+        printf("freeing at least %d bytes at %x\n", mm_rqs[i].size, mm_rqs[i].address);
+        print_memory_state();
+        sleep(64);
+        clean_screen();
         my_free(mm_rqs[i].address);
+      }
   }
-
+  
   return 0;
 }

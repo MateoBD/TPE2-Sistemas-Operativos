@@ -67,21 +67,35 @@ time_t get_time()
 
 int itoa(uint64_t value, char *buffer, int base, int n)
 {
-    int i = 0;
-    if (value == 0)
-    {
-        buffer[i++] = '0';
-        buffer[i] = '\0';
-        return i;
-    }
-    while (value > 0 && i < n)
-    {
-        int digit = value % base;
-        buffer[i++] = (digit < 10) ? '0' + digit : 'A' + digit - 10;
-        value /= base;
-    }
-    buffer[i] = '\0';
-    return i;
+    char *p = buffer;
+	char *p1, *p2;
+	uint32_t digits = 0;
+
+	//Calculate characters for each digit
+	do
+	{
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	}
+	while (value /= base);
+
+	// Terminate string in buffer.
+	*p = 0;
+
+	//Reverse string in buffer.
+	p1 = buffer;
+	p2 = p - 1;
+	while (p1 < p2)
+	{
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
 }
 
 void sleep(uint64_t ticks)
@@ -103,22 +117,36 @@ uint32_t rand()
     return random_next;
 }
 
+void * memset(void * destiation, int32_t c, uint64_t length) {
+    uint8_t chr = (uint8_t)c;
+    char * dst = (char*)destiation;
+
+    while(length--)
+        dst[length] = chr;
+
+    return destiation;
+}
+
 void * my_malloc(uint64_t size)
 {
     return (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+}
+
+void * my_calloc(uint64_t size)
+{
+    void *ptr = (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+    if (ptr != NULL)
+    {
+        memset(ptr, 0, size);
+    }
+    return ptr;
 }
 
 void my_free(void *address)
 {
     sys_call(SYS_MUNMAP, (uint64_t)address, 0, 0, 0, 0, 0);
 }
-
-void * memset(void * destiation, int32_t c, uint64_t length) {
-	uint8_t chr = (uint8_t)c;
-	char * dst = (char*)destiation;
-
-	while(length--)
-		dst[length] = chr;
-
-	return destiation;
+void get_heap_state(HeapState *state)
+{
+    sys_call(SYS_MEM_INFO, (uint64_t)state, 0, 0, 0, 0, 0);
 }

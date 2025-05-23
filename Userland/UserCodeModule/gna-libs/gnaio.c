@@ -48,7 +48,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
     uint32_t count = 0;
     uint32_t i = 0;
     char c;
-    char temp[64];
+    char temp[128];
 
     while ((c = format[i++]) != 0 && (size == 0 || count < size - 1))
     {
@@ -100,7 +100,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
                 buf[count++] = '0';
                 buf[count++] = 'x';
                 int amount_of_digits = calc_amount_of_digits(num,10);
-                int len = itoa(num, temp, 16, ((amount_of_digits+is_negative+2)<=64) ? amount_of_digits : 64);
+                int len = itoa(num, temp, 16, ((amount_of_digits+is_negative+2)<=128) ? amount_of_digits : 64);
                 for (int j = 0; j < len && (size == 0 || count < size - 1); j++)
                 {
                     if (buf)
@@ -285,4 +285,13 @@ void clean_screen(void)
         output_buffer[i] = 0;
     nprintf(BUFFER_SIZE, output_buffer);
     set_cursor(0, 0);
+}
+
+void print_memory_state(){
+    HeapState state;
+    get_heap_state(&state);
+    printf("Memory manager: %s\n", state.mm_type);
+    printf("Total memory: %d\n", state.total_memory);
+    printf("Used memory:  %d\n", state.used_memory);
+    printf("Free memory:  %d\n", state.free_memory);
 }

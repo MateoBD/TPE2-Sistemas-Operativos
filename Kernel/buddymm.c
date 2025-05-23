@@ -83,7 +83,6 @@ static block_t *merge(MemoryManagerADT const restrict self, block_t *block, bloc
 }
 
 MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void * const restrict managed_memory) {
-  vd_print("Buddy\n");
   MemoryManagerADT mm = (MemoryManagerADT)manager_memory;
   int current_size = 2;
   int level = 1;
@@ -94,6 +93,12 @@ MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void 
   mm->max_order = level;
   mm->info.total_memory = MEMORY_SIZE;
   mm->info.used_memory = 0;
+  char *type = "Buddy";
+  for (size_t i = 0; i < 6; i++)
+  {
+    mm->info.mm_type[i] = type[i];
+  }
+  
   for (int i = 0; i < MAX_ORDER; i++) {
     mm->free_blocks[i] = NULL;
   }
@@ -153,23 +158,18 @@ int memory_free(MemoryManagerADT const restrict self, void * const restrict ptrs
   block->status = FREE;
 
   uint64_t block_pos = (uint64_t)((void *)block - MEMORY_START);
-  block_t *buddy_block =
-      (block_t *)((uint64_t)MEMORY_START +
-                  (((uint64_t)block_pos) ^ ((1L << block->order))));
+  block_t *buddy_block = (block_t *)((uint64_t)MEMORY_START + (((uint64_t)block_pos) ^ ((1L << block->order))));
   if (buddy_block == NULL) {
     return -1;
   }
-  while (block && buddy_block && block->order < self->max_order &&
-         buddy_block->status == FREE && buddy_block->order == block->order) {
+  while (block && buddy_block && block->order < self->max_order && buddy_block->status == FREE && buddy_block->order == block->order) {
     block = merge(self, block, buddy_block);
     if (block == NULL) { // excessive checking to avoid PVS warning
       return -1;
     }
     block->status = FREE;
     block_pos = (uint64_t)((void *)block - ((uint64_t)MEMORY_START));
-    buddy_block =
-        (block_t *)(block_t *)((uint64_t)MEMORY_START + (((uint64_t)block_pos) ^
-                                                      ((1L << block->order))));
+    buddy_block = (block_t *)(block_t *)((uint64_t)MEMORY_START + (((uint64_t)block_pos) ^ ((1L << block->order))));
   }
 
   if (block == NULL) {
@@ -180,8 +180,7 @@ int memory_free(MemoryManagerADT const restrict self, void * const restrict ptrs
   return 0;
 }
 
-HeapState memory_state_get(MemoryManagerADT const restrict self) {
-  self->info.total_memory = self->info.total_memory;
+void memory_state_get(MemoryManagerADT const restrict self, HeapState * state) {
   self->info.free_memory = 0;
   for (uint64_t i = MIN_LEVEL; i < self->max_order; i++) {
     block_t *current_block = self->free_blocks[i];
@@ -190,7 +189,12 @@ HeapState memory_state_get(MemoryManagerADT const restrict self) {
       current_block = current_block->next;
     }
   }
-  self->info.used_memory = self->info.total_memory - self->info.free_memory;
-  return self->info;
+  state->total_memory = self->info.total_memory;
+  state->used_memory = self->info.total_memory - self->info.free_memory;
+  state->free_memory = self->info.free_memory;
+  for (size_t i = 0; i < 6; i++)
+  {
+    state->mm_type[i] = self->info.mm_type[i];
+  }
 }
 #endif

@@ -14,6 +14,7 @@ typedef struct
     uint64_t total_memory;
     uint64_t used_memory;
     uint64_t free_memory;
+    char mm_type[6];
 } HeapState;
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
@@ -21,7 +22,7 @@ typedef struct MemoryManagerCDT * MemoryManagerADT;
 MemoryManagerADT memory_manager_init (void * const restrict memory_manager, void * const restrict managed_memory);
 void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size);
 int memory_free(MemoryManagerADT const restrict self, void * const restrict ptrs);
-HeapState memory_state_get(MemoryManagerADT const restrict self);
+void memory_state_get(MemoryManagerADT const restrict self, HeapState * state);
 
 extern MemoryManagerADT memory_manager;
 #endif
