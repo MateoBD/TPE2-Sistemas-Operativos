@@ -1,10 +1,12 @@
 #include <scheduler.h>
 #include <pcb-queueADT.h>
 #include <stdint.h>
+#include <memory-manager.h>
 
 #define NULL ((void *)0)
 #define MAX_PROCESSES 1024
 #define PRIORITY_LEVELS 2
+#define STACK_SIZE 0x1000 // 4KB stack size
 
 // Estados de proceso
 typedef enum
@@ -18,10 +20,10 @@ typedef enum
 // PCB - Process Control Block
 typedef struct process_control_block
 {
-    uint32_t pid;          // Identificador de proceso
-    ProcessState state;    // Estado del proceso
-    uint8_t priority;     // Prioridad (HIGH/LOW)
-    void *stack;           // Puntero a la pila
+    uint32_t pid;
+    ProcessState state;
+    uint8_t priority;   
+    void *stack;
 } PCB;
 
 // Variables globales del scheduler
@@ -29,14 +31,16 @@ static PCB process_table[MAX_PROCESSES];
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
 static PCB *current_process = NULL;
 static uint32_t next_pid = 1;      
-static uint32_t process_count = 1;       
+static uint32_t process_count = 1;     
+static int inicialized = 0;  
 
+extern MemoryManagerADT memory_manager;
 
 extern void _switch_context(uint64_t *currentRSP, uint64_t nextRSP);
 extern void set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
-extern void _hlt(); // Proceso idle
+extern void idle_process(); // Proceso idle
 
-// Inicializa el scheduler
+
 int init_scheduler()
 {
     for (uint8_t i = 0; i < PRIORITY_LEVELS; i++)
@@ -53,7 +57,9 @@ int init_scheduler()
         process_table[i].state = TERMINATED;
     }
 
-    create_process(_hlt, 0, 0, NULL); // Proceso idle
+    create_process(idle_process, 0, 0, NULL); // Proceso idle
+
+    inicialized = 1;
 
     return 0;
 }
@@ -86,7 +92,9 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     process->state = READY;
     process->priority = priority;
 
-    process->stack = (void *)/* malloc(STACK_SIZE) */ NULL;
+
+
+    process->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
 
     set_process_stack(argc, argv, process->stack, entry_point);
 
@@ -97,6 +105,10 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 
 void * scheduler(void * current_stack)
 {
+    if (!inicialized)
+    {
+        return current_stack;
+    }
     PCB * next = NULL;
 
     if (current_stack == NULL || current_process == NULL)
@@ -171,3 +183,5 @@ int change_priority(uint32_t pid, uint8_t new_priority)
 
     return -1; // Proceso no encontrado
 }
+
+

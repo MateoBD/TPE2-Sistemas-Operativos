@@ -11,7 +11,7 @@ else
 fi
 
 if [[ "$1" == "gdb" ]]; then
-    GDB="-s -d int"
+    GDB="-s -S"
 else
     GDB=""
 fi

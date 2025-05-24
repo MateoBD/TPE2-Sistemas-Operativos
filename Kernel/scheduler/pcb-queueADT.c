@@ -1,8 +1,11 @@
 #include <pcb-queueADT.h>
 #include <stdint.h>
+#include <memory-manager.h>
 
 #define NULL ((void *)0)
 #define MAX_PROCESSES 512
+
+extern MemoryManagerADT memory_manager;
 
 typedef struct PCBQueueCDT 
 {
@@ -14,7 +17,7 @@ typedef struct PCBQueueCDT
 
 PCBQueueADT new_PCBQueueADT()
 {
-    PCBQueueADT toReturn = (PCBQueueADT) /* malloc(sizeof(PCBQueueCDT)) */ NULL;
+    PCBQueueADT toReturn = (PCBQueueADT) alloc_memory(memory_manager, sizeof(*toReturn));
     if (toReturn != NULL) {
         toReturn->head = 0;
         toReturn->tail = 0;

@@ -1,3 +1,5 @@
+#define __KERNEL_C__
+
 #include <stdint.h>
 #include <string.h>
 #include <lib.h>
@@ -6,6 +8,7 @@
 #include <idtLoader.h>
 #include <keyboard-driver.h>
 #include <scheduler.h>
+#include <memory-manager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -18,8 +21,13 @@ static const uint64_t page_size = 0x1000;
 
 static void * const user_code_module_address = (void*)0x400000;
 static void * const user_data_module_address = (void*)0x500000;
+static void * const system_memory_adress = (void*)0x600000;
 
 typedef int (*entry_point)();
+
+MemoryManagerADT memory_manager;
+
+MemoryManagerADT memory_manager;
 
 void clear_bss(void *bss_address, uint64_t bss_size)
 {
@@ -37,61 +45,78 @@ void *get_stack_base()
 
 void *initialize_kernel_binary()
 {
-    char buffer[10];
+    // char buffer[10];
 
-    vd_print("[x64BareBones]");
-    vd_draw_char('\n');
+    // vd_print("[x64BareBones]");
+    // vd_draw_char('\n');
 
-    vd_print("CPU Vendor:");
-    vd_print(cpu_vendor(buffer));
-    vd_draw_char('\n');
+    // vd_print("CPU Vendor:");
+    // vd_print(cpu_vendor(buffer));
+    // vd_draw_char('\n');
 
-    vd_print("[Loading modules]");
-    vd_draw_char('\n');
+    // vd_print("[Loading modules]");
+    // vd_draw_char('\n');
     void *module_addresses[] = {
         user_code_module_address,
         user_data_module_address
     };
 
     load_modules(&end_of_kernel_binary, module_addresses);
-    vd_print("[Done]");
-    vd_draw_char('\n');
-    vd_draw_char('\n');
 
-    vd_print("[Initializing kernel's binary]");
-    vd_draw_char('\n');
+    // vd_print("[Done]");
+    // vd_draw_char('\n');
+    // vd_draw_char('\n');
+
+    // vd_print("[Initializing kernel's binary]");
+    // vd_draw_char('\n');
 
     clear_bss(&bss, &end_of_kernel - &bss);
 
-    vd_print("  text: 0x");
-    vd_print_hex((uint64_t)&text);
-    vd_draw_char('\n');
-    vd_print("  rodata: 0x");
-    vd_print_hex((uint64_t)&rodata);
-    vd_draw_char('\n');
-    vd_print("  data: 0x");
-    vd_print_hex((uint64_t)&data);
-    vd_draw_char('\n');
-    vd_print("  bss: 0x");
-    vd_print_hex((uint64_t)&bss);
-    vd_draw_char('\n');
+    // vd_print("  text: 0x");
+    // vd_print_hex((uint64_t)&text);
+    // vd_draw_char('\n');
+    // vd_print("  rodata: 0x");
+    // vd_print_hex((uint64_t)&rodata);
+    // vd_draw_char('\n');
+    // vd_print("  data: 0x");
+    // vd_print_hex((uint64_t)&data);
+    // vd_draw_char('\n');
+    // vd_print("  bss: 0x");
+    // vd_print_hex((uint64_t)&bss);
+    // vd_draw_char('\n');
 
-    vd_print("[Done]");
-    vd_draw_char('\n');
-    vd_draw_char('\n');
+    // vd_print("[Done]");
+    // vd_draw_char('\n');
+    // vd_draw_char('\n');
+
     return get_stack_base();
 }
 
 extern void haltcpu(void);
 
-int main() {    
+int main()
+{    
+
     load_idt();
 
-    // Iniciar el memory manager
+    memory_manager = new_memory_managerADT(
+        (void *) &end_of_kernel,
+        system_memory_adress
+    );
 
     init_scheduler();
 
-    ((entry_point)user_code_module_address)();
-    haltcpu();
+    create_process(
+        (void *) user_code_module_address,
+        0,
+        0,
+        NULL
+    );
+
+    while (1)
+    {
+        ;
+    }
+
     return 0;
 }

@@ -1,5 +1,6 @@
 
 GLOBAL set_process_stack
+GLOBAL idle_process
 
 %macro push_registers 0
 	push rax
@@ -68,6 +69,9 @@ exit:
     mov rax, 0x0C ; syscall exit
     int 0x80 ; syscall
 
+idle_process:
+    _hlt
+    jmp idle_process
 
 .bss
     aux:

@@ -12,7 +12,10 @@ typedef struct
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-MemoryManagerADT memory_manager;
+#ifndef __KERNEL_C__
+extern MemoryManagerADT memory_manager;
+#endif
+
 
 MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, void * const restrict managed_memory);
 
