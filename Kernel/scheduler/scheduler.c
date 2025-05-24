@@ -2,8 +2,8 @@
 #include <pcb-queueADT.h>
 #include <stdint.h>
 #include <memory-manager.h>
+#include <stddef.h>
 
-#define NULL ((void *)0)
 #define MAX_PROCESSES 1024
 #define PRIORITY_LEVELS 2
 #define STACK_SIZE 0x1000 // 4KB stack size
@@ -183,5 +183,3 @@ int change_priority(uint32_t pid, uint8_t new_priority)
 
     return -1; // Proceso no encontrado
 }
-
-

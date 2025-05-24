@@ -1,8 +1,8 @@
 #include <pcb-queueADT.h>
 #include <stdint.h>
 #include <memory-manager.h>
+#include <stddef.h>
 
-#define NULL ((void *)0)
 #define MAX_PROCESSES 512
 
 extern MemoryManagerADT memory_manager;
