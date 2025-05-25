@@ -68,11 +68,11 @@ int init_scheduler()
 // Crea un nuevo proceso
 int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 {
-/*     if (process_count >= MAX_PROCESSES)
+    process_count++;
+    if (process_count >= MAX_PROCESSES)
     {
         return -1;
-    } */
-    //process_count++;
+    }
     int index = -1;
 
     for (int i = 1; i < MAX_PROCESSES; i++)
@@ -96,7 +96,7 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 
     process->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
 
-    set_process_stack(argc, argv, process->stack, entry_point);
+    set_process_stack(argc, argv, process->stack+STACK_SIZE, entry_point);
 
     enqueue_process(process_queues[priority], process);
 
