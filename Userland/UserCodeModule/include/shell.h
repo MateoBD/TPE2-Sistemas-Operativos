@@ -12,8 +12,6 @@
  * for the user to interact with the system. It handles user input, executes
  * commands, and displays output.
  */
-void shell();
-
-
+void shell(int argc, char **argv);
 
 #endif

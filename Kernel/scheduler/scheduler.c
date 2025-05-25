@@ -116,7 +116,7 @@ void * scheduler(void * current_stack)
         return process_table[0].stack; // Retornar el idle process si no se estan ejecutando procesos
     }
 
-    current_process->stack = current_stack;
+    //current_process->stack = current_stack;
     current_process->state = READY;
     enqueue_process(process_queues[current_process->priority], current_process);
 

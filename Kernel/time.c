@@ -24,9 +24,9 @@ unsigned long get_ticks()
     return ticks;
 }
 
-void sleep(int ticks_to_wait)
+void sleep(uint64_t ticks_to_wait)
 {
-    unsigned long start = ticks;
+    uint64_t start = ticks;
     while (ticks - start < ticks_to_wait)
     {
         _hlt();

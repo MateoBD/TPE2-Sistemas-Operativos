@@ -1,4 +1,3 @@
-
 GLOBAL set_process_stack
 GLOBAL idle_process
 

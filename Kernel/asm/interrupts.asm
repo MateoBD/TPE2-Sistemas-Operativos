@@ -212,6 +212,9 @@ pic_slave_mask:
 _irq00Handler:
 	push_state
 
+    mov rdi, 0
+	call irq_dispatcher
+
     mov rdi, rsp
     call scheduler
     mov rsp, rax

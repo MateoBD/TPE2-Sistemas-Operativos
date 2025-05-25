@@ -26,10 +26,12 @@ time_t get_time();
 
 int itoa(uint64_t value, char * buffer, int base, int n);
 
-void sleep(uint32_t seconds);
+void sleep(uint64_t ticks);
 
 void srand(uint32_t seed);
 
 uint32_t rand();
+
+uint64_t create_process(void * function, int argc, char **argv);
 
 #endif

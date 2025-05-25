@@ -83,10 +83,9 @@ int itoa(uint64_t value, char *buffer, int base, int n)
     return i;
 }
 
-void sleep(uint32_t seconds)
+void sleep(uint64_t ticks)
 {
-    // syscall
-    return;
+    sys_call(SYS_SLEEP, ticks, 0, 0, 0, 0, 0);
 }
 
 static uint32_t random_next = 1;
@@ -100,4 +99,10 @@ uint32_t rand()
 {
     random_next = (random_next * 1103515245 + 12345) % RAND_MAX;
     return random_next;
+}
+
+uint64_t create_process(void * function, int argc, char **argv)
+{
+    sys_call((uint64_t)SYS_CREATE, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
+    return 0;
 }

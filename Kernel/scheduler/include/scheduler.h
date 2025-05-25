@@ -46,4 +46,10 @@ uint8_t get_current_priority();
  */
 int change_priority(uint32_t pid, uint8_t newPriority);
 
+/**
+ * @brief Determina a qué proceso se le asigna el CPU
+ * @param current_stack Puntero al stack del proceso actual
+ */
+void * scheduler(void * current_stack);
+
 #endif /* SCHEDULER_H */
