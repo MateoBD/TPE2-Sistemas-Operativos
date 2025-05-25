@@ -51,23 +51,22 @@ GLOBAL idle_process
 ;===========================================================
 set_process_stack:
     mov [aux], rsp
+    mov rsp, rdx ; Set the stack pointer to the new stack
     push rbp
     mov rbp, rsp ; Save the base pointer
-    mov rsp, rdx ; Set the stack pointer to the new stack
 
     ;set_stack_frame
 
     set_inicial_stack
-    mov [rbp+0x8], rsp ; Save the stack pointer in the base pointer frame
+    mov [rbp+0x18], rsp ; Save the stack pointer in the base pointer frame
 
-    ;mov al,20h
-    ;out 0x20, al ; Send EOI to PIC 
+    mov al,20h
+    out 0x20, al ; Send EOI to PIC 
 
     ; No se si llamar a scheduler 
     ;int 0x20
 
     mov rsp, [aux]
-    leave
     ret
 
 exit:
