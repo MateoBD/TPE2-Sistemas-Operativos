@@ -1,2 +1,2 @@
 ./compile.sh
-./run.sh
+./run.sh $1

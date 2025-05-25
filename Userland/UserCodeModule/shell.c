@@ -30,7 +30,7 @@ void shell(int argc, char **argv) {
     } 
     
     while (1) {
-/*         printf("GNA> ");
+/*      printf("GNA> ");
         char command[256];
         int len = get_string(command, sizeof(command));
         if (len > 0) {

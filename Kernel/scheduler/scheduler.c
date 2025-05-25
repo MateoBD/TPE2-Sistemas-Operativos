@@ -29,7 +29,7 @@ typedef struct process_control_block
 // Variables globales del scheduler
 static PCB process_table[MAX_PROCESSES]; 
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
-static PCB *current_process = NULL;
+static PCB *current_process = &process_table[0]; // Proceso idle
 static uint32_t next_pid = 1;      
 static uint32_t process_count = 1;     
 static int inicialized = 0;  
@@ -73,7 +73,7 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     }
 
     int index = -1;
-    for (int i = 0; i < MAX_PROCESSES; i++)
+    for (int i = 1; i < MAX_PROCESSES; i++)
     {
         if (process_table[i].pid == 0)
         {
@@ -92,8 +92,6 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     process->state = READY;
     process->priority = priority;
 
-
-
     process->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
 
     set_process_stack(argc, argv, process->stack, entry_point);
@@ -109,7 +107,6 @@ void * scheduler(void * current_stack)
     {
         return current_stack;
     }
-    PCB * next = NULL;
 
     if (current_stack == NULL || current_process == NULL)
     {
@@ -127,7 +124,7 @@ void * scheduler(void * current_stack)
 
     current_process = (PCB *) dequeue_process(process_queues[p]);
 
-    if (next == NULL)
+    if (current_process == NULL)
     {
         return process_table[0].stack; // Retornar el idle process si no hay ninguno en la cola
     }

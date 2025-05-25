@@ -16,6 +16,9 @@ break main
 break _start
 break scheduler
 break printf
+break create_process
+break test_function
+break syscall
 
 # Mensaje informativo
 echo \nGDB configurado correctamente para depuración.\n
