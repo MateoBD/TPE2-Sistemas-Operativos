@@ -106,12 +106,7 @@ int main()
 
     init_scheduler();
 
-    create_process(
-        (void *) user_code_module_address,
-        0,
-        0,
-        NULL
-    );
+    create_process((void *) user_code_module_address, 0, 0, NULL);
 
     while (1)
     {

@@ -66,21 +66,35 @@ time_t get_time()
 
 int itoa(uint64_t value, char *buffer, int base, int n)
 {
-    int i = 0;
-    if (value == 0)
-    {
-        buffer[i++] = '0';
-        buffer[i] = '\0';
-        return i;
-    }
-    while (value > 0 && i < n)
-    {
-        int digit = value % base;
-        buffer[i++] = (digit < 10) ? '0' + digit : 'A' + digit - 10;
-        value /= base;
-    }
-    buffer[i] = '\0';
-    return i;
+    char *p = buffer;
+	char *p1, *p2;
+	uint32_t digits = 0;
+
+	//Calculate characters for each digit
+	do
+	{
+		uint32_t remainder = value % base;
+		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		digits++;
+	}
+	while (value /= base);
+
+	// Terminate string in buffer.
+	*p = 0;
+
+	//Reverse string in buffer.
+	p1 = buffer;
+	p2 = p - 1;
+	while (p1 < p2)
+	{
+		char tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+		p1++;
+		p2--;
+	}
+
+	return digits;
 }
 
 void sleep(uint64_t ticks)

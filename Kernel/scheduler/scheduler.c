@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <memory-manager.h>
 #include <stddef.h>
+#include <video-driver.h>
 
 #define MAX_PROCESSES 1024
 #define PRIORITY_LEVELS 2
@@ -31,7 +32,7 @@ static PCB process_table[MAX_PROCESSES];
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
 static PCB *current_process = &process_table[0]; // Proceso idle
 static uint32_t next_pid = 1;      
-static uint32_t process_count = 1;     
+static uint32_t process_count = 0;     
 static int inicialized = 0;  
 
 extern MemoryManagerADT memory_manager;
@@ -67,12 +68,13 @@ int init_scheduler()
 // Crea un nuevo proceso
 int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 {
-    if (process_count >= MAX_PROCESSES)
+/*     if (process_count >= MAX_PROCESSES)
     {
         return -1;
-    }
-
+    } */
+    //process_count++;
     int index = -1;
+
     for (int i = 1; i < MAX_PROCESSES; i++)
     {
         if (process_table[i].pid == 0)
@@ -116,8 +118,6 @@ void * scheduler(void * current_stack)
     //current_process->stack = current_stack;
     current_process->state = READY;
     enqueue_process(process_queues[current_process->priority], current_process);
-
-
 
     current_process = NULL;
     uint8_t p = 0; // [TO-DO] Randomizar la prioridad

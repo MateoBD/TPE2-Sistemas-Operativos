@@ -20,7 +20,6 @@ void shell(int argc, char **argv) {
     printf("Welcome to GNA Shell!\n");
     printf("Initializing a new shell process...\n");
     sleep(16);
-
     //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
     uint64_t pid = create_process((void *)test_function, argc, argv);
     if (pid == -1) {

@@ -27,20 +27,19 @@ GLOBAL idle_process
     push 0x00 ; SS
     push 0x00 ; RSP
     push 0x202 ; RFLAGS
-    push 0x00 ; CS
+    push 0x08 ; CS
     push rcx ; RIP
-
     push_registers
 
 %endmacro
 
-%macro set_stack_frame 0
-    
-    lea rax, [rel exit]
-    push rax
-    mov rbp, rsp
-
-%endmacro
+;%macro set_stack_frame 0
+;    
+    ;lea rax, [rel exit]
+    ;push rax
+    ;mov rbp, rsp
+;
+;%endmacro
 
 ;===========================================================
 ; start:
@@ -52,16 +51,23 @@ GLOBAL idle_process
 ;===========================================================
 set_process_stack:
     mov [aux], rsp
-    mov rsp, rdx
+    push rbp
+    mov rbp, rsp ; Save the base pointer
+    mov rsp, rdx ; Set the stack pointer to the new stack
 
-    set_stack_frame
+    ;set_stack_frame
 
     set_inicial_stack
+    mov [rbp+0x8], rsp ; Save the stack pointer in the base pointer frame
+
+    ;mov al,20h
+    ;out 0x20, al ; Send EOI to PIC 
 
     ; No se si llamar a scheduler 
-    ; int 0x20
+    ;int 0x20
 
     mov rsp, [aux]
+    leave
     ret
 
 exit:

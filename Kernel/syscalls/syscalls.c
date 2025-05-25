@@ -105,7 +105,13 @@ uint64_t sys_create_process(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t
 
 uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    vd_print("[GNA] Process exited");
+    vd_draw_char('\n');
+    while (1)
+    {
+        ;
+    }
+    
     return 0;
 }
 
