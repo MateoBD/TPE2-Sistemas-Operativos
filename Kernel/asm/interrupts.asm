@@ -102,8 +102,10 @@ SECTION .text
 %endmacro
 
 %macro signal_eoi 0
+    push rax
     mov al, 20h
     out 20h, al
+    pop rax
 %endmacro
 
 %macro irq_handler_master 1
@@ -222,6 +224,7 @@ _irq00Handler:
 	signal_eoi
 
 	pop_state
+
     iretq
 
 ;Keyboard
@@ -275,7 +278,10 @@ _int80Handler:
 
     call syscall_dispatcher
 
+    signal_eoi
+
     pop_state_no_rax
+
 
     mov rsp, rbp
     pop rbp

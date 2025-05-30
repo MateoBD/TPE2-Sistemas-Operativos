@@ -10,7 +10,7 @@
 #define STACK_SIZE 0x1000 // 4KB stack size
 
 // Estados de proceso
-typedef enum
+typedef enum ProcessState
 {
     READY,
     RUNNING,
@@ -30,20 +30,25 @@ typedef struct process_control_block
 // Variables globales del scheduler
 static PCB process_table[MAX_PROCESSES]; 
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
+static PCBQueueADT terminated_processes_queue;
 static PCB *current_process = &process_table[0]; // Proceso idle
 static uint32_t next_pid = 1;      
-static uint32_t process_count = 0;     
+static uint32_t process_count = 1;     
 static int inicialized = 0;  
 
 extern MemoryManagerADT memory_manager;
 
 extern void _switch_context(uint64_t *currentRSP, uint64_t nextRSP);
-extern void set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
+extern void * set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
 extern void idle_process(); // Proceso idle
 
 
 int init_scheduler()
 {
+    if (inicialized)
+    {
+        return 0;
+    }
     for (uint8_t i = 0; i < PRIORITY_LEVELS; i++)
     {
         process_queues[i] = new_PCBQueueADT();
@@ -52,15 +57,27 @@ int init_scheduler()
             return -1;
         }
     }
+
+    terminated_processes_queue = new_PCBQueueADT();
     
     for (int i = 0; i < MAX_PROCESSES; i++)
     {
         process_table[i].state = TERMINATED;
     }
 
-    create_process(idle_process, 0, 0, NULL); // Proceso idle
-
     inicialized = 1;
+
+    PCB * idle_process_pcb = &process_table[0];
+    idle_process_pcb->pid = 0;
+    idle_process_pcb->state = READY;
+    idle_process_pcb->priority = 0;
+    idle_process_pcb->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
+    if (idle_process_pcb->stack == NULL)
+    {
+        return -1; // Error al asignar memoria para el proceso idle
+    }
+
+    idle_process_pcb->stack = set_process_stack(0, NULL, idle_process_pcb->stack + STACK_SIZE - 0x08, idle_process);
 
     return 0;
 }
@@ -68,16 +85,16 @@ int init_scheduler()
 // Crea un nuevo proceso
 int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 {
-/*     if (process_count >= MAX_PROCESSES)
+    if (process_count >= MAX_PROCESSES)
     {
         return -1;
-    } */
-    //process_count++;
+    } 
+
     int index = -1;
 
     for (int i = 1; i < MAX_PROCESSES; i++)
     {
-        if (process_table[i].pid == 0)
+        if (process_table[i].state == TERMINATED)
         {
             index = i;
             break;
@@ -93,14 +110,38 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     process->pid = next_pid++;
     process->state = READY;
     process->priority = priority;
+    process_count++;
 
     process->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
 
-    set_process_stack(argc, argv, process->stack, entry_point);
+    if (process->stack == NULL)
+    {
+        return -1;
+    }
+
+    process->stack = set_process_stack(argc, argv, process->stack + STACK_SIZE - 0x08, entry_point);
 
     enqueue_process(process_queues[priority], process);
 
     return process->pid;
+}
+
+static void free_terminated_processes(void)
+{
+    PCB * terminated_process = NULL;
+
+    while ((terminated_process = (PCB *) dequeue_process(terminated_processes_queue)) != NULL)
+    {
+        terminated_process->state = TERMINATED;
+        terminated_process->pid = 0;
+        process_count--;
+        // Liberar la memoria del stack del proceso terminado
+        if (terminated_process->stack != NULL)
+        {
+            free_memory(memory_manager, terminated_process->stack);
+            terminated_process->stack = NULL;
+        }
+    }
 }
 
 void * scheduler(void * current_stack)
@@ -115,9 +156,16 @@ void * scheduler(void * current_stack)
         return process_table[0].stack; // Retornar el idle process si no se estan ejecutando procesos
     }
 
-    //current_process->stack = current_stack;
+    free_terminated_processes();
+
+    current_process->stack = current_stack;
+
     current_process->state = READY;
-    enqueue_process(process_queues[current_process->priority], current_process);
+
+    if (current_process->pid != 0) // No enqueue el idle process
+    {
+        enqueue_process(process_queues[current_process->priority], current_process);
+    }
 
     current_process = NULL;
     uint8_t p = 0; // [TO-DO] Randomizar la prioridad
@@ -138,6 +186,8 @@ int kill_process(uint32_t pid)
     {
         if (process_table[i].pid == pid)
         {
+            process_table[i].state = TERMINATED;
+
             process_table[i].pid = 0; // Marcar como libre
             process_count--;
             return 0;
@@ -155,28 +205,4 @@ uint32_t get_current_pid()
         return 0;
     }
     return current_process->pid;
-}
-
-// Obtiene la prioridad del proceso actual
-uint8_t get_current_priority()
-{
-    if (current_process == NULL){
-        return 0;
-    }
-    return current_process->priority;
-}
-
-// Cambia la prioridad de un proceso
-int change_priority(uint32_t pid, uint8_t new_priority)
-{
-    for (int i = 0; i < MAX_PROCESSES; i++)
-    {
-        if (process_table[i].pid == pid)
-        {
-            process_table[i].priority = new_priority;
-            return 0;
-        }
-    }
-
-    return -1; // Proceso no encontrado
 }

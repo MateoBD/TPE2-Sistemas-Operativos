@@ -109,7 +109,7 @@ void srand(uint32_t seed)
     random_next = seed;
 }
 
-uint32_t rand()
+uint32_t rand(void)
 {
     random_next = (random_next * 1103515245 + 12345) % RAND_MAX;
     return random_next;
@@ -117,6 +117,15 @@ uint32_t rand()
 
 uint64_t create_process(void * function, int argc, char **argv)
 {
-    sys_call((uint64_t)SYS_CREATE, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
-    return 0;
+    return sys_call((uint64_t)SYS_CREATE, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
+}
+
+uint32_t get_pid(void)
+{
+    return sys_call(SYS_GETPID, 0, 0, 0, 0, 0, 0);
+}
+
+void exit(int status)
+{
+    sys_call(SYS_EXIT, status, 0, 0, 0, 0, 0);
 }

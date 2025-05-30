@@ -98,20 +98,15 @@ uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, ui
 uint64_t sys_create_process(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r10, uint64_t r8, uint64_t r9)
 {
     // Create a new process with the given entry point and arguments
-    int pid = create_process((void *) rip, 0, (int) argc, (char **) argv);
-
-    return pid;
+    return create_process((void *) rip, 0, (int) argc, (char **) argv);
 }
 
 uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    vd_print("[GNA] Process exited");
+    vd_print("Exiting process with PID: ");
+    vd_print_dec(get_current_pid());
     vd_draw_char('\n');
-    while (1)
-    {
-        ;
-    }
-    
+    kill_process(get_current_pid());
     return 0;
 }
 
@@ -123,8 +118,7 @@ uint64_t sys_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
 uint64_t sys_getpid(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return get_current_pid();
 }
 
 uint64_t sys_kill(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)

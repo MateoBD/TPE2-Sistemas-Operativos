@@ -12,12 +12,23 @@ add-symbol-file /root/Kernel/kernel.elf 0x100000
 add-symbol-file /root/Userland/0000-userCodeModule.elf 0x400000
 
 # Breakpoints comunes (opcional)
-break main
-break _start
-break scheduler
-break printf
-break create_process
-break test_function
+b main
+b _start
+b _irq00Handler
+b scheduler
+b interrupts.asm:225
+b test_function
+b create_process
+b shell.c:56
+b shell.c:32
+b shell.c:15
+b exit
+b kill_process
+
+# Configuración de vista múltiple
+layout split     # Muestra código fuente y ensamblador
+layout src      # Añade los registros
+layout regs
 
 # Mensaje informativo
 echo \nGDB configurado correctamente para depuración.\n

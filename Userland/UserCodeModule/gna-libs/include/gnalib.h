@@ -34,4 +34,8 @@ uint32_t rand();
 
 uint64_t create_process(void * function, int argc, char **argv);
 
+uint32_t get_pid(void);
+
+void exit(int status);
+
 #endif

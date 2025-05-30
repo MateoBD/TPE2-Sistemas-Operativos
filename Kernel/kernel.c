@@ -9,6 +9,7 @@
 #include <keyboard-driver.h>
 #include <scheduler.h>
 #include <memory-manager.h>
+#include <interrupts.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -96,22 +97,24 @@ extern void haltcpu(void);
 
 int main()
 {    
+
     vd_clear_screen();
-    load_idt();
 
     memory_manager = new_memory_managerADT(
         (void *) &end_of_kernel,
         system_memory_adress
     );
 
-    init_scheduler();
+    if (init_scheduler() == -1)
+    {
+        vd_print("Error initializing scheduler");
+        vd_draw_char('\n');
+        return 1;
+    }
 
     create_process((void *) user_code_module_address, 0, 0, NULL);
 
-    while (1)
-    {
-        ;
-    }
+    load_idt();
 
     return 0;
 }

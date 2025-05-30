@@ -3,7 +3,7 @@
 #include <memory-manager.h>
 #include <stddef.h>
 
-#define MAX_PROCESSES 512
+#define MAX_PROCESSES 1024
 
 extern MemoryManagerADT memory_manager;
 
@@ -13,12 +13,13 @@ typedef struct PCBQueueCDT
     uint32_t head;
     uint32_t tail;
     uint8_t size;
-} PCBQueueCDT, *PCBQueueADT;
+} PCBQueueCDT;
 
 PCBQueueADT new_PCBQueueADT()
 {
     PCBQueueADT toReturn = (PCBQueueADT) alloc_memory(memory_manager, sizeof(*toReturn));
-    if (toReturn != NULL) {
+    if (toReturn != NULL) 
+    {
         toReturn->head = 0;
         toReturn->tail = 0;
         toReturn->size = 0;

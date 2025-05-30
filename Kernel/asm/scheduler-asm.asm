@@ -2,14 +2,14 @@ GLOBAL set_process_stack
 GLOBAL idle_process
 
 %macro push_registers 0
-	push rax
+	push 0x00
 	push rbx
 	push rcx
 	push rdx
 	push rbp
 	push rdi ; RDI -> argc
 	push rsi ; RSI -> argv
-	push r8
+	push 0x00
 	push r9
 	push r10
 	push r11
@@ -25,21 +25,14 @@ GLOBAL idle_process
 
     push 0x00 ; Aling
     push 0x00 ; SS
-    push 0x00 ; RSP
+    push rdx ; RSP
     push 0x202 ; RFLAGS
     push 0x08 ; CS
     push rcx ; RIP
+    
     push_registers
 
 %endmacro
-
-;%macro set_stack_frame 0
-;    
-    ;lea rax, [rel exit]
-    ;push rax
-    ;mov rbp, rsp
-;
-;%endmacro
 
 ;===========================================================
 ; start:
@@ -50,34 +43,20 @@ GLOBAL idle_process
 ;   - rcx: rip
 ;===========================================================
 set_process_stack:
-    mov [aux], rsp
-    push rbp
-    mov rbp, rsp ; Save the base pointer
+
+    mov r8, rsp ; Uso r8 como backup del stack actual
+
     mov rsp, rdx ; Set the stack pointer to the new stack
 
-    ;set_stack_frame
-
     set_inicial_stack
-    mov [rbp+0x8], rsp ; Save the stack pointer in the base pointer frame
 
-    ;mov al,20h
-    ;out 0x20, al ; Send EOI to PIC 
+    mov rax, rsp ; Retorno el nuevo rsp
 
-    ; No se si llamar a scheduler 
-    ;int 0x20
+    mov rsp, r8
 
-    mov rsp, [aux]
-    leave
     ret
-
-exit:
-    mov rax, 0x0C ; syscall exit
-    int 0x80 ; syscall
 
 idle_process:
     _hlt
     jmp idle_process
 
-.bss
-    aux:
-        resb 0x100 ; Stack size
