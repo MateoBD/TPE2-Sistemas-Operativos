@@ -85,6 +85,7 @@ int init_scheduler()
 // Crea un nuevo proceso
 int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 {
+    
     if (process_count >= MAX_PROCESSES)
     {
         return -1;

@@ -43,10 +43,10 @@ GLOBAL idle_process
 ;   - rcx: rip
 ;===========================================================
 set_process_stack:
-
     mov r8, rsp ; Uso r8 como backup del stack actual
 
     mov rsp, rdx ; Set the stack pointer to the new stack
+
 
     set_inicial_stack
 

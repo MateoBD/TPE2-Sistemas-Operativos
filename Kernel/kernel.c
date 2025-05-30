@@ -97,7 +97,6 @@ extern void haltcpu(void);
 
 int main()
 {    
-
     vd_clear_screen();
 
     memory_manager = new_memory_managerADT(
