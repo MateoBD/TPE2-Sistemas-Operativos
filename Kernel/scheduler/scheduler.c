@@ -152,19 +152,18 @@ void * scheduler(void * current_stack)
         return current_stack;
     }
 
-    if (current_stack == NULL || current_process == NULL)
+    if (current_stack == NULL)
     {
         return process_table[0].stack; // Retornar el idle process si no se estan ejecutando procesos
     }
 
     free_terminated_processes();
 
-    current_process->stack = current_stack;
-
-    current_process->state = READY;
 
     if (current_process->pid != 0) // No enqueue el idle process
     {
+        current_process->stack = current_stack;
+        current_process->state = READY;
         enqueue_process(process_queues[current_process->priority], current_process);
     }
 
@@ -187,10 +186,7 @@ int kill_process(uint32_t pid)
     {
         if (process_table[i].pid == pid)
         {
-            process_table[i].state = TERMINATED;
-
-            process_table[i].pid = 0; // Marcar como libre
-            process_count--;
+            enqueue_process(terminated_processes_queue, &process_table[i]);
             return 0;
         }
     }

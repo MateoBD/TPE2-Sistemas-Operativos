@@ -34,13 +34,15 @@ void test_function(int argc, char **argv) {
     putchar('\n');
 
 
-    create_process((void *)test_function2, argc, argv);
+    // create_process((void *)test_function2, argc, argv);
 
-    uint64_t i = 0;
-    for (i = 0; i < 1000000000; i++)
-    {
-        i++;
-    }
+    exit(0);
+
+    // uint64_t i = 0;
+    // for (i = 0; i < 1000000000; i++)
+    // {
+    //     i++;
+    // }
     
 }
 
@@ -61,13 +63,13 @@ void shell(int argc, char **argv) {
     // sleep(16);
     //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
     
-    // create_process((void *)test_function, argc, argv);
+    create_process((void *)test_function, argc, argv);
 
-    // uint64_t i = 0;
-    // for (i = 0; i < 1000000000; i++)
-    // {
-    //     i++;
-    // }
+    uint64_t i = 0;
+    for (i = 0; i < 1000; i++)
+    {
+        i++;
+    }
 
     exit(0);
     

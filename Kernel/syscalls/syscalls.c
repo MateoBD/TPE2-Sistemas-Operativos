@@ -107,6 +107,7 @@ uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
     vd_print_dec(get_current_pid());
     vd_draw_char('\n');
     kill_process(get_current_pid());
+    call_int_20(); // Trigger a context switch
     return 0;
 }
 

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+extern void call_int_20(); // Interrupción de timer
+
 /**
  * @brief Inicializa el scheduler
  */

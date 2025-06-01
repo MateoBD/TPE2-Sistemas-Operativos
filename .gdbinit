@@ -18,12 +18,14 @@ b _irq00Handler
 b scheduler
 b interrupts.asm:225
 b test_function
-b create_process
-b shell.c:56
-b shell.c:32
-b shell.c:15
+# b create_process
+# b shell.c:56
+# b shell.c:32
+# b shell.c:15
+b scheduler.c:80
 b exit
 b kill_process
+b call_int_20
 
 # Configuración de vista múltiple
 layout split     # Muestra código fuente y ensamblador
