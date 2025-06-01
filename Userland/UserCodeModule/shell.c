@@ -20,12 +20,6 @@ void test_function2(int argc, char **argv) {
 
     exit(0);
 
-    for (int i = 0; i < 10000000; )
-    {
-        i++;
-    }
-    
-
 }
 
 void test_function(int argc, char **argv) {

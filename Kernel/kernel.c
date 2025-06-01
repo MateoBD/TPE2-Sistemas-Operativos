@@ -26,9 +26,7 @@ static void * const system_memory_adress = (void*)0x600000;
 
 typedef int (*entry_point)();
 
-MemoryManagerADT memory_manager;
-
-MemoryManagerADT memory_manager;
+extern MemoryManagerADT memory_manager;
 
 void clear_bss(void *bss_address, uint64_t bss_size)
 {
@@ -99,7 +97,7 @@ int main()
 {    
     vd_clear_screen();
 
-    memory_manager = new_memory_managerADT(
+    memory_manager = memory_manager_init(
         (void *) &end_of_kernel,
         system_memory_adress
     );
@@ -114,6 +112,5 @@ int main()
     create_process((void *) user_code_module_address, 0, 0, NULL);
 
     load_idt();
-
     return 0;
 }

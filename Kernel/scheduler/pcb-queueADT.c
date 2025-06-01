@@ -17,7 +17,7 @@ typedef struct PCBQueueCDT
 
 PCBQueueADT new_PCBQueueADT()
 {
-    PCBQueueADT toReturn = (PCBQueueADT) alloc_memory(memory_manager, sizeof(*toReturn));
+    PCBQueueADT toReturn = (PCBQueueADT) memory_alloc(memory_manager, sizeof(*toReturn));
     if (toReturn != NULL) 
     {
         toReturn->head = 0;

@@ -2,3 +2,8 @@
 .DS_Store
 .bash_history
 .gdb_history
+
+# Archivos objeto y binarios
+*.o
+*.bin
+*.elf

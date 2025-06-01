@@ -3,6 +3,7 @@
 #include <libasm.h>
 #include <stdint.h>
 
+
 uint64_t get_ticks()
 {
     uint64_t ticks = 0;
@@ -100,6 +101,7 @@ int itoa(uint64_t value, char *buffer, int base, int n)
 void sleep(uint64_t ticks)
 {
     sys_call(SYS_SLEEP, ticks, 0, 0, 0, 0, 0);
+    return;
 }
 
 static uint32_t random_next = 1;
@@ -128,4 +130,39 @@ uint32_t get_pid(void)
 void exit(int status)
 {
     sys_call(SYS_EXIT, status, 0, 0, 0, 0, 0);
+}
+
+void * memset(void * destiation, int32_t c, uint64_t length) {
+    uint8_t chr = (uint8_t)c;
+    char * dst = (char*)destiation;
+
+    while(length--)
+        dst[length] = chr;
+
+    return destiation;
+}
+
+void * my_malloc(uint64_t size)
+{
+    return (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+}
+
+void * my_calloc(uint64_t size)
+{
+    void *ptr = (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+    if (ptr != NULL)
+    {
+        memset(ptr, 0, size);
+    }
+    return ptr;
+}
+
+void my_free(void *address)
+{
+    sys_call(SYS_MUNMAP, (uint64_t)address, 0, 0, 0, 0, 0);
+}
+
+void get_heap_state(HeapState *state)
+{
+    sys_call(SYS_MEM_INFO, (uint64_t)state, 0, 0, 0, 0, 0);
 }

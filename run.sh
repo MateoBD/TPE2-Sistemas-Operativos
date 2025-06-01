@@ -16,6 +16,7 @@ else
     GDB=""
 fi
 
+
 # Run QEMU with appropriate audio driver
 qemu-system-x86_64 \
     -hda Image/x64BareBonesImage.qcow2 \

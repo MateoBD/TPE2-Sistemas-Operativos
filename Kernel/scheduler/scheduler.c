@@ -71,7 +71,7 @@ int init_scheduler()
     idle_process_pcb->pid = 0;
     idle_process_pcb->state = READY;
     idle_process_pcb->priority = 0;
-    idle_process_pcb->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
+    idle_process_pcb->stack = (void *) memory_alloc(memory_manager, STACK_SIZE);
     if (idle_process_pcb->stack == NULL)
     {
         return -1; // Error al asignar memoria para el proceso idle
@@ -113,7 +113,7 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     process->priority = priority;
     process_count++;
 
-    process->stack = (void *) alloc_memory(memory_manager, STACK_SIZE);
+    process->stack = (void *) memory_alloc(memory_manager, STACK_SIZE);
 
     if (process->stack == NULL)
     {
@@ -139,7 +139,7 @@ static void free_terminated_processes(void)
         // Liberar la memoria del stack del proceso terminado
         if (terminated_process->stack != NULL)
         {
-            free_memory(memory_manager, terminated_process->stack);
+            memory_free(memory_manager, terminated_process->stack);
             terminated_process->stack = NULL;
         }
     }

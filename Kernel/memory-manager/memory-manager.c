@@ -1,8 +1,10 @@
+#ifndef buddy
 #include <memory-manager.h>
 #include <stdint.h>
 #include <video-driver.h>
+#include <stddef.h>
 
-#define NULL ((void*)0)
+MemoryManagerADT memory_manager;
 
 typedef struct
 {
@@ -16,10 +18,10 @@ struct MemoryManagerCDT
     void * start_of_memory;
     MemoryFragment * page_frames;
     uint32_t page_frames_dim;
-    MemoryState state;
+    HeapState info;
 };
 
-MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, void * const restrict managed_memory)
+MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void * const restrict managed_memory)
 {
     MemoryManagerADT new_memory_manager = (MemoryManagerADT) manager_memory;
     
@@ -35,14 +37,18 @@ MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, voi
     
     // Configurar el primer page_frame con la dirección alineada
     new_memory_manager->page_frames[0].start = new_memory_manager->start_of_memory;
-    
-    // Inicializar estado de memoria
-    new_memory_manager->state = (MemoryState) {0, 0, 0};
-    
+
+    new_memory_manager->info.total_memory = MEMORY_END - MEMORY_START;
+    new_memory_manager->info.used_memory = 0;
+    char *type = "GNAMM";
+    for (size_t i = 0; i < 6; i++)
+    {
+        new_memory_manager->info.mm_type[i] = type[i];
+    }
     return new_memory_manager;
 }
 
-void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size)
+void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
 {
     if (size == 0)
     {
@@ -71,13 +77,12 @@ void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size)
                 uint64_t aligned_start = (start_addr + 7) & ~7;  // Alinear a 8 bytes
                 
                 // Ajustar por la diferencia si hubo alineación
-                uint64_t alignment_offset = aligned_start - start_addr;
+                // uint64_t alignment_offset = aligned_start - start_addr;
                 
                 self->page_frames[i].start = (void *)aligned_start;
                 self->page_frames[i].size = aligned_size;
                 self->page_frames[i+1].start = (void *)(aligned_start + aligned_size);
                 self->page_frames_dim++;
-                self->state.total_mem += self->page_frames[i].size + alignment_offset;
             }
             
             // Asegurar que la dirección devuelta esté alineada
@@ -93,7 +98,7 @@ void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size)
             
             toReturn = self->page_frames[i].start;
             self->page_frames[i].used = 1;
-            self->state.used_mem += self->page_frames[i].size;
+            self->info.used_memory += self->page_frames[i].size;
         }
         else
         {
@@ -104,7 +109,7 @@ void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size)
     return toReturn;
 }
 
-int free_memory(MemoryManagerADT const restrict self, void * const restrict ptr)
+int memory_free(MemoryManagerADT const restrict self, void * const restrict ptr)
 {
     if (ptr == NULL)
     {
@@ -116,34 +121,28 @@ int free_memory(MemoryManagerADT const restrict self, void * const restrict ptr)
         if (self->page_frames[i].start == ptr)
         {
             self->page_frames[i].used = 0;
-            self->state.used_mem -= self->page_frames[i].size;
-            self->state.free_mem = self->state.total_mem - self->state.used_mem;
+            self->info.used_memory -= self->page_frames[i].size;
             return 0;
         }
     }
     return -1;
 }
 
-void print_state_memory(MemoryManagerADT const restrict self)
+void memory_state_get(MemoryManagerADT const restrict self, HeapState * state)
 {
-    vd_print("Page Frames Dim: ");
-    vd_print_dec(self->page_frames_dim);
-    vd_draw_char('\n');
-    for(int i = 0; i < self->page_frames_dim; i++) {
-        vd_print("Fragment: 0x");
-        vd_print_hex((uint64_t)self->page_frames[i].start);
-        vd_print("    ");
-        vd_print("Size: 0x");
-        vd_print_hex(self->page_frames[i].size);
-        vd_print("    ");
-        vd_print("Used: ");
-        vd_print_hex(self->page_frames[i].used);
-        vd_draw_char('\n');
+    self->info.free_memory = self->info.total_memory - self->info.used_memory;
+    if (state == NULL)
+    {
+        return;
+    }
+
+    state->total_memory = self->info.total_memory;
+    state->used_memory = self->info.used_memory;
+    state->free_memory = self->info.total_memory - self->info.used_memory;
+
+    for (size_t i = 0; i < 6; i++)
+    {
+        state->mm_type[i] = self->info.mm_type[i];
     }
 }
-
-MemoryState get_state_memory(MemoryManagerADT const restrict self)
-{
-    return self->state;
-}
-
+#endif

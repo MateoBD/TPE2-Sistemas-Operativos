@@ -275,7 +275,7 @@ int set_cursor(uint8_t x, uint8_t y)
 
 void set_color(uint8_t fg_color, uint8_t bg_color)
 {
-    sys_call(SYS_SET_COLOR, fg_color, bg_color, 0, 0, 0, 0);
+    sys_call(SYS_SET_COLOR, bg_color*16+fg_color, 0, 0, 0, 0, 0);
 }
 
 void clean_screen(void)
@@ -285,4 +285,13 @@ void clean_screen(void)
         output_buffer[i] = 0;
     nprintf(BUFFER_SIZE, output_buffer);
     set_cursor(0, 0);
+}
+
+void print_memory_state(){
+    HeapState state;
+    get_heap_state(&state);
+    printf("Memory manager: %s\n", state.mm_type);
+    printf("Total memory: %d\n", state.total_memory);
+    printf("Used memory:  %d\n", state.used_memory);
+    printf("Free memory:  %d\n", state.free_memory);
 }

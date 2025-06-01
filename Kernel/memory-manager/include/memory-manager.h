@@ -1,30 +1,28 @@
-#ifndef _MEMORY_MANAGER_H_
-#define _MEMORY_MANAGER_H_
-
+#ifndef HEAP_INFO_ADT_H
+#define HEAP_INFO_ADT_H
 #include <stdint.h>
+
+#define MEMORY_START 0x0000000000200000
+#define MEMORY_END 0x0000000000400000
+#define MEMORY_SIZE (MEMORY_END - MEMORY_START)
+
+#define FREE 1
+#define OCCUPIED 0
 
 typedef struct
 {
-    uint64_t total_mem;
-    uint64_t used_mem;
-    uint64_t free_mem;
-} MemoryState;
+    uint64_t total_memory;
+    uint64_t used_memory;
+    uint64_t free_memory;
+    char mm_type[6];
+} HeapState;
 
 typedef struct MemoryManagerCDT * MemoryManagerADT;
 
-#ifndef __KERNEL_C__
+MemoryManagerADT memory_manager_init(void * const restrict memory_manager, void * const restrict managed_memory);
+void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size);
+int memory_free(MemoryManagerADT const restrict self, void * const restrict ptrs);
+void memory_state_get(MemoryManagerADT const restrict self, HeapState * state);
+
 extern MemoryManagerADT memory_manager;
-#endif
-
-
-MemoryManagerADT new_memory_managerADT(void * const restrict manager_memory, void * const restrict managed_memory);
-
-void * alloc_memory(MemoryManagerADT const restrict self, const uint64_t size);
-
-int free_memory(MemoryManagerADT const restrict self, void * const restrict ptr);
-
-MemoryState get_state_memory(MemoryManagerADT const restrict self);
-
-void print_state_memory(MemoryManagerADT const restrict self);
-
 #endif

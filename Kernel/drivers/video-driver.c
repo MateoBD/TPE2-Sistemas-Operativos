@@ -79,7 +79,7 @@ uint8_t vd_get_color()
 
 void vd_set_color(uint8_t new_color)
 {
-    current_color = current_color;
+    current_color = new_color;
 }
 
 void vd_print_dec(uint64_t value)
