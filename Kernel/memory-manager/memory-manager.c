@@ -130,7 +130,6 @@ int memory_free(MemoryManagerADT const restrict self, void * const restrict ptr)
 
 void memory_state_get(MemoryManagerADT const restrict self, HeapState * state)
 {
-    self->info.free_memory = self->info.total_memory - self->info.used_memory;
     if (state == NULL)
     {
         return;

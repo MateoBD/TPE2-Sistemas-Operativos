@@ -21,8 +21,8 @@ extern uint8_t end_of_kernel;
 static const uint64_t page_size = 0x1000;
 
 static void * const user_code_module_address = (void*)0x400000;
-static void * const user_data_module_address = (void*)0x500000;
-static void * const system_memory_adress = (void*)0x600000;
+static void * const user_data_module_address = (void*)0x500000;/* 
+static void * const system_memory_adress = (void*)0x600000; */
 
 typedef int (*entry_point)();
 
@@ -98,8 +98,8 @@ int main()
     vd_clear_screen();
 
     memory_manager = memory_manager_init(
-        (void *) &end_of_kernel,
-        system_memory_adress
+        (MemoryManagerADT) &end_of_kernel,
+        (void *) MEMORY_START
     );
 
     if (init_scheduler() == -1)

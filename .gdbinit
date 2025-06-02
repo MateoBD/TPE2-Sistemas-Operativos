@@ -26,6 +26,11 @@ b scheduler.c:80
 b exit
 b kill_process
 b call_int_20
+b memory_manager_init
+b memory_alloc
+b memory_free
+b memory_state_get
+
 
 # Configuración de vista múltiple
 layout split     # Muestra código fuente y ensamblador
