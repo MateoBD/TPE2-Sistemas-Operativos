@@ -5,8 +5,6 @@
 
 #define MAX_PROCESSES 1024
 
-extern MemoryManagerADT memory_manager;
-
 typedef struct PCBQueueCDT 
 {
     void * queue[MAX_PROCESSES];

@@ -14,4 +14,4 @@ else
 fi
 
 docker exec -it TPE2-SO chmod 777 /root/Image/x64BareBonesImage.qcow2 2>/dev/null || true
-docker stop TPE2-SO
+# docker stop TPE2-SO

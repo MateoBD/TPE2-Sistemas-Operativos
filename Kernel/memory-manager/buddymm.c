@@ -1,5 +1,7 @@
 #ifdef buddy
+#define __MEMORY_MANAGER_C__
 #include <memory-manager.h>
+#include <video-driver.h>
 #include <stddef.h>
 
 #define MIN_LEVEL 5

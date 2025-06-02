@@ -18,7 +18,8 @@ b _irq00Handler
 b scheduler
 b interrupts.asm:225
 b test_function
-# b create_process
+b sys_create_process
+b create_process
 # b shell.c:56
 # b shell.c:32
 # b shell.c:15
