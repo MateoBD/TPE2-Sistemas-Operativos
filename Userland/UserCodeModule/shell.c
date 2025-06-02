@@ -2,8 +2,7 @@
 #include <gnaio.h>
 #include <libasm.h>
 #include <gnalib.h>
-
-uint64_t n=0;
+#include <test.h>
 
 
 void test_function2(int argc, char **argv) {
@@ -58,7 +57,7 @@ void shell(int argc, char **argv) {
     //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
     
     create_process((void *)test_function, argc, argv);
-
+    test_mm();
     uint64_t i = 0;
     for (i = 0; i < 1000; i++)
     {

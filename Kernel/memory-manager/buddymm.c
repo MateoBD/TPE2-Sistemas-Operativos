@@ -1,8 +1,6 @@
 #ifdef buddy
-#include <heap.h>
-#include <video-driver.h>
+#include <memory-manager.h>
 #include <stddef.h>
-#include <video-driver.h>
 
 #define MIN_LEVEL 5
 #define MAX_ORDER 25
