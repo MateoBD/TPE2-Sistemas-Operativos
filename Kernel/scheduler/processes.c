@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 
-#define MAX_PROCESSES 1024
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 2
 #define STACK_SIZE 0x1000 // 4KB stack size
@@ -24,7 +23,7 @@ typedef enum ProcessState
 // PCB - Process Control Block
 typedef struct process_control_block
 {
-    uint32_t pid;
+    pid_t pid;
     ProcessState state;
     uint8_t priority;   
     void * stack_base;
@@ -40,7 +39,7 @@ static PCB process_table[MAX_PROCESSES];
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
 static PCBQueueADT terminated_processes_queue;
 static PCB * current_process = &process_table[0]; // Proceso idle
-static uint32_t next_pid = 1;
+static pid_t next_pid = 1;
 static uint32_t process_count = 1;
 static uint8_t inicialized = 0;
 
@@ -182,7 +181,7 @@ static PCB set_new_process(uint8_t priority)
 }
 
 // Crea un nuevo proceso
-int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
+pid_t create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
 {
 
     if (process_count >= MAX_PROCESSES)
@@ -260,7 +259,7 @@ int kill_process(uint32_t pid)
 }
 
 // Obtiene el PID del proceso actual
-uint32_t get_current_pid()
+pid_t get_current_pid()
 {
     if (current_process == NULL)
     {
