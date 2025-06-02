@@ -4,7 +4,7 @@
 #include <pc-speaker-driver.h>
 #include <stdint.h>
 #include <memory-manager.h>
-#include <scheduler.h>
+#include <processes.h>
 #include <time.h>
 #include <stddef.h>
 
@@ -95,8 +95,11 @@ uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, ui
 
 uint64_t sys_create_process(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Create a new process with the given entry point and arguments
-    return create_process((void *) rip, 0, (int) argc, (char **) argv);
+
+    static uint8_t p = 0;
+    p = (p + 1) % 2;
+
+    return create_process((void *) rip, p, (int) argc, (char **) argv);
 }
 
 uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)

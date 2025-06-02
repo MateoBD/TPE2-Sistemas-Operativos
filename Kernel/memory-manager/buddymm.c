@@ -1,4 +1,5 @@
 #ifdef buddy
+#define __MEMORY_MANAGER_C__
 #include <heap.h>
 #include <video-driver.h>
 #include <stddef.h>

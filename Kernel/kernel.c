@@ -7,9 +7,9 @@
 #include <video-driver.h>
 #include <idtLoader.h>
 #include <keyboard-driver.h>
-#include <scheduler.h>
 #include <memory-manager.h>
 #include <interrupts.h>
+#include <processes.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -25,8 +25,6 @@ static void * const user_data_module_address = (void*)0x500000;
 static void * const system_memory_adress = (void*)0x600000;
 
 typedef int (*entry_point)();
-
-extern MemoryManagerADT memory_manager;
 
 void clear_bss(void *bss_address, uint64_t bss_size)
 {
@@ -102,7 +100,7 @@ int main()
         system_memory_adress
     );
 
-    if (init_scheduler() == -1)
+    if (init_processes() == -1)
     {
         vd_print("Error initializing scheduler");
         vd_draw_char('\n');

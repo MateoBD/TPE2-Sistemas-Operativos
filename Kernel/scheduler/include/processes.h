@@ -1,14 +1,49 @@
-#ifndef _SCHEDULER_H_
-#define _SCHEDULER_H_
+#ifndef _PROCESSES_H_
+#define _PROCESSES_H_
 
 #include <stdint.h>
 
+
 extern void call_int_20(); // Interrupción de timer
 
-/**
- * @brief Inicializa el scheduler
+/*
+ * @brief Inicializa los procesos y el scheduler
  */
-int init_scheduler();
+int init_processes();
+
+
+/*
+* @brief Verifica si los procesos han sido inicializados
+* @return 1 si están inicializados, 0 si no
+*/
+int processes_initialized();
+
+/*
+* @brief Obtiene el proceso idle
+* @return Puntero al proceso idle
+*/
+void * get_idle_process();
+
+/*
+* @brief Scheduler principal
+* @param current_stack Puntero al stack del proceso actual
+* @return Puntero al stack del siguiente proceso a ejecutar
+*/
+void set_next_process(void * current_stack);
+
+/*
+ * @brief Scheduler principal
+ * @param current_stack Puntero al stack del proceso actual
+ * @return Puntero al stack del siguiente proceso a ejecutar
+ */
+void * get_next_process();
+
+/*
+* @brief Libera los procesos terminados
+* Esta función libera la memoria de los procesos que han terminado su ejecución.
+*/
+void free_terminated_processes(void);
+
 
 /**
  * @brief Crea un nuevo proceso
@@ -48,10 +83,4 @@ uint8_t get_current_priority();
  */
 int change_priority(uint32_t pid, uint8_t newPriority);
 
-/**
- * @brief Determina a qué proceso se le asigna el CPU
- * @param current_stack Puntero al stack del proceso actual
- */
-void * scheduler(void * current_stack);
-
-#endif /* SCHEDULER_H */
+#endif /* PROCESSES_H */
