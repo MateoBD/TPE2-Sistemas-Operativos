@@ -14,23 +14,32 @@ add-symbol-file /root/Userland/0000-userCodeModule.elf 0x400000
 # Breakpoints comunes (opcional)
 b main
 b _start
-b _irq00Handler
-b scheduler
-b interrupts.asm:225
+
+# b _irq00Handler
+# b scheduler
+# b interrupts.asm:225
+
 b test_function
-b sys_create_process
-b create_process
+# b create_process
 # b shell.c:56
 # b shell.c:32
 # b shell.c:15
-b scheduler.c:80
-b exit
-b kill_process
-b call_int_20
-b memory_manager_init
-b memory_alloc
+
+# b exit
+# b kill_process
+# b call_int_20
+
+b test_mm
+# b memory_manager_init
+# b memory_alloc
+# b memory-manager.c:110
 b memory_free
-b memory_state_get
+b memory-manager.c:125
+# b memory_state_get
+# b memory-manager.c:146
+
+b test_mm.c:90
+b test_mm.c:125
 
 
 # Configuración de vista múltiple

@@ -169,7 +169,7 @@ static PCB set_new_process(uint8_t priority)
     new_process.state = READY;
     new_process.priority = priority;
     new_process.stack_base = (void *) memory_alloc(memory_manager, STACK_SIZE);
-    new_process.stack = new_process.stack_base;
+    new_process.stack = new_process.stack_base + STACK_SIZE - 0x08;
     new_process.father = current_process;
     new_process.children_count = 0;
 
@@ -220,7 +220,7 @@ int create_process(void * entry_point, uint8_t priority, int argc, char ** argv)
     }
     current_process->children[current_process->children_count++] = new_process;
 
-    new_process->stack = set_process_stack(argc, argv, new_process->stack + STACK_SIZE - 0x08, entry_point);
+    new_process->stack = set_process_stack(argc, argv, new_process->stack, entry_point);
 
     enqueue_process(process_queues[priority], new_process);
 
@@ -239,7 +239,7 @@ void free_terminated_processes(void)
         // Liberar la memoria del stack del proceso terminado
         if (terminated_process->stack != NULL)
         {
-            memory_free(memory_manager, terminated_process->stack);
+            memory_free(memory_manager, terminated_process->stack_base);
             terminated_process->stack = NULL;
         }
     }

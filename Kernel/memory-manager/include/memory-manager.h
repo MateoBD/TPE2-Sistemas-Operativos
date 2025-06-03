@@ -24,8 +24,5 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size);
 int memory_free(MemoryManagerADT const restrict self, void * const restrict ptrs);
 void memory_state_get(MemoryManagerADT const restrict self, HeapState * state);
 
-#ifndef __MEMORY_MANAGER_C__
 extern MemoryManagerADT memory_manager;
-#endif // __MEMORY_MANAGER_C__
-
 #endif

@@ -58,6 +58,13 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
   return 1;
 }
 
+void print_memory_state(HeapState state){
+    printf("Memory manager: %s\n", state.mm_type);
+    printf("Total memory: %d\n", state.total_memory);
+    printf("Used memory:  %d\n", state.used_memory);
+    printf("Free memory:  %d\n", state.free_memory);
+}
+
 int64_t test_mm() {
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
@@ -69,19 +76,19 @@ int64_t test_mm() {
 
   while (1){
     rq = 0;
-    total = 0;
+    total = state.used_memory;
     // Request as many blocks as we can
-    while (state.free_memory!=0) {
+    while (state.free_memory != 0) {
       mm_rqs[rq].size = GetUniform(state.total_memory - total - 1) + 1;
       mm_rqs[rq].address = my_malloc(mm_rqs[rq].size);
       if (mm_rqs[rq].address) {
-        get_heap_state(&state);
         set_color(magenta, black);
         printf("allocating at least %d bytes at %x\n", mm_rqs[rq].size, mm_rqs[rq].address);
-        print_memory_state();
+        get_heap_state(&state);
+        print_memory_state(state);
         sleep(64);
         clean_screen();
-        total += mm_rqs[rq].size;
+        total = state.used_memory;
         rq++;
       }
     }
@@ -93,25 +100,30 @@ int64_t test_mm() {
         memset(mm_rqs[i].address, i, mm_rqs[i].size);
 
     // Check
-    for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address)
-        if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-            set_color(red, black);
-            printf("ERROR in test_mm: memcheck failed\n");
-            return -1;
+    for (i = 0; i < rq; i++) 
+    {
+        if (mm_rqs[i].address)
+        {
+            if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size))
+            {
+                set_color(red, black);
+                printf("ERROR in test_mm: memcheck failed\n");
+                return -1;
+            }
         }
-
+    }
     // Free
     for (i = 0; i < rq; i++)
-      if (mm_rqs[i].address){
-        get_heap_state(&state);
-        set_color(green, black);
-        printf("freeing at least %d bytes at %x\n", mm_rqs[i].size, mm_rqs[i].address);
-        print_memory_state();
-        sleep(64);
-        clean_screen();
-        my_free(mm_rqs[i].address);
-      }
+        if (mm_rqs[i].address) {
+            get_heap_state(&state);
+            set_color(green, black);
+            printf("freeing at least %d bytes at %x\n", mm_rqs[i].size, mm_rqs[i].address);
+            get_heap_state(&state);
+            print_memory_state(state);
+            my_free(mm_rqs[i].address);
+            sleep(64);
+            clean_screen();
+        }
   }
   
   return 0;
