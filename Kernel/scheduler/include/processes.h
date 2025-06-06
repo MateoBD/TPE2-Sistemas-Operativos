@@ -24,7 +24,7 @@ int processes_initialized();
 * @brief Obtiene el proceso idle
 * @return Puntero al proceso idle
 */
-void * get_idle_process();
+void * get_idle_process_stack();
 
 /*
 * @brief Scheduler principal
@@ -56,7 +56,7 @@ void free_terminated_processes(void);
  * @param argv Vector de argumentos
  * @return PID del nuevo proceso o -1 si hubo error
  */
-int create_process(void * entryPoint, uint8_t priority, int argc, char** argv);
+pid_t create_process(void * entryPoint, uint8_t priority, int argc, char** argv);
 
 /**
  * @brief Termina un proceso
@@ -69,13 +69,13 @@ int kill_process(uint32_t pid);
  * @brief Obtiene el PID del proceso actual
  * @return PID del proceso en ejecución
  */
-uint32_t get_current_pid();
+pid_t get_current_pid();
 
 /**
  * @brief Obtiene la prioridad del proceso actual
  * @return Prioridad del proceso en ejecución
  */
-uint8_t get_current_priority();
+uint8_t get_current_priority(void);
 
 /**
  * @brief Cambia la prioridad de un proceso
@@ -84,5 +84,19 @@ uint8_t get_current_priority();
  * @return 0 si se cambió correctamente, -1 si hubo error
  */
 int change_priority(uint32_t pid, uint8_t newPriority);
+
+/**
+ * @brief Bloquea el proceso actual
+ * @param pid PID del proceso a bloquear
+ * @return 0 si se bloqueó correctamente, -1 si hubo error
+ */
+int block_process(pid_t pid);
+
+/**
+ * @brief Desbloquea un proceso
+ * @param pid PID del proceso a desbloquear
+ * @return 0 si se desbloqueó correctamente, -1 si hubo error
+ */
+int wake_up_process(pid_t pid);
 
 #endif /* PROCESSES_H */

@@ -14,19 +14,31 @@ add-symbol-file /root/Userland/0000-userCodeModule.elf 0x400000
 # Breakpoints comunes (opcional)
 b main
 b _start
+
+# scheduler
 b _irq00Handler
 b scheduler
 b interrupts.asm:225
+
+# Funciones de usuario
 b test_function
-b sys_create_process
 b create_process
+
+# b sem_init
+# b sem_wait
+
+# b init_sem_manager
+# b create_semaphore
+# b semaphore_wait
+# b semaphore_post
+
+# b set_process_stack
+b idle_process
+
 # b shell.c:56
-# b shell.c:32
-# b shell.c:15
-b scheduler.c:80
-b exit
-b kill_process
-b call_int_20
+# b scheduler.c:80
+# b kill_process
+# b call_int_20
 
 # Configuración de vista múltiple
 layout split     # Muestra código fuente y ensamblador

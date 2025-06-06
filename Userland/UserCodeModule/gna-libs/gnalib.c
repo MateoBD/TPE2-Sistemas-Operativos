@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 
+
+
 uint64_t get_ticks()
 {
     uint64_t ticks = 0;
@@ -119,7 +121,7 @@ uint32_t rand(void)
 
 uint64_t create_process(void * function, int argc, char **argv)
 {
-    return sys_call((uint64_t)SYS_CREATE, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
+    return sys_call((uint64_t)SYS_CREATE_PROCESS, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
 }
 
 uint32_t get_pid(void)

@@ -7,6 +7,7 @@
 #include <processes.h>
 #include <time.h>
 #include <stddef.h>
+#include <semaphores.h>
 
 #define RED 0x0C
 
@@ -75,8 +76,7 @@ uint64_t sys_mmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
 uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    memory_free(memory_manager,(void *)rdi);
-    return 0;
+    return memory_free(memory_manager,(void *)rdi);;
 }
 
 uint64_t sys_brk(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -125,20 +125,19 @@ uint64_t sys_getpid(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint
 
 uint64_t sys_kill(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    kill_process((pid_t)rdi);
+    call_int_20(); // Trigger a context switch
     return 0;
 }
 
 uint64_t sys_getpriority(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return get_current_priority();
 }
 
 uint64_t sys_setpriority(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return change_priority((pid_t)rdi, (uint8_t)rsi);
 }
 
 uint64_t sys_sched_yield(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -167,38 +166,31 @@ uint64_t sys_stop_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, 
 
 uint64_t sys_sem_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return create_semaphore((uint32_t)rdi);
 }
 
 uint64_t sys_sem_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
-}
-
-uint64_t sys_sem_unlink(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
-{
-    // Implementation of sys_write
+    destroy_semaphore((uint32_t)rdi);
     return 0;
 }
 
 uint64_t sys_sem_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    semaphore_wait((uint32_t)rdi);
+    call_int_20(); // Trigger a context switch
     return 0;
 }
 
 uint64_t sys_sem_post(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    semaphore_post((uint32_t)rdi);
     return 0;
 }
 
 uint64_t sys_sem_getvalue(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
-    return 0;
+    return get_semaphore_value((uint32_t)rdi);
 }
 
 uint64_t sys_shm_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
