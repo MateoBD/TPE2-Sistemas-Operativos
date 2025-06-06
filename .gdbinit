@@ -11,6 +11,10 @@ add-symbol-file /root/Kernel/kernel.elf 0x100000
 # Cargar símbolos del módulo de usuario 
 add-symbol-file /root/Userland/0000-userCodeModule.elf 0x400000
 
+layout split
+layout src
+layout regs
+
 # Breakpoints comunes (opcional)
 b main
 b _start
@@ -22,31 +26,44 @@ b interrupts.asm:225
 
 # Funciones de usuario
 b test_function
-b create_process
+# b create_process
 
 # b sem_init
-# b sem_wait
+b sem_wait
+b sem_post
 
-# b init_sem_manager
-# b create_semaphore
-# b semaphore_wait
-# b semaphore_post
+# Funciones de teclado
+b _irq01Handler
+b kd_handler
+b interrupts.asm:245
 
-# b set_process_stack
-b idle_process
 
-# b shell.c:56
-# b scheduler.c:80
-# b kill_process
-# b call_int_20
 
-# Configuración de vista múltiple
-layout split     # Muestra código fuente y ensamblador
-layout src      # Añade los registros
-layout regs
+define inspect_keyboard_buffer
+    echo === KEYBOARD BUFFER STATUS ===\n
+    printf "chars_at_buffer: %d\n", chars_at_buffer
+    printf "char_buffer_index: %d\n", char_buffer_index
+    printf "getter_index: %d\n", getter_index
+    printf "Buffer contents:\n"
+    set $i = 0
+    while $i < chars_at_buffer && $i < 10
+        set $idx = (getter_index + $i) % 64
+        printf "  [%d]: '%c' (0x%02x)\n", $i, char_buffer[$idx], char_buffer[$idx]
+        set $i = $i + 1
+    end
+    if chars_at_buffer > 10
+        printf "  ... and %d more characters\n", chars_at_buffer - 10
+    end
+end
 
-# Mensaje informativo
-echo \nGDB configurado correctamente para depuración.\n
-echo Kernel cargado en 0x100000\n
-echo Módulo de usuario cargado en 0x400000\n
-echo Usa 'continue' o 'c' para iniciar la ejecución\n
+# Agregar a los comandos disponibles
+echo   test_read_syscall    - Testear syscall read con tracing completo\n
+echo   test_read_simple     - Test básico de syscall read\n
+echo   trace_keyboard_input - Rastrear procesamiento de entrada de teclado\n
+echo   test_semaphore_stdin - Testear semáforos de stdin\n
+echo   inspect_keyboard_buffer - Inspeccionar estado del buffer de teclado\n
+echo \n=== READ SYSCALL TESTING ===\n
+echo   1. test_read_syscall (para tracing completo)\n
+echo   2. continue\n
+echo   3. En el shell, ejecutar algún comando que requiera input\n
+echo   4. inspect_keyboard_buffer (para ver el estado del buffer)\n

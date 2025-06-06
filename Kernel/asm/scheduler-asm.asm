@@ -1,6 +1,7 @@
 GLOBAL set_process_stack
 GLOBAL idle_process
 GLOBAL call_int_20
+EXTERN system_running
 
 %macro set_inicial_stack 0
 
@@ -53,9 +54,13 @@ set_process_stack:
     ret
 
 idle_process:
+    mov rax, [system_running]
+    cmp rax, 1
+    je .loop
     cli
+.loop:
     hlt
-    jmp idle_process
+    jmp .loop
 
 call_int_20:
     int 0x20

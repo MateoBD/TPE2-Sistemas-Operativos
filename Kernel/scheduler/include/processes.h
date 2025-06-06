@@ -99,4 +99,22 @@ int block_process(pid_t pid);
  */
 int wake_up_process(pid_t pid);
 
+/**
+ * @brief Verifica si hay procesos en ejecución
+ * @return 1 si hay procesos en ejecución, 0 si no
+ */
+int has_running_processes();
+
+/**
+ * @brief Verifica si el sistema está en ejecución
+ * @return 1 si el sistema está corriendo, 0 si no
+ */
+int is_system_running();
+
+/**
+ * @brief Detiene el sistema
+ * Esta función detiene todos los procesos y libera los recursos del sistema.
+ */
+void stop_system();
+
 #endif /* PROCESSES_H */

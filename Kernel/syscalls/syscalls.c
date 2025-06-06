@@ -42,6 +42,41 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
     {
         return -1; // Invalid file descriptor or buffer
     }
+
+    if (rdi == STDIN)
+    {
+        char *buffer = (char *)rsi;
+        uint32_t bytes_read = 0;
+
+        while (bytes_read < rdx)
+        {
+            char c = kd_get_char();
+            if (c == '\n' || c == '\r') // Handle newline characters
+            {
+                buffer[bytes_read++] = '\n';
+                break;
+            }
+            else if (c == 0x08) // Handle backspace
+            {
+                if (bytes_read > 0)
+                {
+                    bytes_read--;
+                    vd_draw_char('\b');
+                }
+            }
+            else
+            {
+                buffer[bytes_read++] = c;
+                vd_draw_char(c);
+            }
+        }
+        buffer[bytes_read] = '\0'; // Null-terminate the string
+        return bytes_read;
+    }
+    else
+    {
+        // Handle other file descriptors
+    }
     return 0;
 }
 
@@ -166,31 +201,31 @@ uint64_t sys_stop_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, 
 
 uint64_t sys_sem_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    return create_semaphore((uint32_t)rdi);
+    return create_sem((uint32_t)rdi);
 }
 
 uint64_t sys_sem_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    destroy_semaphore((uint32_t)rdi);
+    destroy_sem((uint32_t)rdi);
     return 0;
 }
 
 uint64_t sys_sem_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    semaphore_wait((uint32_t)rdi);
+    sem_wait((uint32_t)rdi);
     call_int_20(); // Trigger a context switch
     return 0;
 }
 
 uint64_t sys_sem_post(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    semaphore_post((uint32_t)rdi);
+    sem_post((uint32_t)rdi);
     return 0;
 }
 
 uint64_t sys_sem_getvalue(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    return get_semaphore_value((uint32_t)rdi);
+    return get_sem_value((uint32_t)rdi);
 }
 
 uint64_t sys_shm_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)

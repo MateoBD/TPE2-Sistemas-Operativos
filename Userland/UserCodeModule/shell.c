@@ -25,13 +25,16 @@ void test_function2(int argc, char **argv) {
 }
 
 void test_function(int argc, char **argv) {
-    printf("Test function executed!\n");
-    uint32_t sem = (uint32_t) argc;
-    printf("Semaphore id: %d\n\n", sem);
 
-    sem_wait(sem);
+    sem_wait(argc);
+    
+    for (int i = 0; i < 1000 * 1000; i++)
+    {
+        /* code */
+    }
 
-    printf("BBBBBBB\n");
+
+    
 
     exit(0);    
 }
@@ -42,24 +45,26 @@ void shell(int argc, char **argv) {
 
     putchar('\n');
 
-    uint32_t sem = sem_init(1);
-    if (sem < 0) {
-        printf("Failed to create semaphore.\n");
-        exit(1);
-    }
 
     // printf("Initializing a new shell process...\n");
     // sleep(16);
     //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
-    // char sem_id[5];
-    // itoa(sem, sem_id, 10);
+
+    int sem = sem_init(0);
 
 
-    create_process((void *)test_function, (int) sem, argv);
+    create_process((void *)test_function, (int) sem, NULL);
 
-    sem_wait(sem);
+    // sem_wait(sem);
     
-    printf("AAAAAAAA\n");
+    // printf("AAAAAAAA\n");
+
+    // char c = 'A';
+    // putchar(c);
+    // putchar('\n');
+    // c = getchar();
+    // putchar(c);
+    // putchar('\n');
 
     exit(0);
     

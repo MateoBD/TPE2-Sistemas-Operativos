@@ -11,7 +11,7 @@
  * This function is called whenever a keyboard interrupt occurs.
  * It processes the key press and performs the necessary actions.
  */
-void keyboard_handler();
+void kd_handler();
 
 /**
  * @brief Retrieves the current key from the keyboard buffer.
@@ -28,14 +28,21 @@ void keyboard_handler();
  * 
  * @return char 1 if there is a next key, 0 otherwise.
  */
-char has_next_key();
+char kd_has_next_key();
 
 /**
  * @brief Retrieves the next key from the keyboard buffer.
  * 
  * @return char The next key.
  */
-int next_key();
+int kd_next_key();
+
+/**
+ * @brief Gets a character from the keyboard, blocking until one is available.
+ * 
+ * @return char The character from the keyboard.
+ */
+char kd_get_char();
 
 
 #endif // KEYBOARD_DRIVER_H

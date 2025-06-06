@@ -38,6 +38,7 @@ static PCB *current_process = &process_table[0]; // Proceso idle
 static pid_t next_pid = 1;
 static uint32_t process_count = 1;
 static uint8_t initialized = 0;
+uint8_t system_running = 1;
 
 extern void *set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
 extern void idle_process(); // Proceso idle
@@ -324,7 +325,7 @@ int block_process(pid_t pid)
         {
             if (process_table[i].state == TERMINATED || process_table[i].state == BLOCKED)
             {
-                return -1; // El proceso ya está terminated o blocked
+                return -1; // El proceso ya está bloqueado
             }
 
             process_table[i].state = BLOCKED;
@@ -353,4 +354,19 @@ int wake_up_process(pid_t pid)
     }
 
     return -1; // Proceso no encontrado
+}
+
+void stop_system()
+{
+    system_running = 0;
+}
+
+int is_system_running()
+{
+    return system_running;
+}
+
+int has_running_processes()
+{
+    return system_running && (process_count > 1); // More than just idle process
 }

@@ -1,5 +1,6 @@
 #include <keyboard-driver.h>
 #include <interrupts.h>
+#include <semaphores.h>
 
 #define ESC 0x01
 #define CAPSLOCK 0x3A
@@ -24,12 +25,15 @@ static char shift = 0;
 static char ctrl = 0;
 static char alt = 0;
 
+#define STDIN_SEM_ID 0
+
 extern void save_registers();
 extern char get_key();
 
 static int not_shifted_ascii[] = {
     [0x00] = NOT_DRAWBLE, // Esc
-    [0x02] = NOT_DRAWBLE,
+    [0x01] = NOT_DRAWBLE, // Esc (duplicate entry)
+    [0x02] = '1',
     [0x03] = '2',
     [0x04] = '3',
     [0x05] = '4',
@@ -287,15 +291,15 @@ static int shifted_ascii[] = {
     [0x7F] = NOT_DRAWBLE  // (keypad) . no es imprimible
 };
 
-char has_next_key()
+char kd_has_next_key()
 {
     return chars_at_buffer > 0;
 }
 
-int next_key()
+int kd_next_key()
 {
     int ret;
-    if (!has_next_key())
+    if (!kd_has_next_key())
     {
         return NOT_KEY;
     }
@@ -306,7 +310,7 @@ int next_key()
     return ret;
 }
 
-char is_special_key(char scancode)
+char kd_is_special_key(char scancode)
 {
     return (scancode == LSHIFT) || (scancode == RSHIFT) ||
            (scancode == LCTRL) || (scancode == RCTRL) ||
@@ -316,7 +320,7 @@ char is_special_key(char scancode)
            ((scancode >= F_01) && (scancode <= F_10));
 }
 
-void keyboard_handler()
+void kd_handler()
 {
     char scancode = get_key();
     char release = scancode;
@@ -334,7 +338,7 @@ void keyboard_handler()
     else if (key == LSHIFT || key == RSHIFT)
     {
         shift = !release;
-        return;
+        return; 
     }
     else if (key == LCTRL || key == RCTRL)
     {
@@ -348,11 +352,21 @@ void keyboard_handler()
     }
     else
     {
-        if (chars_at_buffer <= CHAR_BUFFER_DIM && !is_special_key(scancode) && !release)
+        if (chars_at_buffer <= CHAR_BUFFER_DIM && !kd_is_special_key(scancode) && !release)
         {
             char_buffer[char_buffer_index++] = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
             char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
             chars_at_buffer++;
+            sem_post(STDIN_SEM_ID);
         }
     }
+}
+
+char kd_get_char()
+{
+    if (!kd_has_next_key())
+    {
+        sem_wait(STDIN_SEM_ID);
+    }
+    return (char)kd_next_key();
 }
