@@ -1,60 +1,32 @@
+#define SHELL
 #include <shell.h>
 #include <gnaio.h>
 #include <gnalib.h>
 #include <gnastring.h>
 #include <stdint.h>
+#include <programs.h>
 
 #define MAX_CMD_LENGTH 256
 #define MAX_ARGS 16
-
-// Command structure
-typedef struct {
-    char *name;
-    void (*handler)(int argc, char **argv);
-    char *description;
-} command_t;
+#define MAX_SAVED_COMMANDS 16
 
 // Function prototypes
-static void cmd_echo(int argc, char **argv);
-static void cmd_help(int argc, char **argv);
-static void cmd_exit(int argc, char **argv);
 static int parse_command(char *input, char **argv);
 static command_t *find_command(const char *name);
 static void read_line(char *buffer, int max_len);
 static void skip_whitespace(char **str);
 
-// Command table
-static command_t commands[] = {
-    {"echo", cmd_echo, "Print arguments to stdout"},
-    {"help", cmd_help, "Show available commands"},
-    {"exit", cmd_exit, "Exit the shell"},
+static command_t history[MAX_SAVED_COMMANDS] = {0};
+static int history_count = 0;
+
+command_t commands[] = {
+    {"echo", echo, "Print arguments to stdout"},
+    {"mem", mem, "Print memory state"},
+    {"clear", clear, "Clear the screen"},
+    {"help", help, "Show available commands"},
+    {"exit", exit_shell, "Exit the shell"},
     {NULL, NULL, NULL}  // Sentinel
 };
-
-// Echo command implementation
-static void cmd_echo(int argc, char **argv) {
-    for (int i = 1; i < argc; i++) {
-        printf("%s", argv[i]);
-        if (i < argc - 1) {
-            putchar(' ');
-        }
-    }
-    putchar('\n');
-}
-
-// Help command implementation
-static void cmd_help(int argc, char **argv) {
-    printf("Available commands:\n");
-    for (int i = 0; commands[i].name != NULL; i++) {
-        printf("  %s - %s\n", commands[i].name, commands[i].description);
-    }
-}
-
-// Exit command implementation
-static void cmd_exit(int argc, char **argv) {
-    printf("Goodbye!\n");
-    exit(0);
-}
 
 // Analizar línea de comandos en argumentos
 static int parse_command(char *input, char **argv) {
@@ -159,7 +131,6 @@ void shell(int argc, char **argv) {
     
     printf("Welcome to GNA Shell!\n");
     printf("Type 'help' for available commands.\n\n");
-    
     while (1) {
         printf("gna> ");
         read_line(input, MAX_CMD_LENGTH);
@@ -178,6 +149,8 @@ void shell(int argc, char **argv) {
         
         // Buscar y ejecutar comando
         cmd = find_command(args[0]);
+        history[history_count % MAX_SAVED_COMMANDS] = *cmd;  // Guardar comando en el historial
+        history_count++;
         if (cmd != NULL) {
             cmd->handler(arg_count, args);
         } else {

@@ -2,7 +2,7 @@ include ../Makefile.inc
 
 MODULE=0000-userCodeModule.bin
 ELF_MODULE=0000-userCodeModule.elf
-MODULES= . gna-libs assembly
+MODULES= . gna-libs assembly programs
 SOURCES=$(foreach mod, $(filter-out assembly, $(MODULES)), $(wildcard $(mod)/[^_]*.c))
 INCLUDES=$(addprefix -I, $(addsuffix /include, $(MODULES)) ./include)
 SOURCES_ASM=$(wildcard assembly/*.asm)

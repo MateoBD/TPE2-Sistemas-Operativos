@@ -285,14 +285,5 @@ void clean_screen(void)
     for (int i = 0; i < BUFFER_SIZE; i++)
         output_buffer[i] = 0;
     nprintf(BUFFER_SIZE, output_buffer);
-    set_cursor(0, 0);
-}
-
-void print_memory_state(){
-    HeapState state;
-    get_heap_state(&state);
-    printf("Memory manager: %s\n", state.mm_type);
-    printf("Total memory: %d\n", state.total_memory);
-    printf("Used memory:  %d\n", state.used_memory);
-    printf("Free memory:  %d\n", state.free_memory);
+    set_cursor(1, 0);
 }

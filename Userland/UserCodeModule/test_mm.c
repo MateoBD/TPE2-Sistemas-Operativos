@@ -1,4 +1,4 @@
-#include <stdint.h>
+/* #include <stdint.h>
 #include <gnaio.h>
 #include <gnalib.h>
 #include <test.h>
@@ -115,4 +115,4 @@ int64_t test_mm() {
   }
   
   return 0;
-}
+} */

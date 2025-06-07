@@ -28,9 +28,6 @@ b create_process
 # b sem_post
 
 # Funciones de teclado
-b _irq01Handler
-b kd_handler
-b interrupts.asm:245
 
 # b shell.c:74
 
