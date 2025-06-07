@@ -19,11 +19,6 @@ layout regs
 b main
 b _start
 
-# scheduler
-# b _irq00Handler
-# b scheduler
-# b interrupts.asm:225
-
 # Funciones de usuario
 b test_function
 b create_process
@@ -33,14 +28,14 @@ b create_process
 # b sem_post
 
 # Funciones de teclado
-# b _irq01Handler
-# b kd_handler
-# b interrupts.asm:245
+b _irq01Handler
+b kd_handler
+b interrupts.asm:245
 
 # b shell.c:74
 
-# b sys_read
-# b sys_write
+b sys_read
+b sys_write
 
 define scheduler_debug
     b _irq00Handler

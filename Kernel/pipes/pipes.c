@@ -2,8 +2,8 @@
 #include <stddef.h>
 
 // Constantes
-#define MAX_AMOUNT_PIPES 256
-#define PIPE_BUFFER_SIZE 4096
+#define MAX_AMOUNT_PIPES 1024
+#define PIPE_BUFFER_SIZE 0x200
 
 // Estados de pipe
 typedef enum PipeState
