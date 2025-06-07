@@ -1,81 +1,188 @@
 #include <shell.h>
 #include <gnaio.h>
-#include <libasm.h>
 #include <gnalib.h>
-#include <unigna.h>
+#include <gnastring.h>
 #include <stdint.h>
 
-uint64_t n=0;
+#define MAX_CMD_LENGTH 256
+#define MAX_ARGS 16
 
+// Command structure
+typedef struct {
+    char *name;
+    void (*handler)(int argc, char **argv);
+    char *description;
+} command_t;
 
-void test_function2(int argc, char **argv) {
-    printf("Test function 2 executed!\n");
-    printf("Test function 2 pid: %d\n", get_pid());
-    putchar('\n');
+// Function prototypes
+static void cmd_echo(int argc, char **argv);
+static void cmd_help(int argc, char **argv);
+static void cmd_exit(int argc, char **argv);
+static int parse_command(char *input, char **argv);
+static command_t *find_command(const char *name);
+static void read_line(char *buffer, int max_len);
+static void skip_whitespace(char **str);
 
+// Command table
+static command_t commands[] = {
+    {"echo", cmd_echo, "Print arguments to stdout"},
+    {"help", cmd_help, "Show available commands"},
+    {"exit", cmd_exit, "Exit the shell"},
+    {NULL, NULL, NULL}  // Sentinel
+};
 
-    uint64_t i = 0;
-    for (i = 0; i < 1000 * 1000; )
-    {
-        i++;
+// Echo command implementation
+static void cmd_echo(int argc, char **argv) {
+    for (int i = 1; i < argc; i++) {
+        printf("%s", argv[i]);
+        if (i < argc - 1) {
+            putchar(' ');
+        }
     }
-
-    exit(0);
-
+    putchar('\n');
 }
 
-void test_function(int argc, char **argv) {
-
-    sem_wait(argc);
-    
-    for (int i = 0; i < 1000 * 1000; i++)
-    {
-        /* code */
+// Help command implementation
+static void cmd_help(int argc, char **argv) {
+    printf("Available commands:\n");
+    for (int i = 0; commands[i].name != NULL; i++) {
+        printf("  %s - %s\n", commands[i].name, commands[i].description);
     }
+}
 
+// Exit command implementation
+static void cmd_exit(int argc, char **argv) {
+    printf("Goodbye!\n");
+    exit(0);
+}
 
+// Analizar línea de comandos en argumentos
+static int parse_command(char *input, char **argv) {
+    int argc = 0;
+    char *token_start;
     
+    skip_whitespace(&input);
+    
+    while (*input != '\0' && argc < MAX_ARGS - 1) {
+        token_start = input;
+        
+        // Encontrar el final del token actual
+        while (*input != '\0' && *input != ' ' && *input != '\t') {
+            input++;
+        }
+        
+        // Terminar el token con null
+        if (*input != '\0') {
+            *input = '\0';
+            input++;
+        }
+        
+        argv[argc++] = token_start;
+        skip_whitespace(&input);
+    }
+    
+    argv[argc] = NULL;
+    return argc;
+}
 
-    exit(0);    
+// Buscar comando en tabla de comandos
+static command_t *find_command(const char *name) {
+    for (int i = 0; commands[i].name != NULL; i++) {
+        if (strcmp(commands[i].name, name) == 0) {
+            return &commands[i];
+        }
+    }
+    return NULL;
+}
+
+// Leer una línea de entrada
+static void read_line(char *buffer, int max_len) {
+    int pos = 0;
+    int c;
+    
+    while (pos < max_len - 1) {
+        c = getchar();
+        
+        // Handle Ctrl+C signal
+        if (c == CHAR_INTERRUPT) {
+            printf("^C\n");
+            buffer[0] = '\0';  // Limpiar el buffer
+            return;
+        }
+        
+        // Handle Ctrl+D signal
+        if (c == CHAR_EOF) {
+            if (pos == 0) {
+                printf("^D\n");
+                printf("Type 'exit' to quit the shell.\n");
+                buffer[0] = '\0';  // Limpiar el buffer
+                return;
+            } else {
+                // Si hay texto en el buffer, simplemente ignorar Ctrl+D
+                continue;
+            }
+        }
+        
+        if (c == '\n' || c == '\r') {
+            break;
+        }
+        
+        if (c == '\b' || c == 127) {  // Backspace or DEL
+            if (pos > 0) {
+                pos--;
+                putchar('\b');
+                putchar(' ');
+                putchar('\b');
+            }
+        } else if (c >= 32 && c <= 126) {  // Printable characters
+            buffer[pos++] = c;
+            putchar(c);
+        }
+    }
+    
+    buffer[pos] = '\0';
+    putchar('\n');
+}
+
+// Skip whitespace characters
+static void skip_whitespace(char **str) {
+    while (**str == ' ' || **str == '\t') {
+        (*str)++;
+    }
 }
 
 void shell(int argc, char **argv) {
-    // sleep(16);
+    char input[MAX_CMD_LENGTH];
+    char *args[MAX_ARGS];
+    int arg_count;
+    command_t *cmd;
+    
     printf("Welcome to GNA Shell!\n");
-
-    putchar('\n');
-
-
-    // printf("Initializing a new shell process...\n");
-    // sleep(16);
-    //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
-
-    // int sem = sem_init(0);
-
-
-    // create_process((void *)test_function, (int) sem, NULL);
-
-    // sem_wait(sem);
+    printf("Type 'help' for available commands.\n\n");
     
-    // printf("AAAAAAAA\n");
-
-    // for (int i = 0; i < 100 * 1000; i++)
-    // {
-    //     putchar(' ');
-    //     putchar('\b');
-    //     if ((i % (10 * 1000)) == 0) {
-    //         putchar('B');
-    //     }
-    // }
-
-    int c;
-
-    while ((c = getchar()) != '\n') {
-        if (c >= 0)
-            putchar(c);
+    while (1) {
+        printf("gna> ");
+        read_line(input, MAX_CMD_LENGTH);
+        
+        // Skip empty lines
+        if (strlen(input) == 0) {
+            continue;
+        }
+        
+        // Analizar comando y argumentos
+        arg_count = parse_command(input, args);
+        
+        if (arg_count == 0) {
+            continue;
+        }
+        
+        // Buscar y ejecutar comando
+        cmd = find_command(args[0]);
+        if (cmd != NULL) {
+            cmd->handler(arg_count, args);
+        } else {
+            printf("Unknown command: %s\n", args[0]);
+            printf("Type 'help' for available commands.\n");
+        }
     }
-
-    exit(0);
-    
-    return;
 }

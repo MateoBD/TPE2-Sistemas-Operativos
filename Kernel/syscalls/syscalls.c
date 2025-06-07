@@ -15,7 +15,7 @@ uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
 {
     if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
     {
-        return -1; // Invalid file descriptor or buffer
+        return -1; // Descriptor de archivo o buffer inválido
     }
 
     if (rdi == STDOUT)
@@ -31,7 +31,7 @@ uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
     }
     else
     {
-        // Handle other file descriptors
+        // Manejar otros descriptores de archivo
     }
     return 0;
 }
@@ -40,7 +40,7 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 {
     if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
     {
-        return -1; // Invalid file descriptor or buffer
+        return -1; // Descriptor de archivo o buffer inválido
     }
 
     if (rdi == STDIN)
@@ -50,26 +50,34 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
         while (bytes_read < rdx)
         {
-            buffer[bytes_read++] = kd_get_char();
+            int8_t c = kd_get_char();
+            
+            if (c == CHAR_INTERRUPT || c == CHAR_EOF)
+            {
+                buffer[bytes_read] = c;
+                return bytes_read + 1;
+            }
+            
+            buffer[bytes_read++] = c;
         }
         return bytes_read;
     }
     else
     {
-        // Handle other file descriptors
+        // Manejar otros descriptores de archivo
     }
     return 0;
 }
 
 uint64_t sys_pipe(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_pipe
     return 0;
 }
 
 uint64_t sys_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_close
     return 0;
 }
 
@@ -97,17 +105,17 @@ uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint
 
 uint64_t sys_brk(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_brk
     return 0;
 }
 
 uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_mprotect
     return 0;
 }
 
-#define STACK_SIZE 0x1000 // 4KB stack size
+#define STACK_SIZE 0x1000 // Tamaño del stack 4KB
 
 uint64_t sys_create_process(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r10, uint64_t r8, uint64_t r9)
 {
@@ -124,13 +132,13 @@ uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
     vd_print_dec(get_current_pid());
     vd_draw_char('\n');
     kill_process(get_current_pid());
-    call_int_20(); // Trigger a context switch
+    call_int_20(); // Disparar un cambio de contexto
     return 0;
 }
 
 uint64_t sys_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_wait
     return 0;
 }
 
@@ -142,7 +150,7 @@ uint64_t sys_getpid(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint
 uint64_t sys_kill(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
     kill_process((pid_t)rdi);
-    call_int_20(); // Trigger a context switch
+    call_int_20(); // Disparar un cambio de contexto
     return 0;
 }
 
@@ -158,7 +166,7 @@ uint64_t sys_setpriority(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10,
 
 uint64_t sys_sched_yield(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_sched_yield
     return 0;
 }
 
@@ -170,13 +178,13 @@ uint64_t sys_sleep(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
 
 uint64_t sys_play_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_play_sound
     return 0;
 }
 
 uint64_t sys_stop_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_stop_sound
     return 0;
 }
 
@@ -210,25 +218,25 @@ uint64_t sys_sem_getvalue(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10
 
 uint64_t sys_shm_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_shm_open
     return 0;
 }
 
 uint64_t sys_shm_unlink(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_shm_unlink
     return 0;
 }
 
 uint64_t sys_shm_map(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_shm_map
     return 0;
 }
 
 uint64_t sys_shm_unmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    // Implementation of sys_write
+    // Implementación de sys_shm_unmap
     return 0;
 }
 

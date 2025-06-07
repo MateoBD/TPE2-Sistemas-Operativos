@@ -3,19 +3,19 @@
 
 #include <stdint.h>
 
-// Function to get the current system year
+// Función para obtener el año actual del sistema
 char get_system_year();
 
-// Function to get the current system month
+// Función para obtener el mes actual del sistema
 char get_system_month();
 
-// Function to get the current day of the month
+// Función para obtener el día actual del mes
 char get_system_day_of_month();
 
-// Function to get the current system hour
+// Función para obtener la hora actual del sistema
 char get_system_hour();
 
-// Function to get the current system minute
+// Función para obtener el minuto actual del sistema
 char get_system_min();
 
 // Function to get the current system second

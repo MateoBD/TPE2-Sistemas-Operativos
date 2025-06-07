@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define WIDTH 80
-#define HEIGHT 25
+#define HEIGHT (25-1)
 
 void vd_print(const char *string);
 
@@ -27,5 +27,7 @@ void vd_print_hex(uint64_t value);
 void vd_print_bin(uint64_t value);
 
 void vd_print_base(uint64_t value, uint32_t base);
+
+void vd_scroll_up(void);
 
 #endif

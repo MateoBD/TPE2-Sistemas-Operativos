@@ -253,17 +253,19 @@ int putc(int fd, char c)
 
 int getchar(void)
 {
-    int c = -1;
-    if (( c = getc(FD_STDIN)) > 0)
-        return c;
-    return EOF;
+    return getc(FD_STDIN);
 }
 
 int getc(int fd)
 {
     char c;
     if (sys_call(SYS_READ, fd, (uint64_t)&c, 1, 0, 0, 0) > 0)
-        return c;
+    {
+        if (c == CHAR_INTERRUPT || c == CHAR_EOF)
+            return (int)c;
+        
+        return (unsigned char)c;
+    }
     return EOF;
 }
 

@@ -6,7 +6,7 @@
 
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 2
-#define STACK_SIZE 0x1000 // 4KB stack size
+#define STACK_SIZE 0x1000 // Tamaño del stack 4KB
 
 // Estados de proceso
 typedef enum ProcessState
@@ -375,5 +375,5 @@ int is_system_running()
 
 int has_running_processes()
 {
-    return system_running && (process_count > 1); // More than just idle process
+    return system_running && (process_count > 1); // Más que solo el proceso idle
 }

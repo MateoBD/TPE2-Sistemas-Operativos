@@ -1,7 +1,7 @@
 #include <processes.h>
 #include <stdint.h>
 
-// Constants
+// Constantes
 #define MAX_SEMAPHORES 512
 #define NOT_A_PROCESS 1025
 

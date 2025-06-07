@@ -1,9 +1,12 @@
 #ifndef _KEYBOARD_DRIVER_H_
 #define _KEYBOARD_DRIVER_H_
+#include <stdint.h>
 // Function declarations and macros for the Keyboard driver
 
 #define NOT_DRAWBLE -1
 #define NOT_KEY -2
+#define CHAR_INTERRUPT -3
+#define CHAR_EOF -4
 
 /**
  * @brief Handles keyboard interrupts.
@@ -33,16 +36,16 @@ char kd_has_next_key();
 /**
  * @brief Retrieves the next key from the keyboard buffer.
  * 
- * @return char The next key.
+ * @return int8_t The next key.
  */
-int kd_next_key();
+int8_t kd_next_key();
 
 /**
  * @brief Gets a character from the keyboard, blocking until one is available.
  * 
- * @return char The character from the keyboard.
+ * @return int8_t The character from the keyboard.
  */
-char kd_get_char();
+int8_t kd_get_char();
 
 
 #endif // KEYBOARD_DRIVER_H

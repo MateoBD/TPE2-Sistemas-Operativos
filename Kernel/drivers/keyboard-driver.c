@@ -16,7 +16,7 @@
 #define F_12 0x58
 #define CHAR_BUFFER_DIM 64
 
-static char char_buffer[CHAR_BUFFER_DIM] = {0};
+static int8_t char_buffer[CHAR_BUFFER_DIM] = {0};
 static uint16_t chars_at_buffer = 0;
 static int char_buffer_index = 0;
 static uint16_t getter_index = 0;
@@ -296,9 +296,9 @@ char kd_has_next_key()
     return chars_at_buffer > 0;
 }
 
-int kd_next_key()
+int8_t kd_next_key()
 {
-    int ret;
+    int8_t ret;
     if (!kd_has_next_key())
     {
         return NOT_KEY;
@@ -352,8 +352,26 @@ void kd_handler()
     }
     else
     {
-        if (chars_at_buffer <= CHAR_BUFFER_DIM && !kd_is_special_key(scancode) && !release)
+        if (chars_at_buffer <= CHAR_BUFFER_DIM && !kd_is_special_key(key) && !release)
         {
+            if (ctrl && key == 0x2E)
+            {
+                char_buffer[char_buffer_index++] = CHAR_INTERRUPT;
+                char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
+                chars_at_buffer++;
+                sem_post(STDIN_SEM_ID);
+                return;
+            }
+            
+            if (ctrl && key == 0x20)
+            {
+                char_buffer[char_buffer_index++] = CHAR_EOF;
+                char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
+                chars_at_buffer++;
+                sem_post(STDIN_SEM_ID);
+                return;
+            }
+            
             char_buffer[char_buffer_index++] = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
             char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
             chars_at_buffer++;
@@ -362,11 +380,11 @@ void kd_handler()
     }
 }
 
-char kd_get_char()
+int8_t kd_get_char()
 {
     if (!kd_has_next_key())
     {
         sem_wait(STDIN_SEM_ID);
     }
-    return (char)kd_next_key();
+    return kd_next_key();
 }
