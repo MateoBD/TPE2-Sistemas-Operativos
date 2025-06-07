@@ -1,6 +1,8 @@
 #include <keyboard-driver.h>
 #include <interrupts.h>
 #include <semaphores.h>
+#include <pipes.h>
+#include <syscalls.h>
 
 #define ESC 0x01
 #define CAPSLOCK 0x3A
@@ -14,18 +16,12 @@
 #define F_10 0x44
 #define F_11 0x57
 #define F_12 0x58
-#define CHAR_BUFFER_DIM 64
+// #define CHAR_BUFFER_DIM 64
 
-static int8_t char_buffer[CHAR_BUFFER_DIM] = {0};
-static uint16_t chars_at_buffer = 0;
-static int char_buffer_index = 0;
-static uint16_t getter_index = 0;
 static char capslock = 0;
 static char shift = 0;
 static char ctrl = 0;
 static char alt = 0;
-
-#define STDIN_SEM_ID 0
 
 extern void save_registers();
 extern char get_key();
@@ -291,25 +287,6 @@ static int shifted_ascii[] = {
     [0x7F] = NOT_DRAWBLE  // (keypad) . no es imprimible
 };
 
-char kd_has_next_key()
-{
-    return chars_at_buffer > 0;
-}
-
-int8_t kd_next_key()
-{
-    int8_t ret;
-    if (!kd_has_next_key())
-    {
-        return NOT_KEY;
-    }
-    chars_at_buffer--;
-    ret = char_buffer[getter_index];
-    getter_index++;
-    getter_index = getter_index % CHAR_BUFFER_DIM;
-    return ret;
-}
-
 char kd_is_special_key(char scancode)
 {
     return (scancode == LSHIFT) || (scancode == RSHIFT) ||
@@ -323,68 +300,50 @@ char kd_is_special_key(char scancode)
 void kd_handler()
 {
     char scancode = get_key();
-    char release = scancode;
-    release = release >> 7;
+    char release = (scancode & 0x80) != 0; // 1 if key is released, 0 if pressed
     char key = scancode & 0x7F;
-    if (scancode == ESC)
+
+    if (key == ESC)
     {
         return;
     }
-    if (scancode == CAPSLOCK)
+
+    // CAPSLOCK solo cambia en key press, no en release
+    if (key == CAPSLOCK && !release)
     {
         capslock = !capslock;
         return;
     }
     else if (key == LSHIFT || key == RSHIFT)
     {
-        shift = !release;
-        return; 
+        shift = !release; // shift activo cuando no está liberado
+        return;
     }
     else if (key == LCTRL || key == RCTRL)
     {
-        ctrl = !release;
+        ctrl = !release; // ctrl activo cuando no está liberado
         return;
     }
     else if (key == LALT || key == RALT)
     {
-        alt = !release;
+        alt = !release; // alt activo cuando no está liberado
         return;
     }
-    else
+    else if (!kd_is_special_key(key) && !release)
     {
-        if (chars_at_buffer <= CHAR_BUFFER_DIM && !kd_is_special_key(key) && !release)
+        int8_t c = -1;
+        if (ctrl && key == 0x2E)
         {
-            if (ctrl && key == 0x2E)
-            {
-                char_buffer[char_buffer_index++] = CHAR_INTERRUPT;
-                char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
-                chars_at_buffer++;
-                sem_post(STDIN_SEM_ID);
-                return;
-            }
-            
-            if (ctrl && key == 0x20)
-            {
-                char_buffer[char_buffer_index++] = CHAR_EOF;
-                char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
-                chars_at_buffer++;
-                sem_post(STDIN_SEM_ID);
-                return;
-            }
-            
-            char_buffer[char_buffer_index++] = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
-            char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
-            chars_at_buffer++;
-            sem_post(STDIN_SEM_ID);
+            c = CHAR_INTERRUPT; // Ctrl + C
         }
+        else if (ctrl && key == 0x20)
+        {
+            c = CHAR_EOF; // Ctrl + D
+        }
+        else
+        {
+            c = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
+        }
+        write_pipe(STDIN, &c, 1);
     }
-}
-
-int8_t kd_get_char()
-{
-    if (!kd_has_next_key())
-    {
-        sem_wait(STDIN_SEM_ID);
-    }
-    return kd_next_key();
 }

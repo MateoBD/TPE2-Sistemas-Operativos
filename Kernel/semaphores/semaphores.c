@@ -60,16 +60,6 @@ static void initialize_sem_queue(uint16_t queue)
     }
 }
 
-static void create_stdin_sem()
-{
-    // Asignar el semáforo a stdin (ID 0)
-    sem_queue.sem[0].value = 0;
-    sem_queue.sem[0].state = SEMAPHORE_USED;
-    sem_queue.sem[0].current_index = 0;
-    sem_queue.sem[0].last_index = 0;
-    initialize_sem_queue(0);
-}
-
 // Inicializa el gestor de semáforos
 static void init_sem_manager()
 {
@@ -77,9 +67,7 @@ static void init_sem_manager()
     sem_queue.current_index = 0;
     sem_queue.last_index = 0;
 
-    create_stdin_sem();
-
-    for (int i = 1; i < MAX_SEMAPHORES; i++)
+    for (int i = 0; i < MAX_SEMAPHORES; i++)
     {
         sem_queue.sem[i].state = SEMAPHORE_FREE;
         sem_queue.sem[i].value = 0;
@@ -115,11 +103,7 @@ void sem_wait(uint32_t sem)
     }
 
     // Decrementar el valor del semáforo
-    if (sem_queue.sem[sem].value)
-    {
-        sem_queue.sem[sem].value--;
-    }
-    else
+    while (!sem_queue.sem[sem].value)
     {
         // Agregar el proceso a la cola de espera
         pid_t current_pid = get_current_pid();
@@ -129,6 +113,7 @@ void sem_wait(uint32_t sem)
         block_process(current_pid);
         call_int_20();
     }
+    sem_queue.sem[sem].value--;
 }
 
 // Realiza una operación post en el semáforo

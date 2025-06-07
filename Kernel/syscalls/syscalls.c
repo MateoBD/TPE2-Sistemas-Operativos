@@ -8,6 +8,7 @@
 #include <time.h>
 #include <stddef.h>
 #include <semaphores.h>
+#include <pipes.h>
 
 #define RED 0x0C
 
@@ -26,47 +27,44 @@ uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
     {
         uint8_t color = vd_get_color();
         vd_set_color(RED);
-        vd_print((char *)rsi);
+        vd_nprint((char *)rsi, (uint32_t)rdx);
         vd_set_color(color);
     }
     else
     {
-        // Manejar otros descriptores de archivo
+        write_pipe(rdi, (int8_t *)rsi, (int)rdx);
     }
     return 0;
 }
 
 uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
+    if (rdi < 0 || (int8_t *)rsi == NULL || rdx <= 0)
     {
         return -1; // Descriptor de archivo o buffer inválido
     }
 
-    if (rdi == STDIN)
-    {
-        char *buffer = (char *)rsi;
-        uint32_t bytes_read = 0;
+    int8_t *buffer = (int8_t *)rsi;
 
-        while (bytes_read < rdx)
+    uint32_t bytes_read = 0;
+
+    while (bytes_read < rdx)
+    {
+        int8_t c = 0;
+        int result = read_pipe(rdi, &c, 1);
+        if (result == -1)
         {
-            int8_t c = kd_get_char();
-
-            if (c == CHAR_INTERRUPT || c == CHAR_EOF)
-            {
-                buffer[bytes_read] = c;
-                return bytes_read + 1;
-            }
-
-            buffer[bytes_read++] = c;
+            return bytes_read > 0 ? bytes_read : -1; // Retornar bytes leídos o error
         }
-        return bytes_read;
+
+        if (c == CHAR_INTERRUPT || c == CHAR_EOF)
+        {
+            buffer[bytes_read] = c;
+            return bytes_read + 1;
+        }
+        buffer[bytes_read++] = c;
     }
-    else
-    {
-        // Manejar otros descriptores de archivo
-    }
-    return 0;
+    return bytes_read;
 }
 
 uint64_t sys_pipe(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -123,14 +121,13 @@ uint64_t sys_create_process(uint64_t name, uint64_t rip, uint64_t argc, uint64_t
     static uint8_t p = 0;
     p = (p + 1) % 2;
 
-    return create_process((const char *)name, (void *)rip, p, (int)argc, (char **)argv);
+    uint32_t new_pid = create_process((const char *)name, (void *)rip, p, (int)argc, (char **)argv);
+    call_int_20();
+    return new_pid;
 }
 
 uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    vd_print("Exiting process with PID: ");
-    vd_print_dec(get_current_pid());
-    vd_draw_char('\n');
     kill_process(get_current_pid());
     call_int_20(); // Disparar un cambio de contexto
     return 0;
