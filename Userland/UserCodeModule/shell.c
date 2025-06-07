@@ -5,6 +5,7 @@
 #include <gnastring.h>
 #include <stdint.h>
 #include <programs.h>
+#include <gnauni.h>
 
 #define MAX_CMD_LENGTH 256
 #define MAX_ARGS 16

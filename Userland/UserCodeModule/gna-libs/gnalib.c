@@ -115,16 +115,6 @@ uint32_t rand(void)
     return random_next;
 }
 
-uint64_t create_process(const char *name, void *function, int argc, char **argv)
-{
-    return sys_call((uint64_t)SYS_CREATE_PROCESS, (uint64_t)name, (uint64_t)function, (uint64_t)argc, (uint64_t)argv, 0, 0);
-}
-
-uint32_t get_pid(void)
-{
-    return sys_call(SYS_GETPID, 0, 0, 0, 0, 0, 0);
-}
-
 void exit(int status)
 {
     sys_call(SYS_EXIT, status, 0, 0, 0, 0, 0);

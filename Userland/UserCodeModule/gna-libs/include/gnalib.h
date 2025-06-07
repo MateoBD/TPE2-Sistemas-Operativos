@@ -41,10 +41,6 @@ void srand(uint32_t seed);
 
 uint32_t rand();
 
-uint64_t create_process(const char *name, void *function, int argc, char **argv);
-
-uint32_t get_pid(void);
-
 void exit(int status);
 
 void *memset(void *destiny, int32_t c, uint64_t length);

@@ -52,9 +52,10 @@ void free_terminated_processes(void);
  * @param priority Prioridad del proceso
  * @param argc Cantidad de argumentos
  * @param argv Vector de argumentos
+ * @param fds Vector de file descriptors
  * @return PID del nuevo proceso o -1 si hubo error
  */
-pid_t create_process(const char *name, void *entryPoint, uint8_t priority, int argc, char **argv);
+pid_t create_process(const char *name, void *entryPoint, uint8_t priority, int argc, char **argv, uint16_t *fds);
 
 /**
  * @brief Termina un proceso
@@ -74,6 +75,13 @@ pid_t get_current_pid();
  * @return Prioridad del proceso en ejecución
  */
 uint8_t get_current_priority(void);
+
+/**
+ * @brief Obtiene los file descriptors del proceso actual
+ * @param fds Puntero a un array donde se guardarán los file descriptors
+ * @return 0 si se obtuvieron correctamente, -1 si hubo error
+ */
+int get_current_fds(uint16_t *fds);
 
 /**
  * @brief Cambia la prioridad de un proceso

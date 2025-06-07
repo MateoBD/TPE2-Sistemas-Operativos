@@ -5,53 +5,63 @@
 #include <stdint.h>
 #include <memory-manager.h>
 #include <processes.h>
-#include <time.h>
 #include <stddef.h>
 #include <semaphores.h>
 #include <pipes.h>
+#include <lib.h>
+#include <time.h>
+#include <times.h>
 
 #define RED 0x0C
 
-uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_write(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    if (rdi < 0 || (char *)rsi == NULL || rdx <= 0)
+    if (fd < 0 || (char *)buffer == NULL || count <= 0)
     {
         return -1; // Descriptor de archivo o buffer inválido
     }
 
-    if (rdi == STDOUT)
+    uint16_t fds[2];
+    get_current_fds(fds);
+    fd = (fd == STDOUT) ? fds[STDOUT] : fd;
+
+    if (fd == STDOUT)
     {
-        vd_nprint((char *)rsi, (uint32_t)rdx);
+        vd_nprint((char *)buffer, (uint32_t)count);
     }
-    else if (rdi == STDERR)
+    else if (fd == STDERR)
     {
         uint8_t color = vd_get_color();
         vd_set_color(RED);
-        vd_nprint((char *)rsi, (uint32_t)rdx);
+        vd_nprint((char *)buffer, (uint32_t)count);
         vd_set_color(color);
     }
     else
     {
-        write_pipe(rdi, (int8_t *)rsi, (int)rdx);
+        write_pipe(fd, (int8_t *)buffer, (int)count);
     }
     return 0;
 }
 
-uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    if (rdi < 0 || (int8_t *)rsi == NULL || rdx <= 0)
+    if (fd < 0 || (int8_t *)buffer == NULL || count <= 0)
     {
         return -1; // Descriptor de archivo o buffer inválido
     }
 
-    int8_t *buffer = (int8_t *)rsi;
+    int8_t *buf = (int8_t *)buffer;
 
     uint32_t bytes_read = 0;
 
-    while (bytes_read < rdx)
+    uint16_t fds[2];
+    get_current_fds(fds);
+    fd = (fd == STDIN) ? fds[STDIN] : fd;
+
+    while (bytes_read < count)
     {
         int8_t c = 0;
-        int result = read_pipe(rdi, &c, 1);
+        int result = read_pipe(fd, &c, 1);
         if (result == -1)
         {
             return bytes_read > 0 ? bytes_read : -1; // Retornar bytes leídos o error
@@ -59,187 +69,185 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
         if (c == CHAR_INTERRUPT || c == CHAR_EOF)
         {
-            buffer[bytes_read] = c;
+            buf[bytes_read] = c;
             return bytes_read + 1;
         }
-        buffer[bytes_read++] = c;
+        buf[bytes_read++] = c;
     }
     return bytes_read;
 }
 
-uint64_t sys_pipe(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_pipe(uint64_t pipefd, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_pipe
     return 0;
 }
 
-uint64_t sys_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_close(uint64_t fd, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_close
     return 0;
 }
 
-uint64_t sys_set_cursor(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_set_cursor(uint64_t x, uint64_t y, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    vd_set_cursor((uint32_t)rdi, (uint32_t)rsi);
+    vd_set_cursor((uint32_t)x, (uint32_t)y);
     return 0;
 }
 
-uint64_t sys_set_color(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_set_color(uint64_t color, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    vd_set_color((uint8_t)rdi);
+    vd_set_color((uint8_t)color);
     return 0;
 }
 
-uint64_t sys_mmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_mmap(uint64_t size, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    return (uint64_t)memory_alloc(memory_manager, rdi);
+    return (uint64_t)memory_alloc(memory_manager, size);
 }
 
-uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    return memory_free(memory_manager, (void *)rdi);
+    return memory_free(memory_manager, (void *)addr);
 }
 
-uint64_t sys_brk(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_brk(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_brk
     return 0;
 }
 
-uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_mprotect(uint64_t addr, uint64_t len, uint64_t prot, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_mprotect
     return 0;
 }
 
-#define STACK_SIZE 0x1000 // Tamaño del stack 4KB
-
-uint64_t sys_create_process(uint64_t name, uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r8, uint64_t r9)
+uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t unused6)
 {
 
     static uint8_t p = 0;
     p = (p + 1) % 2;
 
-    uint32_t new_pid = create_process((const char *)name, (void *)rip, p, (int)argc, (char **)argv);
+    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, p, (int)argc, (char **)argv, (uint16_t *) fds);
     call_int_20();
     return new_pid;
 }
 
-uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     kill_process(get_current_pid());
     call_int_20(); // Disparar un cambio de contexto
     return 0;
 }
 
-uint64_t sys_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_wait(uint64_t pid, uint64_t status, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_wait
     return 0;
 }
 
-uint64_t sys_getpid(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_getpid(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     return get_current_pid();
 }
 
-uint64_t sys_kill(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_kill(uint64_t pid, uint64_t signal, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    kill_process((pid_t)rdi);
+    kill_process((pid_t)pid);
     call_int_20(); // Disparar un cambio de contexto
     return 0;
 }
 
-uint64_t sys_getpriority(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_getpriority(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     return get_current_priority();
 }
 
-uint64_t sys_setpriority(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_setpriority(uint64_t pid, uint64_t priority, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    return change_priority((pid_t)rdi, (uint8_t)rsi);
+    return change_priority((pid_t)pid, (uint8_t)priority);
 }
 
-uint64_t sys_sched_yield(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sched_yield(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_sched_yield
     return 0;
 }
 
-uint64_t sys_sleep(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sleep(uint64_t seconds, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    sleep((int)rdi);
+    sleep((int)seconds);
     return 0;
 }
 
-uint64_t sys_play_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_play_sound(uint64_t frequency, uint64_t duration, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_play_sound
     return 0;
 }
 
-uint64_t sys_stop_sound(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_stop_sound(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_stop_sound
     return 0;
 }
 
-uint64_t sys_sem_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sem_open(uint64_t value, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    return create_sem((uint32_t)rdi);
+    return create_sem((uint32_t)value);
 }
 
-uint64_t sys_sem_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sem_close(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    destroy_sem((uint32_t)rdi);
+    destroy_sem((uint32_t)sem_id);
     return 0;
 }
 
-uint64_t sys_sem_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sem_wait(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    sem_wait((uint32_t)rdi);
+    sem_wait((uint32_t)sem_id);
     return 0;
 }
 
-uint64_t sys_sem_post(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sem_post(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    sem_post((uint32_t)rdi);
+    sem_post((uint32_t)sem_id);
     return 0;
 }
 
-uint64_t sys_sem_getvalue(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_sem_getvalue(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    return get_sem_value((uint32_t)rdi);
+    return get_sem_value((uint32_t)sem_id);
 }
 
-uint64_t sys_shm_open(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_shm_open(uint64_t name, uint64_t oflag, uint64_t mode, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_shm_open
     return 0;
 }
 
-uint64_t sys_shm_unlink(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_shm_unlink(uint64_t name, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_shm_unlink
     return 0;
 }
 
-uint64_t sys_shm_map(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_shm_map(uint64_t addr, uint64_t length, uint64_t prot, uint64_t flags, uint64_t fd, uint64_t offset)
 {
     // Implementación de sys_shm_map
     return 0;
 }
 
-uint64_t sys_shm_unmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_shm_unmap(uint64_t addr, uint64_t length, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     // Implementación de sys_shm_unmap
     return 0;
 }
 
-uint64_t sys_mem_info(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_mem_info(uint64_t info_struct, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
 
-    (memory_state_get(memory_manager, (HeapState *)rdi));
+    (memory_state_get(memory_manager, (HeapState *)info_struct));
     return 0;
 }

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <lib.h>
+#include <syscalls.h>
 
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 2
@@ -28,6 +29,7 @@ typedef struct process_control_block
     uint8_t priority;
     void *stack_base;
     void *stack;
+    uint16_t fds[2]; // File descriptors: [0] stdin, [1] stdout
     struct process_control_block *father;
     struct process_control_block *children[MAX_CHILDREN];
     size_t children_count;
@@ -86,6 +88,8 @@ int init_processes()
     idle_process_pcb->name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
     idle_process_pcb->state = READY;
     idle_process_pcb->priority = 0;
+    idle_process_pcb->fds[STDIN] = STDIN;
+    idle_process_pcb->fds[STDOUT] = STDOUT;
     idle_process_pcb->stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
 
     process_count = 1;
@@ -174,7 +178,7 @@ void *get_next_process()
     return current_process->stack;
 }
 
-static PCB set_new_process(const char *name, uint8_t priority)
+static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
 {
     PCB new_process;
     new_process.pid = next_pid++;
@@ -196,6 +200,8 @@ static PCB set_new_process(const char *name, uint8_t priority)
     new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
     new_process.stack = new_process.stack_base;
     new_process.father = current_process;
+    new_process.fds[STDIN] = (fds != NULL && fds[STDIN] != 0) ? fds[STDIN] : STDIN;
+    new_process.fds[STDOUT] = (fds != NULL && fds[STDOUT] != 0) ? fds[STDOUT] : STDOUT;
     new_process.children_count = 0;
 
     for (int i = 0; i < MAX_CHILDREN; i++)
@@ -207,7 +213,7 @@ static PCB set_new_process(const char *name, uint8_t priority)
 }
 
 // Crea un nuevo proceso
-pid_t create_process(const char *name, void *entry_point, uint8_t priority, int argc, char **argv)
+pid_t create_process(const char *name, void *entry_point, uint8_t priority, int argc, char **argv, uint16_t *fds)
 {
 
     if (process_count >= MAX_PROCESSES)
@@ -231,7 +237,7 @@ pid_t create_process(const char *name, void *entry_point, uint8_t priority, int 
         return -1; // No hay espacio para un nuevo proceso
     }
 
-    process_table[index] = set_new_process(name, priority);
+    process_table[index] = set_new_process(name, priority, fds);
     PCB *new_process = &process_table[index];
 
     if (new_process->stack_base == NULL)
@@ -243,6 +249,7 @@ pid_t create_process(const char *name, void *entry_point, uint8_t priority, int 
     {
         return -1; // El proceso padre ya tiene el maximo de hijos
     }
+
     current_process->children[current_process->children_count++] = new_process;
 
     new_process->stack = set_process_stack(argc, argv, new_process->stack_base + STACK_SIZE - 0x08, entry_point);
@@ -309,6 +316,19 @@ uint8_t get_current_priority(void)
         return 0; // Proceso idle
     }
     return current_process->priority;
+}
+
+int get_current_fds(uint16_t *fds)
+{
+    if (current_process == NULL || fds == NULL)
+    {
+        return -1;
+    }
+
+    fds[STDIN] = current_process->fds[STDIN];
+    fds[STDOUT] = current_process->fds[STDOUT];
+
+    return 0;
 }
 
 int change_priority(uint32_t pid, uint8_t newPriority)

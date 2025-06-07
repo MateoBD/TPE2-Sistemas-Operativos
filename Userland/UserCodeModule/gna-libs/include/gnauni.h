@@ -1,7 +1,32 @@
-#ifndef _UNIGNA_H_
-#define _UNIGNA_H_
+#ifndef _GNAUNI_H_
+#define _GNAUNI_H_
 
 #include <stdint.h>
+
+/**
+ * @file gnauni.h
+ * @brief Header file for GNA userland library functions.
+ *
+ * This header provides the interface for creating processes, managing semaphores,
+ * and other userland functionalities in the GNA operating system.
+ */
+
+/**
+ * @brief Crea un nuevo proceso
+ * @param name Nombre del proceso
+ * @param function Función que se ejecutará en el nuevo proceso
+ * @param argc Cantidad de argumentos
+ * @param argv Vector de argumentos
+ * @param fds Vector de file descriptors (stdin, stdout)
+ * @return PID del nuevo proceso o -1 si hubo error
+ */
+uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds);
+
+/**
+ * @brief Obtiene el PID del proceso actual
+ * @return PID del proceso en ejecución
+ */
+uint32_t get_pid(void);
 
 /**
  * @brief Crea un nuevo semáforo con un valor inicial
@@ -38,4 +63,4 @@ int32_t sem_post(uint32_t sem);
  */
 int32_t sem_getvalue(uint32_t sem);
 
-#endif /* _UNIGNA_H_ */
+#endif /* _GNAUNI_H_ */

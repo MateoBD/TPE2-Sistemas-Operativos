@@ -1,6 +1,7 @@
 #include <gnaio.h>
 #include <gnalib.h>
 #include <programs.h>
+#include <gnauni.h>
 
 void cmd_echo(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
@@ -34,13 +35,13 @@ void exit_shell(int argc, char **argv) {
 }
 
 void echo(int argc, char **argv){
-    create_process("echo", cmd_echo, argc, argv);
+    create_process("echo", cmd_echo, argc, argv, NULL);
 }
 
 void clear(int argc, char **argv){
-    create_process("clear", cmd_clear, argc, argv);
+    create_process("clear", cmd_clear, argc, argv, NULL);
 }
 
 void help(int argc, char **argv){
-    create_process("help", cmd_help, argc, argv);
+    create_process("help", cmd_help, argc, argv, NULL);
 }

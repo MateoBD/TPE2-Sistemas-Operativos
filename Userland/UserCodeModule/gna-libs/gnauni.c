@@ -20,9 +20,19 @@
  * sem_close(mutex);
  */
 
-#include <unigna.h>
+#include <gnauni.h>
 #include <libasm.h>
 #include <stdint.h>
+
+uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds)
+{
+    return sys_call((uint64_t)SYS_CREATE_PROCESS, (uint64_t)name, (uint64_t)function, (uint64_t)argc, (uint64_t)argv, (uint64_t)fds, 0);
+}
+
+uint32_t get_pid(void)
+{
+    return sys_call(SYS_GETPID, 0, 0, 0, 0, 0, 0);
+}
 
 int32_t sem_init(uint32_t initial_value)
 {
