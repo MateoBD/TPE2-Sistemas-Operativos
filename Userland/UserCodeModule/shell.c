@@ -50,21 +50,30 @@ void shell(int argc, char **argv) {
     // sleep(16);
     //we shoul have to check this, create_process is never calling test_function always calling a new shell or userCodeModule
 
-    int sem = sem_init(0);
+    // int sem = sem_init(0);
 
 
-    create_process((void *)test_function, (int) sem, NULL);
+    // create_process((void *)test_function, (int) sem, NULL);
 
     // sem_wait(sem);
     
     // printf("AAAAAAAA\n");
 
-    // char c = 'A';
-    // putchar(c);
-    // putchar('\n');
-    // c = getchar();
-    // putchar(c);
-    // putchar('\n');
+    // for (int i = 0; i < 100 * 1000; i++)
+    // {
+    //     putchar(' ');
+    //     putchar('\b');
+    //     if ((i % (10 * 1000)) == 0) {
+    //         putchar('B');
+    //     }
+    // }
+
+    char c = 'A';
+    putchar(c);
+    putchar('\n');
+    c = getchar();
+    putchar(c);
+    putchar('\n');
 
     exit(0);
     

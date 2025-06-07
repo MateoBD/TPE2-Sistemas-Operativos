@@ -111,7 +111,7 @@ uint64_t sys_mmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
 uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    return memory_free(memory_manager,(void *)rdi);;
+    return memory_free(memory_manager,(void *)rdi);
 }
 
 uint64_t sys_brk(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -213,7 +213,6 @@ uint64_t sys_sem_close(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
 uint64_t sys_sem_wait(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
     sem_wait((uint32_t)rdi);
-    call_int_20(); // Trigger a context switch
     return 0;
 }
 

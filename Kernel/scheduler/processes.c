@@ -97,14 +97,21 @@ int init_processes()
 
 void set_next_process(void *current_stack)
 {
-    if (current_process == NULL || current_process->pid == 0)
+    if (current_process == NULL)
     {
+        return;
+    }
+
+    static uint8_t first_time = 1; // Al primer cambio de contexto, no quiero pisar el stack del idle con el del kernel
+    if (first_time)
+    {
+        first_time = 0;
         return;
     }
 
     current_process->stack = current_stack;
 
-    if (current_process->state == RUNNING)
+    if (current_process->pid != 0 && current_process->state == RUNNING)
     {
         // Si el proceso actual está en ejecución, lo pasamos a READY
         current_process->state = READY;
@@ -152,7 +159,7 @@ void *get_next_process()
     // Si no se encontró ningún proceso en ninguna prioridad, usar el proceso idle
     if (next_process == NULL)
     {
-        return get_idle_process_stack();
+        next_process = &process_table[0]; // Proceso idle
     }
 
     // Actualizar el proceso actual y su estado

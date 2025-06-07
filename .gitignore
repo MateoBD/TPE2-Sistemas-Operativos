@@ -2,8 +2,13 @@
 .DS_Store
 .bash_history
 .gdb_history
+.gdbinit
 
 # Archivos objeto y binarios
 *.o
 *.bin
 *.elf
+*.sys
+*.img
+*.qcow2
+*.vmdk

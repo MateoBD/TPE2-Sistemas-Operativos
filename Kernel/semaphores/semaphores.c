@@ -127,6 +127,7 @@ void sem_wait(uint32_t sem)
         sem_queue.sem[sem].last_index++;
         sem_queue.sem[sem].last_index %= MAX_PROCESSES;
         block_process(current_pid);
+        call_int_20();
     }
 }
 
