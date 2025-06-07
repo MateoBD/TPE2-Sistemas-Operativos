@@ -20,9 +20,9 @@ extern uint8_t end_of_kernel;
 
 static const uint64_t page_size = 0x1000;
 
-static void * const user_code_module_address = (void*)0x400000;
-static void * const user_data_module_address = (void*)0x500000;
-static void * const system_memory_adress = (void*)0x600000;
+static void *const user_code_module_address = (void *)0x400000;
+static void *const user_data_module_address = (void *)0x500000;
+static void *const system_memory_adress = (void *)0x600000;
 
 typedef int (*entry_point)();
 
@@ -33,10 +33,8 @@ void clear_bss(void *bss_address, uint64_t bss_size)
 
 void *get_stack_base()
 {
-    return (void*)(
-        (uint64_t)&end_of_kernel
-        + page_size * 8              //The size of the stack itself, 32KiB
-        - sizeof(uint64_t)           //Begin at the top of the stack
+    return (void *)((uint64_t)&end_of_kernel + page_size * 8 // The size of the stack itself, 32KiB
+                    - sizeof(uint64_t)                       // Begin at the top of the stack
     );
 }
 
@@ -55,8 +53,7 @@ void *initialize_kernel_binary()
     // vd_draw_char('\n');
     void *module_addresses[] = {
         user_code_module_address,
-        user_data_module_address
-    };
+        user_data_module_address};
 
     load_modules(&end_of_kernel_binary, module_addresses);
 
@@ -92,13 +89,12 @@ void *initialize_kernel_binary()
 extern void haltcpu(void);
 
 int main()
-{    
+{
     vd_clear_screen();
 
     memory_manager = memory_manager_init(
-        (void *) &end_of_kernel,
-        system_memory_adress
-    );
+        (void *)&end_of_kernel,
+        system_memory_adress);
 
     if (init_processes() == -1)
     {
@@ -107,7 +103,7 @@ int main()
         return 1;
     }
 
-    create_process((void *) user_code_module_address, 0, 0, NULL);
+    create_process("shell", (void *)user_code_module_address, 0, 0, NULL);
 
     load_idt();
     return 0;

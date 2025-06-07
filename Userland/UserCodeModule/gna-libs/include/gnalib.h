@@ -9,7 +9,8 @@
 
 #define RAND_MAX 0x7FFFFFFF
 
-typedef struct {
+typedef struct
+{
     char day;
     char month;
     char year;
@@ -32,7 +33,7 @@ uint64_t time();
 
 time_t get_time();
 
-int itoa(uint64_t value, char * buffer, int base, int n);
+int itoa(uint64_t value, char *buffer, int base, int n);
 
 void sleep(uint64_t ticks);
 
@@ -40,14 +41,13 @@ void srand(uint32_t seed);
 
 uint32_t rand();
 
-
-uint64_t create_process(void * function, int argc, char **argv);
+uint64_t create_process(const char *name, void *function, int argc, char **argv);
 
 uint32_t get_pid(void);
 
 void exit(int status);
 
-void * memset(void * destiny, int32_t c, uint64_t length);
+void *memset(void *destiny, int32_t c, uint64_t length);
 
 void *my_malloc(uint64_t size);
 

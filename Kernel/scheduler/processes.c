@@ -3,10 +3,12 @@
 #include <pcb-queueADT.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <lib.h>
 
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 2
 #define STACK_SIZE 0x1000 // Tamaño del stack 4KB
+#define MAX_PROCESS_NAME_LENGTH 64
 
 // Estados de proceso
 typedef enum ProcessState
@@ -21,6 +23,7 @@ typedef enum ProcessState
 typedef struct process_control_block
 {
     pid_t pid;
+    char name[MAX_PROCESS_NAME_LENGTH];
     ProcessState state;
     uint8_t priority;
     void *stack_base;
@@ -79,6 +82,8 @@ int init_processes()
 
     PCB *idle_process_pcb = &process_table[0];
     idle_process_pcb->pid = 0;
+    memcpy(idle_process_pcb->name, "init", MAX_PROCESS_NAME_LENGTH - 1);
+    idle_process_pcb->name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
     idle_process_pcb->state = READY;
     idle_process_pcb->priority = 0;
     idle_process_pcb->stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
@@ -169,10 +174,23 @@ void *get_next_process()
     return current_process->stack;
 }
 
-static PCB set_new_process(uint8_t priority)
+static PCB set_new_process(const char *name, uint8_t priority)
 {
     PCB new_process;
     new_process.pid = next_pid++;
+
+    // Copiar el nombre del proceso, asegurando que no exceda el límite
+    if (name != NULL)
+    {
+        memcpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
+        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0'; // Asegurar terminación null
+    }
+    else
+    {
+        memcpy(new_process.name, "unnamed", MAX_PROCESS_NAME_LENGTH - 1);
+        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
+    }
+
     new_process.state = READY;
     new_process.priority = priority;
     new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
@@ -189,7 +207,7 @@ static PCB set_new_process(uint8_t priority)
 }
 
 // Crea un nuevo proceso
-pid_t create_process(void *entry_point, uint8_t priority, int argc, char **argv)
+pid_t create_process(const char *name, void *entry_point, uint8_t priority, int argc, char **argv)
 {
 
     if (process_count >= MAX_PROCESSES)
@@ -213,7 +231,7 @@ pid_t create_process(void *entry_point, uint8_t priority, int argc, char **argv)
         return -1; // No hay espacio para un nuevo proceso
     }
 
-    process_table[index] = set_new_process(priority);
+    process_table[index] = set_new_process(name, priority);
     PCB *new_process = &process_table[index];
 
     if (new_process->stack_base == NULL)

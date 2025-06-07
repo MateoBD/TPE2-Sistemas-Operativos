@@ -20,7 +20,7 @@ uint64_t sys_write(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint6
 
     if (rdi == STDOUT)
     {
-        vd_nprint((char *)rsi, (uint32_t) rdx);
+        vd_nprint((char *)rsi, (uint32_t)rdx);
     }
     else if (rdi == STDERR)
     {
@@ -51,13 +51,13 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
         while (bytes_read < rdx)
         {
             int8_t c = kd_get_char();
-            
+
             if (c == CHAR_INTERRUPT || c == CHAR_EOF)
             {
                 buffer[bytes_read] = c;
                 return bytes_read + 1;
             }
-            
+
             buffer[bytes_read++] = c;
         }
         return bytes_read;
@@ -95,12 +95,12 @@ uint64_t sys_set_color(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
 
 uint64_t sys_mmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    return (uint64_t)memory_alloc(memory_manager,rdi);
+    return (uint64_t)memory_alloc(memory_manager, rdi);
 }
 
 uint64_t sys_munmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    return memory_free(memory_manager,(void *)rdi);
+    return memory_free(memory_manager, (void *)rdi);
 }
 
 uint64_t sys_brk(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -117,13 +117,13 @@ uint64_t sys_mprotect(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, ui
 
 #define STACK_SIZE 0x1000 // Tamaño del stack 4KB
 
-uint64_t sys_create_process(uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r10, uint64_t r8, uint64_t r9)
+uint64_t sys_create_process(uint64_t name, uint64_t rip, uint64_t argc, uint64_t argv, uint64_t r8, uint64_t r9)
 {
 
     static uint8_t p = 0;
     p = (p + 1) % 2;
 
-    return create_process((void *) rip, p, (int) argc, (char **) argv);
+    return create_process((const char *)name, (void *)rip, p, (int)argc, (char **)argv);
 }
 
 uint64_t sys_exit(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
@@ -242,7 +242,7 @@ uint64_t sys_shm_unmap(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, u
 
 uint64_t sys_mem_info(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9)
 {
-    
-    (memory_state_get(memory_manager,(HeapState *)rdi));
+
+    (memory_state_get(memory_manager, (HeapState *)rdi));
     return 0;
 }
