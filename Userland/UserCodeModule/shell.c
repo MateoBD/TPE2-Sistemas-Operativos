@@ -68,12 +68,12 @@ void shell(int argc, char **argv) {
     //     }
     // }
 
-    char c = 'A';
-    putchar(c);
-    putchar('\n');
-    c = getchar();
-    putchar(c);
-    putchar('\n');
+    int c;
+
+    while ((c = getchar()) != '\n') {
+        if (c >= 0)
+            putchar(c);
+    }
 
     exit(0);
     

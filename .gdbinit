@@ -20,9 +20,9 @@ b main
 b _start
 
 # scheduler
-b _irq00Handler
-b scheduler
-b interrupts.asm:225
+# b _irq00Handler
+# b scheduler
+# b interrupts.asm:225
 
 # Funciones de usuario
 b test_function
@@ -37,6 +37,16 @@ b _irq01Handler
 b kd_handler
 b interrupts.asm:245
 
+b shell.c:74
+
+b sys_read
+b sys_write
+
+define scheduler_debug
+    b _irq00Handler
+    b scheduler
+    b interrupts.asm:225
+end
 
 
 define inspect_keyboard_buffer
@@ -54,6 +64,10 @@ define inspect_keyboard_buffer
     if chars_at_buffer > 10
         printf "  ... and %d more characters\n", chars_at_buffer - 10
     end
+end
+
+define print_stack
+    x/24gx $rsp
 end
 
 # Agregar a los comandos disponibles

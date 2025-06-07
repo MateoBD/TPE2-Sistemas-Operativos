@@ -50,27 +50,8 @@ uint64_t sys_read(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64
 
         while (bytes_read < rdx)
         {
-            char c = kd_get_char();
-            if (c == '\n' || c == '\r') // Handle newline characters
-            {
-                buffer[bytes_read++] = '\n';
-                break;
-            }
-            else if (c == 0x08) // Handle backspace
-            {
-                if (bytes_read > 0)
-                {
-                    bytes_read--;
-                    vd_draw_char('\b');
-                }
-            }
-            else
-            {
-                buffer[bytes_read++] = c;
-                vd_draw_char(c);
-            }
+            buffer[bytes_read++] = kd_get_char();
         }
-        buffer[bytes_read] = '\0'; // Null-terminate the string
         return bytes_read;
     }
     else

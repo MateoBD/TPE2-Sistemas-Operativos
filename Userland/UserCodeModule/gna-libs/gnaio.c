@@ -253,7 +253,6 @@ int putc(int fd, char c)
 
 int getchar(void)
 {
-    // This should call the system's character input function
     int c = -1;
     if (( c = getc(FD_STDIN)) > 0)
         return c;

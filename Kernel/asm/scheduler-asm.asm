@@ -54,11 +54,12 @@ set_process_stack:
     ret
 
 idle_process:
+.loop:
     mov rax, [system_running]
     cmp rax, 1
-    je .loop
+    je .no_cli
     cli
-.loop:
+.no_cli:
     hlt
     jmp .loop
 
