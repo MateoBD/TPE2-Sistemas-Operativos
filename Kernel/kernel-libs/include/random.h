@@ -11,6 +11,7 @@
  * @return A random integer.
  */
 uint64_t random();
+
  /**
   * @brief Retorna un numero entero aleatorio en el rango [izq, der]
   */

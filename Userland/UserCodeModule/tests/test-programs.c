@@ -64,17 +64,16 @@ void cmd_test_prio(int argc, char **argv)
 
 void cmd_test_sync(int argc, char **argv)
 {
-    if (argc < 4)
+    if (argc < 3)
     {
-        printf("Usage: test_sync <n> <use_sem> <sem_id>\n");
+        printf("Usage: test_sync <n> <use_sem>\n");
         printf("  n: Number of iterations (positive integer)\n");
         printf("  use_sem: Use semaphore (0 or 1)\n");
-        printf("  sem_id: Semaphore ID (string)\n");
         exit(-1);
     }
 
-    char *test_argv[3] = {argv[1], argv[2], argv[3]};
-    uint64_t result = test_sync(3, test_argv);
+    char *test_argv[2] = {argv[1], argv[2]};
+    uint64_t result = test_sync(2, test_argv);
 
     if (result == -1)
     {

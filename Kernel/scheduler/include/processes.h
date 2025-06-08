@@ -49,13 +49,12 @@ void free_terminated_processes(void);
  * @brief Crea un nuevo proceso
  * @param name Nombre del proceso
  * @param entryPoint Punto de entrada (función main)
- * @param priority Prioridad del proceso
  * @param argc Cantidad de argumentos
  * @param argv Vector de argumentos
  * @param fds Vector de file descriptors
  * @return PID del nuevo proceso o -1 si hubo error
  */
-pid_t create_process(const char *name, void *entryPoint, uint8_t priority, int argc, char **argv, uint16_t *fds);
+pid_t create_process(const char *name, void *entryPoint, int argc, char **argv, uint16_t *fds);
 
 /**
  * @brief Termina un proceso

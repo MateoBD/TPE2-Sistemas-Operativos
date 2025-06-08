@@ -103,7 +103,9 @@ int main()
         return 1;
     }
 
-    create_process("shell", (void *)user_code_module_address, 0, 0, NULL, NULL);
+    char * argv[] = {"shell", NULL};
+
+    create_process("shell", (void *)user_code_module_address, 1, argv, NULL);
 
     load_idt();
     return 0;

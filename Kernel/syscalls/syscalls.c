@@ -125,11 +125,7 @@ uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t 
 uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t unused6)
 {
 
-    static uint8_t p = 0;
-    p = (p + 1) % 2;
-
-    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, p, (int)argc, (char **)argv, (uint16_t *) fds);
-    call_int_20();
+    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, (int)argc, (char **)argv, (uint16_t *) fds);
     return new_pid;
 }
 
@@ -145,7 +141,7 @@ uint64_t sys_wait(uint64_t pid, uint64_t status, uint64_t unused3, uint64_t unus
 {
     int8_t *exit_status = (int8_t *)status;
 
-    if (exit_status == NULL || pid >= MAX_PROCESSES || pid == get_current_pid())
+    if (pid >= MAX_PROCESSES || pid == get_current_pid())
     {
         return -1;
     }

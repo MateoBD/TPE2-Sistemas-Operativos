@@ -6,9 +6,10 @@
 #include <lib.h>
 #include <syscalls.h>
 #include <semaphores.h>
+#include <random.h>
 
 #define MAX_CHILDREN 64
-#define PRIORITY_LEVELS 2
+#define PRIORITY_LEVELS 3
 #define STACK_SIZE 0x1000 // Tamaño del stack 4KB
 #define MAX_PROCESS_NAME_LENGTH 64
 
@@ -138,15 +139,44 @@ void *get_idle_process_stack()
     return process_table[0].stack;
 }
 
+static uint8_t get_random_priority()
+{
+    // Sistema de pesos ponderados dinámico basado en PRIORITY_LEVELS
+    // Las prioridades más altas (valores menores) tienen más peso
+    // Fórmula: peso de prioridad i = (PRIORITY_LEVELS - i)
+
+    // Calcular peso total para normalización
+    uint32_t total_weight = 0;
+    for (uint8_t i = 0; i < PRIORITY_LEVELS; i++)
+    {
+        total_weight += (PRIORITY_LEVELS - i) * (PRIORITY_LEVELS - i);
+    }
+
+    // Generar número aleatorio en el rango [0, total_weight-1]
+    uint32_t random_value = randInt(0, total_weight - 1);
+
+    // Encontrar la prioridad correspondiente
+    uint32_t accumulated_weight = 0;
+    for (uint8_t priority = 0; priority < PRIORITY_LEVELS; priority++)
+    {
+        accumulated_weight += (PRIORITY_LEVELS - priority) * (PRIORITY_LEVELS - priority);
+        if (random_value < accumulated_weight)
+        {
+            return priority;
+        }
+    }
+
+    // Fallback (no debería llegar aquí)
+    return PRIORITY_LEVELS - 1;
+}
+
 void *get_next_process()
 {
     uint8_t checked_priorities[PRIORITY_LEVELS] = {0};
     uint8_t checked_count = 0;
     PCB *next_process = NULL;
 
-    static uint64_t counter = 0; // [TO-DO] Randomizar prioridades
-    counter++;
-    uint8_t priority = counter % PRIORITY_LEVELS;
+    uint8_t priority = get_random_priority();
 
     while (next_process == NULL && checked_count < PRIORITY_LEVELS)
     {
@@ -183,7 +213,7 @@ void *get_next_process()
     return current_process->stack;
 }
 
-static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
+static PCB set_new_process(const char *name, uint16_t *fds)
 {
     PCB new_process;
     new_process.pid = next_pid++;
@@ -201,7 +231,7 @@ static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
     }
 
     new_process.state = READY;
-    new_process.priority = priority;
+    new_process.priority = 0;
     new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
     new_process.stack = new_process.stack_base;
     new_process.father = current_process;
@@ -221,7 +251,7 @@ static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
 }
 
 // Crea un nuevo proceso
-pid_t create_process(const char *name, void *entry_point, uint8_t priority, int argc, char **argv, uint16_t *fds)
+pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds)
 {
 
     if (process_count >= MAX_PROCESSES)
@@ -245,7 +275,7 @@ pid_t create_process(const char *name, void *entry_point, uint8_t priority, int 
         return -1; // No hay espacio para un nuevo proceso
     }
 
-    process_table[index] = set_new_process(name, priority, fds);
+    process_table[index] = set_new_process(name, fds);
     PCB *new_process = &process_table[index];
 
     if (new_process->stack_base == NULL)
@@ -262,7 +292,7 @@ pid_t create_process(const char *name, void *entry_point, uint8_t priority, int 
 
     new_process->stack = set_process_stack(argc, argv, new_process->stack_base + STACK_SIZE - 0x08, entry_point);
 
-    enqueue_process(process_queues[priority], new_process);
+    enqueue_process(process_queues[0], new_process);
 
     process_count++;
 

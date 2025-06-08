@@ -31,6 +31,8 @@ b _start
 
 b test_processes
 b test_prio
+b test_sync
+b my_process_inc
 # b my_block
 # b sys_block_process
 # b sys_unblock_process
