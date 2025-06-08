@@ -36,16 +36,21 @@ void exit_shell(int argc, char **argv) {
 
 void echo(int argc, char **argv){
     uint16_t pid = create_process("echo", cmd_echo, argc, argv, NULL);
-    
     int8_t exit_status = -1;
     wait(pid, &exit_status);
     printf("Exit status: %d\n", exit_status);
 }
 
 void clear(int argc, char **argv){
-    create_process("clear", cmd_clear, argc, argv, NULL);
+    uint16_t pid = create_process("clear", cmd_clear, argc, argv, NULL);
+    int8_t exit_status = -1;
+    wait(pid, &exit_status);
+    printf("Exit status: %d\n", exit_status);
 }
 
 void help(int argc, char **argv){
-    create_process("help", cmd_help, argc, argv, NULL);
+    uint16_t pid = create_process("help", cmd_help, argc, argv, NULL);
+    int8_t exit_status = -1;
+    wait(pid, &exit_status);
+    printf("Exit status: %d\n", exit_status);
 }
