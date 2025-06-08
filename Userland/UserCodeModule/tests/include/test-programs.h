@@ -79,4 +79,15 @@ void test_mm_basic_wrapper(int argc, char **argv);
  */
 void test_help_wrapper(int argc, char **argv);
 
+/**
+ * @brief Unified test command function.
+ *
+ * This function handles all test commands through a single interface.
+ * It parses the test type and delegates to the appropriate wrapper function.
+ *
+ * @param argc Number of arguments
+ * @param argv Array of arguments, where argv[1] is the test type
+ */
+void test_command(int argc, char **argv);
+
 #endif // TEST_PROGRAMS_H

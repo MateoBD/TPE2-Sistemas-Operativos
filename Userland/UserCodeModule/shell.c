@@ -31,12 +31,7 @@ command_t commands[] = {
     {"unblock", unblock_shell, "Unblock a process by PID"},
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
-    {"test_processes", test_processes_wrapper, "Test process creation and management"},
-    {"test_mm", test_mm_wrapper, "Test memory manager allocation/deallocation"},
-    {"test_prio", test_prio_wrapper, "Test priority-based scheduling"},
-    {"test_sync", test_sync_wrapper, "Test semaphore synchronization"},
-    {"test_mm_basic", test_mm_basic_wrapper, "Run basic memory test with default settings"},
-    {"test_help", test_help_wrapper, "Show help for test commands"},
+    {"test", test_command, "Run tests (use 'test help' for options)"},
     {NULL, NULL, NULL} // Sentinel
 };
 

@@ -30,6 +30,7 @@ b _start
 # Funciones de teclado
 
 b test_processes
+b test_prio
 # b my_block
 # b sys_block_process
 # b sys_unblock_process

@@ -148,3 +148,52 @@ void test_help_wrapper(int argc, char **argv)
 {
     process_handler("test_help", cmd_test_help, argc, argv);
 }
+
+// Unified test command function
+void test_command(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        printf("Usage: test <test_type> [args...]\n");
+        printf("Available tests:\n");
+        printf("  processes [max_processes] - Test process creation and management\n");
+        printf("  mm [max_memory]          - Test memory manager allocation/deallocation\n");
+        printf("  prio                     - Test priority-based scheduling\n");
+        printf("  sync [iterations] [use_sem] [sem_id] - Test semaphore synchronization\n");
+        printf("  mm_basic                 - Run basic memory test with default settings\n");
+        printf("  help                     - Show this help\n");
+        return;
+    }
+
+    char *test_type = argv[1];
+
+    if (strcmp(test_type, "processes") == 0)
+    {
+        test_processes_wrapper(argc - 1, &argv[1]);
+    }
+    else if (strcmp(test_type, "mm") == 0)
+    {
+        test_mm_wrapper(argc - 1, &argv[1]);
+    }
+    else if (strcmp(test_type, "prio") == 0)
+    {
+        test_prio_wrapper(argc - 1, &argv[1]);
+    }
+    else if (strcmp(test_type, "sync") == 0)
+    {
+        test_sync_wrapper(argc - 1, &argv[1]);
+    }
+    else if (strcmp(test_type, "mm_basic") == 0)
+    {
+        test_mm_basic_wrapper(argc - 1, &argv[1]);
+    }
+    else if (strcmp(test_type, "help") == 0)
+    {
+        test_help_wrapper(argc - 1, &argv[1]);
+    }
+    else
+    {
+        printf("Unknown test type: %s\n", test_type);
+        printf("Use 'test help' to see available tests.\n");
+    }
+}
