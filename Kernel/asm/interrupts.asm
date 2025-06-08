@@ -266,7 +266,8 @@ _int80Handler:
 
     push_state_no_rax
 
-    
+    push r9
+    push r11
     mov r9, r8
     mov r8, r10
     mov rcx, rdx
@@ -276,7 +277,8 @@ _int80Handler:
 
     call syscall_dispatcher
 
-    
+    pop r11
+    pop r9
 
     signal_eoi
 
