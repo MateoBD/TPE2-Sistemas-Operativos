@@ -10,10 +10,10 @@
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-  uint64_t aux = *p;
-  my_yield(); // This makes the race condition highly probable
-  aux += inc;
-  *p = aux;
+    uint64_t aux = *p;
+    my_yield(); // This makes the race condition highly probable
+    aux += inc;
+    *p = aux;
 }
 
 void my_process_inc(uint64_t argc, char *argv[]) {
@@ -34,19 +34,17 @@ void my_process_inc(uint64_t argc, char *argv[]) {
     uint64_t i;
     for (i = 0; i < n; i++) {
         if (sem)
-        my_sem_wait(sem);
+            my_sem_wait(sem);
         slowInc(&global, inc);
         if (sem)
-        my_sem_post(sem);
+            my_sem_post(sem);
+        // my_yield();
     }
-
-    if (sem)
-        my_sem_close(sem);
 
     exit(0);
 }
 
-uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem}
+int64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem}
     uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
     if (argc != 2)
@@ -82,13 +80,34 @@ uint64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem}
         pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", my_process_inc, 3, argvInc);
     }
 
+    // for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
+    //     my_nice(pids[i], 2); // Set lower priority for decrementing processes
+    //     if (pids[i] == -1) {
+    //         printf("test_sync: ERROR creating decrementing process\n");
+    //         return -1;
+    //     }
+    //     my_nice(pids[i + TOTAL_PAIR_PROCESSES], 1); // Set higher priority for incrementing processes
+    //     if (pids[i + TOTAL_PAIR_PROCESSES] == -1) {
+    //         printf("test_sync: ERROR creating incrementing process\n");
+    //         return -1;
+    //     }
+    // }
+
     int8_t exit_value = -1;
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         my_wait(pids[i], &exit_value);
-        // if ()
+        if (exit_value != 0)
+            return -1;
+        exit_value = -1;
         my_wait(pids[i + TOTAL_PAIR_PROCESSES], &exit_value);
+        if (exit_value != 0)
+            return -1;
+        exit_value = -1;
     }
+
+    if (sem)
+        my_sem_close(sem);
 
     printf("Final value: %d\n", global);
 
