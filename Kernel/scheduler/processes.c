@@ -343,6 +343,19 @@ int kill_process(uint32_t pid)
     return -1; // Proceso no encontrado
 }
 
+int kill_foreground_process()
+{
+    for (uint32_t i = 0; i < process_count; i++)
+    {
+        if (process_table[i].pid == current_process->pid && process_table[i].is_foreground)
+        {
+            return kill_process(process_table[i].pid);
+        }
+    }
+
+    return -1; // El proceso actual no es de primer plano
+}
+
 // Obtiene el PID del proceso actual
 pid_t get_current_pid()
 {

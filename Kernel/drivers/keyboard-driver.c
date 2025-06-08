@@ -3,6 +3,7 @@
 #include <semaphores.h>
 #include <pipes.h>
 #include <syscalls.h>
+#include <processes.h>
 
 #define ESC 0x01
 #define CAPSLOCK 0x3A
@@ -334,6 +335,7 @@ void kd_handler()
         int8_t c = -1;
         if (ctrl && shifted_ascii[(uint8_t)key] == 'C')
         {
+            kill_foreground_process();
             c = CHAR_INTERRUPT; // Ctrl + C
         }
         else if (ctrl && shifted_ascii[(uint8_t)key] == 'D')

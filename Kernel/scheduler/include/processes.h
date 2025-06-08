@@ -64,6 +64,12 @@ pid_t create_process(const char *name, void *entryPoint, int argc, char **argv, 
 int kill_process(uint32_t pid);
 
 /**
+ * @brief Mata el proceso en primer plano
+ * @return 0 si se mató correctamente, -1 si hubo error
+ */
+int kill_foreground_process();
+
+/**
  * @brief Obtiene el PID del proceso actual
  * @return PID del proceso en ejecución
  */
