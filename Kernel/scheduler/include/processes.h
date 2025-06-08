@@ -71,14 +71,6 @@ int kill_process(uint32_t pid);
 pid_t get_current_pid();
 
 /**
- * @brief Verifica si un proceso es hijo de otro
- * @param parent_pid PID del proceso padre
- * @param child_pid PID del proceso hijo
- * @return 1 si es hijo, 0 si no lo es
- */
-int is_child(pid_t parent_pid, pid_t child_pid);
-
-/**
  * @brief Espera a que un proceso termine
  * @param pid PID del proceso a esperar
  */

@@ -144,10 +144,9 @@ uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t 
 
 uint64_t sys_wait(uint64_t pid, uint64_t status, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    pid_t process_id = (pid_t)pid;
     int8_t *exit_status = (int8_t *)status;
 
-    if (exit_status == NULL || process_id >= MAX_PROCESSES || !is_child(get_current_pid(), process_id))
+    if (exit_status == NULL || pid >= MAX_PROCESSES || pid == get_current_pid())
     {
         return -1;
     }

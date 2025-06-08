@@ -24,15 +24,19 @@ b _start
 # b create_process
 
 # b sem_init
-b sem_wait
-b sem_post
+# b sem_wait
+# b sem_post
 
 # Funciones de teclado
 
 # b shell.c:74
 
-b sys_read
-b sys_write
+# b sys_read
+# b sys_write
+
+b wait_process
+b kill_process
+b set_exit_status
 
 define debug_scheduler
     b _irq00Handler

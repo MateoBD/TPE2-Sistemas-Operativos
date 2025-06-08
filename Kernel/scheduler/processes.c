@@ -276,7 +276,6 @@ void free_terminated_processes(void)
     while ((terminated_process = (PCB *)dequeue_process(terminated_processes_queue)) != NULL)
     {
         terminated_process->state = TERMINATED;
-        terminated_process->pid = 0;
         process_count--;
         // Liberar la memoria del stack del proceso terminado
         if (terminated_process->stack_base != NULL)
@@ -303,7 +302,6 @@ int kill_process(uint32_t pid)
             {
                 sem_post(process_table[i].sem_wait_id);
             }
-            process_table[i].exit_status = 0;
             enqueue_process(terminated_processes_queue, &process_table[i]);
             return 0;
         }
@@ -322,24 +320,6 @@ pid_t get_current_pid()
     return current_process->pid;
 }
 
-int is_child(pid_t parent_pid, pid_t child_pid)
-{
-    if (parent_pid == 0 || child_pid == 0)
-    {
-        return 0;
-    }
-
-    for (int i = 1; i < MAX_PROCESSES; i++)
-    {
-        if (process_table[i].pid == child_pid && process_table[i].father != NULL && process_table[i].father->pid == parent_pid)
-        {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
 void wait_process(pid_t pid, int8_t *status)
 {
     if (pid == 0)
@@ -351,12 +331,12 @@ void wait_process(pid_t pid, int8_t *status)
     {
         if (process_table[i].pid == pid)
         {
+            if (status != NULL)
+            {
+                *status = process_table[i].exit_status;
+            }
             if (process_table[i].state == TERMINATED || process_table[i].sem_wait_id != -1)
             {
-                if (status != NULL)
-                {
-                    *status = process_table[i].exit_status;
-                }
                 return;
             }
 
