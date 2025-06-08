@@ -37,6 +37,7 @@ typedef struct process_control_block
     size_t children_count;
     int8_t exit_status;
     int32_t sem_wait_id;
+    int8_t is_foreground; // Indica si el proceso es de primer plano (1) o fondo (0)
 } PCB;
 
 // Variables de control del scheduler
@@ -251,7 +252,7 @@ static PCB set_new_process(const char *name, uint16_t *fds)
 }
 
 // Crea un nuevo proceso
-pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds)
+pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, char is_foreground)
 {
 
     if (process_count >= MAX_PROCESSES)
@@ -291,6 +292,8 @@ pid_t create_process(const char *name, void *entry_point, int argc, char **argv,
     current_process->children[current_process->children_count++] = new_process;
 
     new_process->stack = set_process_stack(argc, argv, new_process->stack_base + STACK_SIZE - 0x08, entry_point);
+
+    new_process->is_foreground = is_foreground;
 
     enqueue_process(process_queues[0], new_process);
 

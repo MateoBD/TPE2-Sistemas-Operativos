@@ -54,7 +54,7 @@ void free_terminated_processes(void);
  * @param fds Vector de file descriptors
  * @return PID del nuevo proceso o -1 si hubo error
  */
-pid_t create_process(const char *name, void *entryPoint, int argc, char **argv, uint16_t *fds);
+pid_t create_process(const char *name, void *entryPoint, int argc, char **argv, uint16_t *fds, char is_foreground);
 
 /**
  * @brief Termina un proceso

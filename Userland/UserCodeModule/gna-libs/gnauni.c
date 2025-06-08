@@ -24,9 +24,9 @@
 #include <libasm.h>
 #include <stdint.h>
 
-uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds)
+uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds, char is_foreground)
 {
-    return sys_call((uint64_t)SYS_CREATE_PROCESS, (uint64_t)name, (uint64_t)function, (uint64_t)argc, (uint64_t)argv, (uint64_t)fds, 0);
+    return sys_call((uint64_t)SYS_CREATE_PROCESS, (uint64_t)name, (uint64_t)function, (uint64_t)argc, (uint64_t)argv, (uint64_t)fds, (uint64_t)is_foreground);
 }
 
 uint32_t get_pid(void)

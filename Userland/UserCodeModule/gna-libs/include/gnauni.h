@@ -18,9 +18,10 @@
  * @param argc Cantidad de argumentos
  * @param argv Vector de argumentos
  * @param fds Vector de file descriptors (stdin, stdout)
+ * @param is_foreground Indica si el proceso es de primer plano (1) o fondo (0)
  * @return PID del nuevo proceso o -1 si hubo error
  */
-uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds);
+uint64_t create_process(const char *name, void *function, int argc, char **argv, uint16_t *fds, char is_foreground);
 
 /**
  * @brief Obtiene el PID del proceso actual

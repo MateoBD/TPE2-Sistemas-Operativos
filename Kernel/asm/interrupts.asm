@@ -266,9 +266,7 @@ _int80Handler:
 
     push_state_no_rax
 
-    ; dejar el valor que está en [rsp] (7mo arg) intacto
-    ; por eso no tocamos rsp
-
+    
     mov r9, r8
     mov r8, r10
     mov rcx, rdx
@@ -277,6 +275,8 @@ _int80Handler:
     mov rdi, rax
 
     call syscall_dispatcher
+
+    
 
     signal_eoi
 

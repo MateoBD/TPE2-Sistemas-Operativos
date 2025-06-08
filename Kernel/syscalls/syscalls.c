@@ -122,10 +122,15 @@ uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t 
     return memory_free(memory_manager, (void *)addr);
 }
 
-uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t unused6)
+uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t is_foreground)
 {
-
-    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, (int)argc, (char **)argv, (uint16_t *) fds);
+    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, (int)argc, (char **)argv, (uint16_t *) fds, (char)is_foreground);
+    if (is_foreground)
+    {
+        int8_t exit_status = -1;
+        wait_process(new_pid, &exit_status);
+        return exit_status;
+    }
     return new_pid;
 }
 

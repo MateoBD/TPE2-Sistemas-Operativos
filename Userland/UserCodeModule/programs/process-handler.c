@@ -9,12 +9,5 @@ int8_t process_handler(char* name, void (*process)(int, char**), int argc, char 
         foreground = 0; // Run in background
         argc--; // Remove the '&' argument
     }
-    uint16_t pid = create_process(name, process, argc, argv, NULL);
-    if (foreground)
-    {
-        int8_t exit_status = -1;
-        wait(pid, &exit_status);
-        return exit_status;
-    }
-    return (int8_t)pid;
+    return create_process(name, process, argc, argv, NULL, foreground);
 }
