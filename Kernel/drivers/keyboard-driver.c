@@ -332,11 +332,11 @@ void kd_handler()
     else if (!kd_is_special_key(key) && !release)
     {
         int8_t c = -1;
-        if (ctrl && key == 0x2E)
+        if (ctrl && shifted_ascii[(uint8_t)key] == 'C')
         {
             c = CHAR_INTERRUPT; // Ctrl + C
         }
-        else if (ctrl && key == 0x20)
+        else if (ctrl && shifted_ascii[(uint8_t)key] == 'D')
         {
             c = CHAR_EOF; // Ctrl + D
         }

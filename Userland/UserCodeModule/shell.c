@@ -22,8 +22,10 @@ static int history_count = 0;
 
 command_t commands[] = {
     {"echo", echo, "Print arguments to stdout"},
+    {"loop", loop, "Run a process in an infinite loop"},
     {"mem", mem, "Print memory state"},
     {"clear", clear, "Clear the screen"},
+    {"kill", kill_shell, "Terminate a process by PID"},
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
     {NULL, NULL, NULL}  // Sentinel

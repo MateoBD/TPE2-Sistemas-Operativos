@@ -2,32 +2,74 @@
 #include <times.h>
 #include <libasm.h>
 
-static unsigned long ticks = 0;
+static time_struct_t start_up_time;
+static int initialized = 0;
+
+void init_time()
+{
+    // Inicializa el tiempo de inicio
+    start_up_time= get_time();
+    initialized = 1;
+}
 
 void timer_handler()
 {
-    ticks++;
+    if (!initialized)
+    {
+        init_time();
+    }
 }
 
-int ticks_elapsed()
-{
-    return ticks;
+static int is_leap_year(int year) {
+    return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
+}
+
+static int days_in_month(int month, int year) {
+    static const int days[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+    if (month == 2 && is_leap_year(year))
+        return 29;
+    return days[month - 1];
+}
+
+static uint32_t date_to_days(int day, int month, int year) {
+    uint32_t days = day - 1;
+
+    // Meses del año actual
+    for (int m = 1; m < month; m++) {
+        days += days_in_month(m, year);
+    }
+
+    // Años completos anteriores
+    for (int y = 0; y < year; y++) {
+        days += 365 + is_leap_year(y);
+    }
+
+    return days;
+}
+
+uint64_t time_to_epoch_seconds(time_struct_t t) {
+    uint32_t total_days = date_to_days(t.day, t.month, t.year);
+    return (uint64_t)total_days * 86400 +
+           (uint64_t)t.hour * 3600 +
+           (uint64_t)t.min * 60 +
+           (uint64_t)t.sec;
+}
+
+uint64_t elapsed_seconds() {
+    uint64_t t1 = time_to_epoch_seconds(start_up_time);
+    uint64_t t2 = time_to_epoch_seconds(get_time());
+    return (t2 > t1) ? (t2 - t1) : (t1 - t2);
 }
 
 int seconds_elapsed()
 {
-    return ticks / 18;
+    return elapsed_seconds();
 }
 
-unsigned long get_ticks()
+void sleep(uint64_t seconds_elapsed)
 {
-    return ticks;
-}
-
-void sleep(uint64_t ticks_to_wait)
-{
-    uint64_t start = ticks;
-    while (ticks - start < ticks_to_wait)
+    uint64_t start = elapsed_seconds();
+    while (elapsed_seconds() - start < seconds_elapsed)
     {
         _hlt();
     };

@@ -161,7 +161,7 @@ uint64_t sys_getpid(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64
     return get_current_pid();
 }
 
-uint64_t sys_kill(uint64_t pid, uint64_t signal, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+uint64_t sys_kill(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     kill_process((pid_t)pid);
     call_int_20(); // Disparar un cambio de contexto

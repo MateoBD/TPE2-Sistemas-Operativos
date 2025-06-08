@@ -35,6 +35,8 @@ time_t get_time();
 
 int itoa(uint64_t value, char *buffer, int base, int n);
 
+int atoi(const char *str);
+
 void sleep(uint64_t ticks);
 
 void srand(uint32_t seed);

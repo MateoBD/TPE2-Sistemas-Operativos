@@ -2,6 +2,7 @@
 #include <gnalib.h>
 #include <programs.h>
 #include <gnauni.h>
+#include <process-handler.h>
 
 static void print_memory_state(int argc, char **argv){
     HeapState state;
@@ -14,5 +15,5 @@ static void print_memory_state(int argc, char **argv){
 }
 
 void mem(int argc, char **argv){
-    create_process("mem", print_memory_state, argc, argv, NULL);
+    process_handler("mem", print_memory_state, argc, argv);
 }

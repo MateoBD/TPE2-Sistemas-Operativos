@@ -63,3 +63,8 @@ int32_t sem_getvalue(uint32_t sem)
 {
     return (int32_t)sys_call(SYS_SEM_GETVALUE, sem, 0, 0, 0, 0, 0);
 }
+
+int32_t kill(uint32_t pid)
+{
+    return (int32_t)sys_call(SYS_KILL, pid, 0, 0, 0, 0, 0);
+}

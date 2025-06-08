@@ -96,6 +96,33 @@ int itoa(uint64_t value, char *buffer, int base, int n)
     return digits;
 }
 
+int atoi(const char* str) {
+    int result = 0;
+    int sign = 1;
+
+    // Saltar espacios iniciales
+    while (*str == ' ' || *str == '\t') {
+        str++;
+    }
+
+    // Signo opcional
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Convertir los dígitos
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+
+    return result * sign;
+}
+
+
 void sleep(uint64_t ticks)
 {
     sys_call(SYS_SLEEP, ticks, 0, 0, 0, 0, 0);

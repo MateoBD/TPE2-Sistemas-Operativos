@@ -2,6 +2,7 @@
 #include <gnalib.h>
 #include <programs.h>
 #include <gnauni.h>
+#include <process-handler.h>
 
 void cmd_echo(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
@@ -14,12 +15,16 @@ void cmd_echo(int argc, char **argv) {
     exit(0);
 }
 
-void cmd_clear(int argc, char **argv) {
-    clean_screen();
+void cmd_loop(int argc, char **argv) {
+    uint32_t pid = get_pid();
+    while (1)
+    {
+        printf("Process %d started in loop mode.\n", pid);
+        sleep(1);
+    }
     exit(0);
 }
 
-// Help command implementation
 void cmd_help(int argc, char **argv) {
     printf("Available commands:\n");
     for (int i = 0; commands[i].name != NULL; i++) {
@@ -28,29 +33,42 @@ void cmd_help(int argc, char **argv) {
     exit(0);
 }
 
-// Exit command implementation
 void exit_shell(int argc, char **argv) {
     printf("Goodbye!\n");
     exit(0);
 }
 
 void echo(int argc, char **argv){
-    uint16_t pid = create_process("echo", cmd_echo, argc, argv, NULL);
-    int8_t exit_status = -1;
-    wait(pid, &exit_status);
-    printf("Exit status: %d\n", exit_status);
+    process_handler("echo", cmd_echo, argc, argv);
+}
+
+void loop(int argc, char **argv){
+    process_handler("loop", cmd_loop, argc, argv);
+}
+
+void kill_shell(int argc, char **argv){
+    if (argc < 2) {
+        printf("Usage: kill <pid>\n");
+        return;
+    }
+    
+    uint16_t pid = atoi(argv[1]);
+    if (pid == 0) {
+        printf("Invalid PID: %s\n", argv[1]);
+        return;
+    }
+    
+    if (kill(pid) == -1) {
+        printf("Failed to kill process %d\n", pid);
+    } else {
+        printf("Process %d killed successfully.\n", pid);
+    }
 }
 
 void clear(int argc, char **argv){
-    uint16_t pid = create_process("clear", cmd_clear, argc, argv, NULL);
-    int8_t exit_status = -1;
-    wait(pid, &exit_status);
-    printf("Exit status: %d\n", exit_status);
+    clean_screen();
 }
 
 void help(int argc, char **argv){
-    uint16_t pid = create_process("help", cmd_help, argc, argv, NULL);
-    int8_t exit_status = -1;
-    wait(pid, &exit_status);
-    printf("Exit status: %d\n", exit_status);
+    process_handler("help", cmd_help, argc, argv);
 }

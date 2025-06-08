@@ -71,4 +71,11 @@ int32_t sem_post(uint32_t sem);
  */
 int32_t sem_getvalue(uint32_t sem);
 
+/**
+ * @brief Termina un proceso dado su PID
+ * @param pid PID del proceso a terminar
+ * @return 0 si se terminó correctamente, -1 si hubo error
+ */
+int32_t kill(uint32_t pid);
+
 #endif /* _GNAUNI_H_ */
