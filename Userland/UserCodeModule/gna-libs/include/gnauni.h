@@ -29,6 +29,14 @@ uint64_t create_process(const char *name, void *function, int argc, char **argv,
 uint32_t get_pid(void);
 
 /**
+ * @brief Espera a que un proceso termine
+ * @param pid PID del proceso a esperar
+ * @param status Puntero donde se guardará el estado de salida del proceso
+ * @return 0 si se esperó correctamente, -1 si hubo error
+ */
+int wait(uint32_t pid, int8_t *status);
+
+/**
  * @brief Crea un nuevo semáforo con un valor inicial
  * @param initial_value Valor inicial del semáforo
  * @return Identificador del semáforo creado o -1 si hubo error

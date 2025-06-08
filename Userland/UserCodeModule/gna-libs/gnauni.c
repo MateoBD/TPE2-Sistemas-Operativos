@@ -34,6 +34,11 @@ uint32_t get_pid(void)
     return sys_call(SYS_GETPID, 0, 0, 0, 0, 0, 0);
 }
 
+int wait(uint32_t pid, int8_t *status)
+{
+    return (int)sys_call(SYS_WAIT, (uint64_t)pid, (uint64_t)status, 0, 0, 0, 0);
+}
+
 int32_t sem_init(uint32_t initial_value)
 {
     return (int32_t)sys_call(SYS_SEM_OPEN, initial_value, 0, 0, 0, 0, 0);

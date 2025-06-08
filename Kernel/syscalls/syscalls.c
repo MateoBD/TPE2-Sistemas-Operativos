@@ -136,6 +136,7 @@ uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, 
 
 uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
+    set_exit_status(status);
     kill_process(get_current_pid());
     call_int_20(); // Disparar un cambio de contexto
     return 0;
@@ -143,7 +144,16 @@ uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t 
 
 uint64_t sys_wait(uint64_t pid, uint64_t status, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    // Implementación de sys_wait
+    pid_t process_id = (pid_t)pid;
+    int8_t *exit_status = (int8_t *)status;
+
+    if (exit_status == NULL || process_id >= MAX_PROCESSES || !is_child(get_current_pid(), process_id))
+    {
+        return -1;
+    }
+
+    wait_process(pid, exit_status);
+
     return 0;
 }
 

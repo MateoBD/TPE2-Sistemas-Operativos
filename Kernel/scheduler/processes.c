@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <lib.h>
 #include <syscalls.h>
+#include <semaphores.h>
 
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 2
@@ -33,6 +34,8 @@ typedef struct process_control_block
     struct process_control_block *father;
     struct process_control_block *children[MAX_CHILDREN];
     size_t children_count;
+    int8_t exit_status;
+    int32_t sem_wait_id;
 } PCB;
 
 // Variables de control del scheduler
@@ -90,6 +93,8 @@ int init_processes()
     idle_process_pcb->priority = 0;
     idle_process_pcb->fds[STDIN] = STDIN;
     idle_process_pcb->fds[STDOUT] = STDOUT;
+    idle_process_pcb->exit_status = -1;
+    idle_process_pcb->sem_wait_id = -1;
     idle_process_pcb->stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
 
     process_count = 1;
@@ -209,6 +214,9 @@ static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
         new_process.children[i] = NULL;
     }
 
+    new_process.exit_status = -1;
+    new_process.sem_wait_id = -1;
+
     return new_process;
 }
 
@@ -291,6 +299,11 @@ int kill_process(uint32_t pid)
         if (process_table[i].pid == pid)
         {
             process_table[i].state = TERMINATED;
+            if (process_table[i].sem_wait_id != -1)
+            {
+                sem_post(process_table[i].sem_wait_id);
+            }
+            process_table[i].exit_status = 0;
             enqueue_process(terminated_processes_queue, &process_table[i]);
             return 0;
         }
@@ -307,6 +320,67 @@ pid_t get_current_pid()
         return 0;
     }
     return current_process->pid;
+}
+
+int is_child(pid_t parent_pid, pid_t child_pid)
+{
+    if (parent_pid == 0 || child_pid == 0)
+    {
+        return 0;
+    }
+
+    for (int i = 1; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == child_pid && process_table[i].father != NULL && process_table[i].father->pid == parent_pid)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+void wait_process(pid_t pid, int8_t *status)
+{
+    if (pid == 0)
+    {
+        return; // No se puede esperar al proceso idle
+    }
+
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == pid)
+        {
+            if (process_table[i].state == TERMINATED || process_table[i].sem_wait_id != -1)
+            {
+                if (status != NULL)
+                {
+                    *status = process_table[i].exit_status;
+                }
+                return;
+            }
+
+            if (process_table[i].sem_wait_id == -1)
+            {
+                process_table[i].sem_wait_id = create_sem(0);
+                if (process_table[i].sem_wait_id == -1)
+                {
+                    return;
+                }
+            }
+
+            sem_wait(process_table[i].sem_wait_id);
+            destroy_sem(process_table[i].sem_wait_id);
+            process_table[i].sem_wait_id = -1;
+
+            if (status != NULL)
+            {
+                *status = process_table[i].exit_status;
+            }
+
+            return;
+        }
+    }
 }
 
 uint8_t get_current_priority(void)
@@ -360,6 +434,16 @@ int change_priority(uint32_t pid, uint8_t newPriority)
     }
 
     return -1; // Proceso no encontrado
+}
+
+void set_exit_status(int8_t status)
+{
+    if (current_process == NULL || current_process->pid == 0)
+    {
+        return;
+    }
+
+    current_process->exit_status = status;
 }
 
 int block_process(pid_t pid)

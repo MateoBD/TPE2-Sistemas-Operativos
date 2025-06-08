@@ -71,6 +71,20 @@ int kill_process(uint32_t pid);
 pid_t get_current_pid();
 
 /**
+ * @brief Verifica si un proceso es hijo de otro
+ * @param parent_pid PID del proceso padre
+ * @param child_pid PID del proceso hijo
+ * @return 1 si es hijo, 0 si no lo es
+ */
+int is_child(pid_t parent_pid, pid_t child_pid);
+
+/**
+ * @brief Espera a que un proceso termine
+ * @param pid PID del proceso a esperar
+ */
+void wait_process(pid_t pid, int8_t *status);
+
+/**
  * @brief Obtiene la prioridad del proceso actual
  * @return Prioridad del proceso en ejecución
  */
@@ -90,6 +104,12 @@ int get_current_fds(uint16_t *fds);
  * @return 0 si se cambió correctamente, -1 si hubo error
  */
 int change_priority(uint32_t pid, uint8_t newPriority);
+
+/**
+ * @brief Establece el estado de salida del proceso actual
+ * @param status Estado de salida del proceso
+ */
+void set_exit_status(int8_t status);
 
 /**
  * @brief Bloquea el proceso actual
