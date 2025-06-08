@@ -93,3 +93,13 @@ int32_t get_priority(uint32_t pid)
 {
     return (int32_t)sys_call(SYS_GETPRIORITY, pid, 0, 0, 0, 0, 0);
 }
+
+int32_t open()
+{
+    return (int32_t)sys_call(SYS_OPEN, 0, 0, 0, 0, 0, 0);
+}
+
+int32_t close(int fd)
+{
+    return (int32_t)sys_call(SYS_CLOSE, fd, 0, 0, 0, 0, 0);
+}

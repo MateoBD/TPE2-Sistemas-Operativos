@@ -7,7 +7,7 @@ enum enum_syscalls
 {
     SYS_WRITE = 0,
     SYS_READ,
-    SYS_PIPE,
+    SYS_OPEN,
     SYS_CLOSE,
     SYS_SET_CURSOR,
     SYS_SET_COLOR,

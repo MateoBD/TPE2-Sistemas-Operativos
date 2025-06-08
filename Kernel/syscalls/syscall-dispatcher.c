@@ -12,7 +12,7 @@ enum enum_syscalls
 {
     SYS_WRITE = 0,
     SYS_READ,
-    SYS_PIPE,
+    SYS_OPEN,
     SYS_CLOSE,
     SYS_SET_CURSOR,
     SYS_SET_COLOR,
@@ -51,7 +51,7 @@ sys_call_t sys_call_arr[] =
 {
     [SYS_WRITE] = (sys_call_t) sys_write,
     [SYS_READ] = (sys_call_t) sys_read,
-    [SYS_PIPE] = (sys_call_t) sys_pipe,
+    [SYS_OPEN] = (sys_call_t) sys_open,
     [SYS_CLOSE] = (sys_call_t) sys_close,
     [SYS_SET_CURSOR] = (sys_call_t) sys_set_cursor,
     [SYS_SET_COLOR] = (sys_call_t) sys_set_color,

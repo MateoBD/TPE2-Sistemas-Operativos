@@ -107,4 +107,17 @@ int32_t unblock(uint32_t pid);
  */
 int32_t sched_yield(void);
 
+/**
+ * @brief Abre un pipe
+ * @return Descriptor de archivo o -1 si hubo error
+ */
+int32_t open(void);
+
+/**
+ * @brief Cierra un pipe
+ * @param fd Descriptor de pipe a cerrar
+ * @return 0 si se cerró correctamente, -1 si hubo error
+ */
+int32_t close(int fd);
+
 #endif /* _GNAUNI_H_ */
