@@ -5,10 +5,13 @@ void loop(int argc, char **argv);
 void mem(int argc, char **argv);
 void clear(int argc, char **argv);
 void kill_shell(int argc, char **argv);
+void block_shell(int argc, char **argv);
+void unblock_shell(int argc, char **argv);
 void help(int argc, char **argv);
 void exit_shell(int argc, char **argv);
 
-typedef struct {
+typedef struct
+{
     char *name;
     void (*handler)(int argc, char **argv);
     char *description;
@@ -19,5 +22,5 @@ typedef struct {
 extern command_t commands[];
 #endif
 
-#endif 
+#endif
 // PROGRAMS_H

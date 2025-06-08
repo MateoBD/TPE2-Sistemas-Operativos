@@ -1,7 +1,6 @@
 #define __KERNEL_C__
 
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <module-loader.h>
 #include <video-driver.h>
@@ -10,6 +9,7 @@
 #include <memory-manager.h>
 #include <interrupts.h>
 #include <processes.h>
+#include <stddef.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

@@ -29,6 +29,14 @@ uint64_t create_process(const char *name, void *function, int argc, char **argv,
 uint32_t get_pid(void);
 
 /**
+ * @brief Cambia la prioridad de un proceso
+ * @param pid PID del proceso
+ * @param newPriority Nueva prioridad
+ * @return 0 si se cambió correctamente, -1 si hubo error
+ */
+int nice(uint32_t pid, uint8_t newPriority);
+
+/**
  * @brief Espera a que un proceso termine
  * @param pid PID del proceso a esperar
  * @param status Puntero donde se guardará el estado de salida del proceso
@@ -77,5 +85,25 @@ int32_t sem_getvalue(uint32_t sem);
  * @return 0 si se terminó correctamente, -1 si hubo error
  */
 int32_t kill(uint32_t pid);
+
+/**
+ * @brief Bloquea un proceso dado su PID
+ * @param pid PID del proceso a bloquear
+ * @return 0 si se bloqueó correctamente, -1 si hubo error
+ */
+int32_t block(uint32_t pid);
+
+/**
+ * @brief Desbloquea un proceso dado su PID
+ * @param pid PID del proceso a desbloquear
+ * @return 0 si se desbloqueó correctamente, -1 si hubo error
+ */
+int32_t unblock(uint32_t pid);
+
+/**
+ * @brief Bloquea el proceso actual hasta que se desbloquee
+ * @return 0 si se bloqueó correctamente, -1 si hubo error
+ */
+int32_t sched_yield(void);
 
 #endif /* _GNAUNI_H_ */

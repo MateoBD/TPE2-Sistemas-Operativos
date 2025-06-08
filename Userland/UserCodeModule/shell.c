@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <programs.h>
 #include <gnauni.h>
+#include <test-programs.h>
 
 #define MAX_CMD_LENGTH 256
 #define MAX_ARGS 16
@@ -26,44 +27,59 @@ command_t commands[] = {
     {"mem", mem, "Print memory state"},
     {"clear", clear, "Clear the screen"},
     {"kill", kill_shell, "Terminate a process by PID"},
+    {"block", block_shell, "Block a process by PID"},
+    {"unblock", unblock_shell, "Unblock a process by PID"},
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
-    {NULL, NULL, NULL}  // Sentinel
+    {"test_processes", test_processes_wrapper, "Test process creation and management"},
+    {"test_mm", test_mm_wrapper, "Test memory manager allocation/deallocation"},
+    {"test_prio", test_prio_wrapper, "Test priority-based scheduling"},
+    {"test_sync", test_sync_wrapper, "Test semaphore synchronization"},
+    {"test_mm_basic", test_mm_basic_wrapper, "Run basic memory test with default settings"},
+    {"test_help", test_help_wrapper, "Show help for test commands"},
+    {NULL, NULL, NULL} // Sentinel
 };
 
 // Analizar línea de comandos en argumentos
-static int parse_command(char *input, char **argv) {
+static int parse_command(char *input, char **argv)
+{
     int argc = 0;
     char *token_start;
-    
+
     skip_whitespace(&input);
-    
-    while (*input != '\0' && argc < MAX_ARGS - 1) {
+
+    while (*input != '\0' && argc < MAX_ARGS - 1)
+    {
         token_start = input;
-        
+
         // Encontrar el final del token actual
-        while (*input != '\0' && *input != ' ' && *input != '\t') {
+        while (*input != '\0' && *input != ' ' && *input != '\t')
+        {
             input++;
         }
-        
+
         // Terminar el token con null
-        if (*input != '\0') {
+        if (*input != '\0')
+        {
             *input = '\0';
             input++;
         }
-        
+
         argv[argc++] = token_start;
         skip_whitespace(&input);
     }
-    
+
     argv[argc] = NULL;
     return argc;
 }
 
 // Buscar comando en tabla de comandos
-static command_t *find_command(const char *name) {
-    for (int i = 0; commands[i].name != NULL; i++) {
-        if (strcmp(commands[i].name, name) == 0) {
+static command_t *find_command(const char *name)
+{
+    for (int i = 0; commands[i].name != NULL; i++)
+    {
+        if (strcmp(commands[i].name, name) == 0)
+        {
             return &commands[i];
         }
     }
@@ -71,92 +87,113 @@ static command_t *find_command(const char *name) {
 }
 
 // Leer una línea de entrada
-static void read_line(char *buffer, int max_len) {
+static void read_line(char *buffer, int max_len)
+{
     int pos = 0;
     int c;
-    
-    while (pos < max_len - 1) {
+
+    while (pos < max_len - 1)
+    {
         c = getchar();
-        
+
         // Handle Ctrl+C signal
-        if (c == CHAR_INTERRUPT) {
+        if (c == CHAR_INTERRUPT)
+        {
             printf("^C\n");
-            buffer[0] = '\0';  // Limpiar el buffer
+            buffer[0] = '\0'; // Limpiar el buffer
             return;
         }
-        
+
         // Handle Ctrl+D signal
-        if (c == CHAR_EOF) {
-            if (pos == 0) {
+        if (c == CHAR_EOF)
+        {
+            if (pos == 0)
+            {
                 printf("^D\n");
                 printf("Type 'exit' to quit the shell.\n");
-                buffer[0] = '\0';  // Limpiar el buffer
+                buffer[0] = '\0'; // Limpiar el buffer
                 return;
-            } else {
+            }
+            else
+            {
                 // Si hay texto en el buffer, simplemente ignorar Ctrl+D
                 continue;
             }
         }
-        
-        if (c == '\n' || c == '\r') {
+
+        if (c == '\n' || c == '\r')
+        {
             break;
         }
-        
-        if (c == '\b' || c == 127) {  // Backspace or DEL
-            if (pos > 0) {
+
+        if (c == '\b' || c == 127)
+        { // Backspace or DEL
+            if (pos > 0)
+            {
                 pos--;
                 putchar('\b');
                 putchar(' ');
                 putchar('\b');
             }
-        } else if (c >= 32 && c <= 126) {  // Printable characters
+        }
+        else if (c >= 32 && c <= 126)
+        { // Printable characters
             buffer[pos++] = c;
             putchar(c);
         }
     }
-    
+
     buffer[pos] = '\0';
     putchar('\n');
 }
 
 // Skip whitespace characters
-static void skip_whitespace(char **str) {
-    while (**str == ' ' || **str == '\t') {
+static void skip_whitespace(char **str)
+{
+    while (**str == ' ' || **str == '\t')
+    {
         (*str)++;
     }
 }
 
-void shell(int argc, char **argv) {
+void shell(int argc, char **argv)
+{
     char input[MAX_CMD_LENGTH];
     char *args[MAX_ARGS];
     int arg_count;
     command_t *cmd;
-    
+
     printf("Welcome to GNA Shell!\n");
     printf("Type 'help' for available commands.\n\n");
-    while (1) {
+    while (1)
+    {
         printf("gna> ");
         read_line(input, MAX_CMD_LENGTH);
-        
+
         // Skip empty lines
-        if (strlen(input) == 0) {
+        if (strlen(input) == 0)
+        {
             continue;
         }
-        
+
         // Analizar comando y argumentos
         arg_count = parse_command(input, args);
-        
-        if (arg_count == 0) {
+
+        if (arg_count == 0)
+        {
             continue;
         }
-        
+
         // Buscar y ejecutar comando
         cmd = find_command(args[0]);
-        history[history_count % MAX_SAVED_COMMANDS] = *cmd;  // Guardar comando en el historial
-        history_count++;
-        if (cmd != NULL) {
+        if (cmd != NULL)
+        {
+            history[history_count % MAX_SAVED_COMMANDS] = *cmd; // Guardar comando en el historial
+            history_count++;
             cmd->handler(arg_count, args);
-        } else {
+        }
+        else
+        {
             printf("Unknown command: %s\n", args[0]);
             printf("Type 'help' for available commands.\n");
         }

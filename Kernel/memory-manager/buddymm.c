@@ -94,11 +94,7 @@ MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void 
   mm->max_order = level;
   mm->info.total_memory = MEMORY_SIZE;
   mm->info.used_memory = 0;
-  char *type = "Buddy";
-  for (size_t i = 0; i < 6; i++)
-  {
-    mm->info.mm_type[i] = type[i];
-  }
+  strncpy(new_memory_manager->info.mm_type, "buddy", 6);
   
   for (int i = 0; i < MAX_ORDER; i++) {
     mm->free_blocks[i] = NULL;

@@ -29,14 +29,10 @@ b _start
 
 # Funciones de teclado
 
-# b shell.c:74
-
-# b sys_read
-# b sys_write
-
-b wait_process
-b kill_process
-b set_exit_status
+b test_processes
+# b my_block
+# b sys_block_process
+# b sys_unblock_process
 
 define debug_scheduler
     b _irq00Handler

@@ -77,15 +77,26 @@ uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4
     return bytes_read;
 }
 
-uint64_t sys_pipe(uint64_t pipefd, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+uint64_t sys_pipe(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    // Implementación de sys_pipe
-    return 0;
+    int fd = create_pipe();
+    if (fd == -1)
+    {
+        return -1; // Error al crear el pipe
+    }
+    return (uint64_t)fd;
 }
 
 uint64_t sys_close(uint64_t fd, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    // Implementación de sys_close
+    if (fd == STDIN || fd == STDOUT || fd == STDERR)
+    {
+        return -1; 
+    }
+    if (close_pipe((uint16_t)fd) == -1)
+    {
+        return -1; 
+    }
     return 0;
 }
 
@@ -109,18 +120,6 @@ uint64_t sys_mmap(uint64_t size, uint64_t unused2, uint64_t unused3, uint64_t un
 uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     return memory_free(memory_manager, (void *)addr);
-}
-
-uint64_t sys_brk(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_brk
-    return 0;
-}
-
-uint64_t sys_mprotect(uint64_t addr, uint64_t len, uint64_t prot, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_mprotect
-    return 0;
 }
 
 uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t unused6)
@@ -180,7 +179,7 @@ uint64_t sys_setpriority(uint64_t pid, uint64_t priority, uint64_t unused3, uint
 
 uint64_t sys_sched_yield(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    // Implementación de sys_sched_yield
+    call_int_20();
     return 0;
 }
 
@@ -230,33 +229,30 @@ uint64_t sys_sem_getvalue(uint64_t sem_id, uint64_t unused2, uint64_t unused3, u
     return get_sem_value((uint32_t)sem_id);
 }
 
-uint64_t sys_shm_open(uint64_t name, uint64_t oflag, uint64_t mode, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_shm_open
-    return 0;
-}
-
-uint64_t sys_shm_unlink(uint64_t name, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_shm_unlink
-    return 0;
-}
-
-uint64_t sys_shm_map(uint64_t addr, uint64_t length, uint64_t prot, uint64_t flags, uint64_t fd, uint64_t offset)
-{
-    // Implementación de sys_shm_map
-    return 0;
-}
-
-uint64_t sys_shm_unmap(uint64_t addr, uint64_t length, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_shm_unmap
-    return 0;
-}
-
 uint64_t sys_mem_info(uint64_t info_struct, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
 
     (memory_state_get(memory_manager, (HeapState *)info_struct));
     return 0;
 }
+
+uint64_t sys_block_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+{
+    if (pid >= MAX_PROCESSES || pid == get_current_pid())
+    {
+        return -1; // PID inválido
+    }
+    block_process((pid_t)pid);
+    return 0;
+}
+
+uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+{
+    if (pid >= MAX_PROCESSES || pid == get_current_pid())
+    {
+        return -1; // PID inválido
+    }
+    wake_up_process((pid_t)pid);
+    return 0;
+}
+

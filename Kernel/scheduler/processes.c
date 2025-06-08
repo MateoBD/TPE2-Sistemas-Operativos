@@ -87,7 +87,7 @@ int init_processes()
 
     PCB *idle_process_pcb = &process_table[0];
     idle_process_pcb->pid = 0;
-    memcpy(idle_process_pcb->name, "init", MAX_PROCESS_NAME_LENGTH - 1);
+    strncpy(idle_process_pcb->name, "init", MAX_PROCESS_NAME_LENGTH - 1);
     idle_process_pcb->name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
     idle_process_pcb->state = READY;
     idle_process_pcb->priority = 0;
@@ -191,12 +191,12 @@ static PCB set_new_process(const char *name, uint8_t priority, uint16_t *fds)
     // Copiar el nombre del proceso, asegurando que no exceda el límite
     if (name != NULL)
     {
-        memcpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
+        strncpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
         new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0'; // Asegurar terminación null
     }
     else
     {
-        memcpy(new_process.name, "unnamed", MAX_PROCESS_NAME_LENGTH - 1);
+        strncpy(new_process.name, "unnamed", MAX_PROCESS_NAME_LENGTH - 1);
         new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
     }
 

@@ -41,6 +41,8 @@ enum enum_syscalls
     SYS_SHM_MAP,
     SYS_SHM_UNMAP,
     SYS_MEM_INFO,
+    SYS_BLOCK,
+    SYS_UNBLOCK,
 };
 
 typedef uint64_t (*sys_call_t)(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9);
@@ -55,8 +57,6 @@ sys_call_t sys_call_arr[] =
     [SYS_SET_COLOR] = (sys_call_t) sys_set_color,
     [SYS_MMAP] = (sys_call_t) sys_mmap,
     [SYS_MUNMAP] = (sys_call_t) sys_munmap,
-    [SYS_BRK] = (sys_call_t) sys_brk,
-    [SYS_MPROTECT] = (sys_call_t) sys_mprotect,
     [SYS_CREATE_PROCESS] = (sys_call_t) sys_create_process,
     [SYS_EXIT] = (sys_call_t) sys_exit,
     [SYS_WAIT] = (sys_call_t) sys_wait,
@@ -73,10 +73,9 @@ sys_call_t sys_call_arr[] =
     [SYS_SEM_WAIT] = (sys_call_t) sys_sem_wait,
     [SYS_SEM_POST] = (sys_call_t) sys_sem_post,
     [SYS_SEM_GETVALUE] = (sys_call_t) sys_sem_getvalue,
-    [SYS_SHM_OPEN] = (sys_call_t) sys_shm_open,
-    [SYS_SHM_MAP] = (sys_call_t) sys_shm_map,
-    [SYS_SHM_UNMAP] = (sys_call_t) sys_shm_unmap,
     [SYS_MEM_INFO]= (sys_call_t) sys_mem_info,
+    [SYS_BLOCK] = (sys_call_t) sys_block_process,
+    [SYS_UNBLOCK] = (sys_call_t) sys_unblock_process,
 };
 
 uint64_t syscall_dispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r10, uint64_t r8, uint64_t r9) {

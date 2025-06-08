@@ -39,6 +39,11 @@ int wait(uint32_t pid, int8_t *status)
     return (int)sys_call(SYS_WAIT, (uint64_t)pid, (uint64_t)status, 0, 0, 0, 0);
 }
 
+int nice(uint32_t pid, uint8_t newPriority)
+{
+    return (int)sys_call(SYS_SETPRIORITY, (uint64_t)pid, (uint64_t)newPriority, 0, 0, 0, 0);
+}
+
 int32_t sem_init(uint32_t initial_value)
 {
     return (int32_t)sys_call(SYS_SEM_OPEN, initial_value, 0, 0, 0, 0, 0);
@@ -67,4 +72,24 @@ int32_t sem_getvalue(uint32_t sem)
 int32_t kill(uint32_t pid)
 {
     return (int32_t)sys_call(SYS_KILL, pid, 0, 0, 0, 0, 0);
+}
+
+int32_t block(uint32_t pid)
+{
+    return (int32_t)sys_call(SYS_BLOCK, pid, 0, 0, 0, 0, 0);
+}
+
+int32_t unblock(uint32_t pid)
+{
+    return (int32_t)sys_call(SYS_UNBLOCK, pid, 0, 0, 0, 0, 0);
+}
+
+int32_t sched_yield(void)
+{
+    return (int32_t)sys_call(SYS_SCHED_YIELD, 0, 0, 0, 0, 0, 0);
+}
+
+int32_t get_priority(uint32_t pid)
+{
+    return (int32_t)sys_call(SYS_GETPRIORITY, pid, 0, 0, 0, 0, 0);
 }

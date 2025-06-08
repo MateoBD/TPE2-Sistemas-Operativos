@@ -26,10 +26,6 @@ uint64_t sys_mmap(uint64_t size, uint64_t unused2, uint64_t unused3, uint64_t un
 
 uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
-uint64_t sys_brk(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
-uint64_t sys_mprotect(uint64_t addr, uint64_t len, uint64_t prot, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
 uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
@@ -56,21 +52,16 @@ uint64_t sys_sem_open(uint64_t value, uint64_t unused2, uint64_t unused3, uint64
 
 uint64_t sys_sem_close(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
-uint64_t sys_sem_unlink(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
 uint64_t sys_sem_wait(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_sem_post(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_sem_getvalue(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
-uint64_t sys_shm_open(uint64_t name, uint64_t oflag, uint64_t mode, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
-uint64_t sys_shm_unlink(uint64_t name, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
-uint64_t sys_shm_map(uint64_t addr, uint64_t length, uint64_t prot, uint64_t flags, uint64_t fd, uint64_t offset);
-
-uint64_t sys_shm_unmap(uint64_t addr, uint64_t length, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
 uint64_t sys_mem_info(uint64_t info_struct, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
+
+uint64_t sys_block_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
+
+uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
+
 #endif // _SYSCALLS_H_

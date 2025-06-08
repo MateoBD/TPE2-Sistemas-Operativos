@@ -36,6 +36,8 @@ enum enum_syscalls
     SYS_SHM_MAP,
     SYS_SHM_UNMAP,
     SYS_MEM_INFO,
+    SYS_BLOCK,
+    SYS_UNBLOCK,
 };
 
 /**
