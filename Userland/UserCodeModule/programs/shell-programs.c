@@ -191,6 +191,7 @@ void cat_cmd(int argc, char **argv) {
   char buff[BUFFER_SIZE];
   uint16_t count = 0;
   while ((c = getchar()) != CHAR_EOF) {
+    printf("%c",c);
     buff[count++] = c;
     if (c == '\n' || count - 1 >= BUFFER_SIZE) {
       buff[count] = 0;
