@@ -39,6 +39,38 @@ void cmd_help(int argc, char **argv)
     exit(0);
 }
 
+void nice_shell(int argc, char **argv)
+{
+    if (argc < 3)
+    {
+        printf("Usage: nice <pid> <new_priority>\n");
+        return;
+    }
+
+    uint16_t pid = atoi(argv[1]);
+    if (pid == 0)
+    {
+        printf("Invalid PID: %s\n", argv[1]);
+        return;
+    }
+
+    uint8_t new_priority = atoi(argv[2]);
+    if (new_priority > 255)
+    {
+        printf("Invalid priority: %s\n", argv[2]);
+        return;
+    }
+
+    if (nice(pid, new_priority) == -1)
+    {
+        printf("Failed to change priority of process %d\n", pid);
+    }
+    else
+    {
+        printf("Process %d priority changed to %d successfully.\n", pid, new_priority);
+    }
+}
+
 void exit_shell(int argc, char **argv)
 {
     printf("Goodbye!\n");

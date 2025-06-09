@@ -252,7 +252,7 @@ static PCB set_new_process(const char *name, uint16_t *fds)
 }
 
 // Crea un nuevo proceso
-pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, char is_foreground)
+pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, uint8_t is_foreground)
 {
 
     if (process_count >= MAX_PROCESSES)

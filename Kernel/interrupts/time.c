@@ -1,6 +1,7 @@
 #include <time.h>
 #include <times.h>
 #include <libasm.h>
+#include <processes.h>
 
 static time_struct_t start_up_time;
 static int initialized = 0;
@@ -71,7 +72,7 @@ void sleep(uint64_t seconds_elapsed)
     uint64_t start = elapsed_seconds();
     while (elapsed_seconds() - start < seconds_elapsed)
     {
-        _hlt();
+        call_int_20(); // Llamada a la interrupción de timer
     };
 }
 
