@@ -115,56 +115,6 @@ void kill_shell(int argc, char **argv)
     }
 }
 
-void block_shell(int argc, char **argv)
-{
-    if (argc < 2)
-    {
-        printf("Usage: block <pid>\n");
-        return;
-    }
-
-    uint16_t pid = atoi(argv[1]);
-    if (pid == 0)
-    {
-        printf("Invalid PID: %s\n", argv[1]);
-        return;
-    }
-
-    if (block(pid) == -1)
-    {
-        printf("Failed to block process %d\n", pid);
-    }
-    else
-    {
-        printf("Process %d blocked successfully.\n", pid);
-    }
-}
-
-void unblock_shell(int argc, char **argv)
-{
-    if (argc < 2)
-    {
-        printf("Usage: unblock <pid>\n");
-        return;
-    }
-
-    uint16_t pid = atoi(argv[1]);
-    if (pid == 0)
-    {
-        printf("Invalid PID: %s\n", argv[1]);
-        return;
-    }
-
-    if (unblock(pid) == -1)
-    {
-        printf("Failed to unblock process %d\n", pid);
-    }
-    else
-    {
-        printf("Process %d unblocked successfully.\n", pid);
-    }
-}
-
 void clear(int argc, char **argv)
 {
     clean_screen();
@@ -278,4 +228,30 @@ void filter_cmd(int argc, char **argv)
 void filter(int argc, char **argv)
 {
     process_handler("filter", filter_cmd, argc, argv);
+}
+
+void toggle_block_run(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        printf("Usage: toggle_block <pid>\n");
+        return;
+    }
+
+    uint16_t pid = atoi(argv[1]);
+    if (pid == 0)
+    {
+        printf("Invalid PID: %s\n", argv[1]);
+        return;
+    }
+
+    if (toggle_block(pid) == -1)
+    {
+        printf("Failed to toggle block state of process %d\n", pid);
+    }
+    else
+    {
+        printf("Process %d block state toggled successfully.\n", pid);
+    }
+    exit(0);
 }

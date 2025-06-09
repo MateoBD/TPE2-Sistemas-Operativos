@@ -84,6 +84,11 @@ int32_t unblock(uint32_t pid)
     return (int32_t)sys_call(SYS_UNBLOCK, pid, 0, 0, 0, 0, 0);
 }
 
+int toggle_block(uint32_t pid)
+{
+    return (int32_t)sys_call(SYS_TOGGLE_BLOCK, pid, 0, 0, 0, 0, 0);
+}
+
 int32_t sched_yield(void)
 {
     return (int32_t)sys_call(SYS_SCHED_YIELD, 0, 0, 0, 0, 0, 0);

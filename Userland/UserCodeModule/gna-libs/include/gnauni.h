@@ -168,4 +168,11 @@ typedef struct
  */
 int32_t get_ps(ProcessInfo *buffer, uint32_t size);
 
+/**
+ * @brief Cambia el estado de bloqueo de un proceso
+ * @param pid PID del proceso a modificar
+ * @return 0 si se cambió correctamente, -1 si hubo error
+ */
+int toggle_block(uint32_t pid);
+
 #endif /* _GNAUNI_H_ */
