@@ -76,7 +76,7 @@ static void clean_buffer(uint16_t fd)
 // Busca un pipe libre en el array
 static uint16_t find_available_pipe()
 {
-    for (uint16_t i = 0; i < MAX_AMOUNT_PIPES; i++)
+    for (uint16_t i = STDERR + 1; i < MAX_AMOUNT_PIPES; i++) // Ignoro los primeros 3 fds
     {
         if (global_pipe_manager.pipes[i].state == PIPE_FREE)
         {

@@ -207,6 +207,6 @@ void run_philosophers(int argc, char *argv[]) {
   exit(0);
 }
 
-void phylo(int argc, char *argv[]) {
-  process_handler("philo", run_philosophers, argc, argv);
+void phylo(int argc, char *argv[], uint16_t * fds) {
+  process_handler("philo", run_philosophers, argc, argv, fds);
 }

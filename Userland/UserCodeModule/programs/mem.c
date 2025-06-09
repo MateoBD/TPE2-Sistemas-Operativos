@@ -14,6 +14,6 @@ static void print_memory_state(int argc, char **argv){
     exit(0);
 }
 
-void mem(int argc, char **argv){
-    process_handler("mem", print_memory_state, argc, argv);
+void mem(int argc, char **argv, uint16_t * fds){
+    process_handler("mem", print_memory_state, argc, argv, fds);
 }

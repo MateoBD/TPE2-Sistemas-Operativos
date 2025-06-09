@@ -118,38 +118,38 @@ void cmd_test_help(int argc, char **argv)
 }
 
 // Public wrapper functions for shell integration
-void test_processes_wrapper(int argc, char **argv)
+void test_processes_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_processes", cmd_test_processes, argc, argv);
+    process_handler("test_processes", cmd_test_processes, argc, argv, fds);
 }
 
-void test_mm_wrapper(int argc, char **argv)
+void test_mm_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_mm", cmd_test_mm, argc, argv);
+    process_handler("test_mm", cmd_test_mm, argc, argv, fds);
 }
 
-void test_prio_wrapper(int argc, char **argv)
+void test_prio_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_prio", cmd_test_prio, argc, argv);
+    process_handler("test_prio", cmd_test_prio, argc, argv, fds);
 }
 
-void test_sync_wrapper(int argc, char **argv)
+void test_sync_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_sync", cmd_test_sync, argc, argv);
+    process_handler("test_sync", cmd_test_sync, argc, argv, fds);
 }
 
-void test_mm_basic_wrapper(int argc, char **argv)
+void test_mm_basic_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_mm_basic", cmd_test_mm_basic, argc, argv);
+    process_handler("test_mm_basic", cmd_test_mm_basic, argc, argv, fds);
 }
 
-void test_help_wrapper(int argc, char **argv)
+void test_help_wrapper(int argc, char **argv, uint16_t * fds)
 {
-    process_handler("test_help", cmd_test_help, argc, argv);
+    process_handler("test_help", cmd_test_help, argc, argv, fds);
 }
 
 // Unified test command function
-void test_command(int argc, char **argv)
+void test_command(int argc, char **argv, uint16_t * fds)
 {
     if (argc < 2)
     {
@@ -168,27 +168,27 @@ void test_command(int argc, char **argv)
 
     if (strcmp(test_type, "processes") == 0)
     {
-        test_processes_wrapper(argc - 1, &argv[1]);
+        test_processes_wrapper(argc - 1, &argv[1], fds);
     }
     else if (strcmp(test_type, "mm") == 0)
     {
-        test_mm_wrapper(argc - 1, &argv[1]);
+        test_mm_wrapper(argc - 1, &argv[1], fds);
     }
     else if (strcmp(test_type, "prio") == 0)
     {
-        test_prio_wrapper(argc - 1, &argv[1]);
+        test_prio_wrapper(argc - 1, &argv[1], fds);
     }
     else if (strcmp(test_type, "sync") == 0)
     {
-        test_sync_wrapper(argc - 1, &argv[1]);
+        test_sync_wrapper(argc - 1, &argv[1], fds);
     }
     else if (strcmp(test_type, "mm_basic") == 0)
     {
-        test_mm_basic_wrapper(argc - 1, &argv[1]);
+        test_mm_basic_wrapper(argc - 1, &argv[1], fds);
     }
     else if (strcmp(test_type, "help") == 0)
     {
-        test_help_wrapper(argc - 1, &argv[1]);
+        test_help_wrapper(argc - 1, &argv[1], fds);
     }
     else
     {

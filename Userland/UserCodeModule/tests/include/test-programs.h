@@ -19,7 +19,7 @@
  * @param argc Number of arguments
  * @param argv Array of arguments, where argv[1] should be max_processes
  */
-void test_processes_wrapper(int argc, char **argv);
+void test_processes_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Wrapper function for the memory manager allocation/deallocation test.
@@ -30,7 +30,7 @@ void test_processes_wrapper(int argc, char **argv);
  * @param argc Number of arguments
  * @param argv Array of arguments, where argv[1] should be max_memory
  */
-void test_mm_wrapper(int argc, char **argv);
+void test_mm_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Wrapper function for the priority-based scheduling test.
@@ -41,7 +41,7 @@ void test_mm_wrapper(int argc, char **argv);
  * @param argc Number of arguments (not used)
  * @param argv Array of arguments (not used)
  */
-void test_prio_wrapper(int argc, char **argv);
+void test_prio_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Wrapper function for the semaphore synchronization test.
@@ -55,7 +55,7 @@ void test_prio_wrapper(int argc, char **argv);
  *             argv[2] = use semaphore flag (0 or 1)
  *             argv[3] = semaphore ID string
  */
-void test_sync_wrapper(int argc, char **argv);
+void test_sync_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Wrapper function for a basic memory manager test.
@@ -66,7 +66,7 @@ void test_sync_wrapper(int argc, char **argv);
  * @param argc Number of arguments (not used)
  * @param argv Array of arguments (not used)
  */
-void test_mm_basic_wrapper(int argc, char **argv);
+void test_mm_basic_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Wrapper function for displaying test help information.
@@ -77,7 +77,7 @@ void test_mm_basic_wrapper(int argc, char **argv);
  * @param argc Number of arguments (not used)
  * @param argv Array of arguments (not used)
  */
-void test_help_wrapper(int argc, char **argv);
+void test_help_wrapper(int argc, char **argv, uint16_t * fds);
 
 /**
  * @brief Unified test command function.
@@ -88,6 +88,6 @@ void test_help_wrapper(int argc, char **argv);
  * @param argc Number of arguments
  * @param argv Array of arguments, where argv[1] is the test type
  */
-void test_command(int argc, char **argv);
+void test_command(int argc, char **argv, uint16_t * fds);
 
 #endif // TEST_PROGRAMS_H
