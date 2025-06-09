@@ -4,6 +4,7 @@
 #include <video-driver.h>
 #include <stddef.h>
 #include <video-driver.h>
+#include <lib.h>
 
 #define MIN_LEVEL 5
 #define MAX_ORDER 25
@@ -94,7 +95,7 @@ MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void 
   mm->max_order = level;
   mm->info.total_memory = MEMORY_SIZE;
   mm->info.used_memory = 0;
-  strncpy(new_memory_manager->info.mm_type, "buddy", 6);
+  strncpy(mm->info.mm_type, "buddy", 6);
   
   for (int i = 0; i < MAX_ORDER; i++) {
     mm->free_blocks[i] = NULL;

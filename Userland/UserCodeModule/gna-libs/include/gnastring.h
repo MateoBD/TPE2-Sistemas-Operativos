@@ -27,4 +27,6 @@ int isdigit(int c);
 
 int isalnum(int c);
 
+int is_vowel(int c);
+
 #endif

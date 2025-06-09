@@ -1,6 +1,20 @@
 #ifndef PROGRAMS_H
 #define PROGRAMS_H
+
 #include <stdint.h>
+
+
+
+void nice_shell(int argc, char **argv, uint16_t * fds);
+void toggle_block_run(int argc, char **argv, uint16_t * fds);
+void phylo(int argc, char **argv, uint16_t * fds);
+void ps(int argc, char **argv, uint16_t * fds);
+
+void shell_cmd(int argc, char **argv, uint16_t * fds);
+
+void cat(int argc, char **argv, uint16_t * fds);
+void wc(int argc, char **argv, uint16_t * fds);
+void filter(int argc, char **argv, uint16_t * fds);
 
 void echo(int argc, char **argv, uint16_t *fds);
 void loop(int argc, char **argv, uint16_t *fds);
