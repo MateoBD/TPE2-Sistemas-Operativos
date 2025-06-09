@@ -33,8 +33,9 @@ void vd_nprint(const char *string, uint32_t n)
 {
     int i;
 
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++){
         vd_draw_char(string[i]);
+    }
 }
 
 void vd_draw_char(char character)
@@ -70,6 +71,13 @@ void vd_draw_char(char character)
         }
         return;
     }
+    if (character == -4)
+    {
+        // Handle EOF character
+        // This is a no-op in the video driver, but can be used to signal end of input
+        return;
+    }
+    
     
     // Don't allow writing beyond the right edge (leave space for margin)
     uint32_t current_col = ((current_video - video) / 2) % WIDTH;

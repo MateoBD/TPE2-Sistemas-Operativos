@@ -37,7 +37,7 @@ command_t commands[] = {
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
     {"cat", cat, "Concatenate and print files to stdout"},
-    {"wc", wc, "Count lines, words, and characters in input (use 'wc --help' for options)"},
+    {"wc", wc, "Count lines, words, and characters in input (use 'wc --h' for options)"},
     {"filter", filter, "Filter out vowels from input"},
     {"test", test_command, "Run tests (use 'test help' for options)"},
     {NULL, NULL, NULL} // Sentinel
