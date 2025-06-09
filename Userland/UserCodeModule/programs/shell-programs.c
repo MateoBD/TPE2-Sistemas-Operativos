@@ -302,7 +302,7 @@ void nice_cmd(int argc, char **argv)
     uint16_t pid = atoi(argv[1]);
     int priority = atoi(argv[2]);
 
-    if (pid == 0 || priority < 0 || priority > 20)
+    if (pid == 0 || priority < 0 || priority > 3)
     {
         printf("Invalid arguments: %s %s\n", argv[1], argv[2]);
         return;
