@@ -3,6 +3,7 @@
 #include <programs.h>
 #include <gnauni.h>
 #include <process-handler.h>
+#include <shell.h>
 
 void cmd_echo(int argc, char **argv)
 {
@@ -170,4 +171,64 @@ void clear(int argc, char **argv)
 void help(int argc, char **argv)
 {
     process_handler("help", cmd_help, argc, argv);
+}
+
+static const char *process_state_to_string(int state)
+{
+    switch (state)
+    {
+    case PS_READY: return "READY";
+    case PS_RUNNING: return "RUNNING";
+    case PS_BLOCKED: return "BLOCKED";
+    case PS_TERMINATED: return "TERMINATED";
+    default: return "UNKNOWN";
+    }
+}
+
+
+
+void cmd_ps(int argc, char **argv)
+{
+    printf("Current processes:\n");
+    ProcessInfo processes[MAX_PROCESSES];
+    int count = get_ps(processes, MAX_PROCESSES);
+    if (count == -1)
+    {
+        printf("Failed to get process list.\n");
+        return;
+    }
+
+    // Header
+    printf("PID   Name       State     Priority  Parent  FG\n");
+
+    for (int i = 0; i < count; i++)
+    {
+        set_color(lightMagenta,black);
+        print_int_padded(processes[i].pid, 6);
+        set_color(lightCyan,black);
+        print_padded(processes[i].name, 11);
+        set_color(lightGreen,black);
+        print_padded(process_state_to_string(processes[i].state), 10);
+        set_color(lightBlue,black);
+        print_int_padded(processes[i].priority, 10);
+        set_color(lightRed,black);
+        print_int_padded(processes[i].parent_pid, 8);
+        set_color(yellow,black);
+        print_int_padded(processes[i].is_foreground, 3);
+        set_color(lightGrey,black);
+        putchar('\n');
+    }
+
+    exit(0);
+}
+
+void ps(int argc, char **argv)
+{
+    process_handler("ps", cmd_ps, argc, argv);
+}
+
+void shell_cmd(int argc, char **argv)
+{
+    // Start the shell program
+    process_handler("shell", shell, argc, argv);
 }

@@ -70,4 +70,10 @@ void set_color(uint8_t fg_color, uint8_t bg_color);
 
 void clean_screen(void);
 
+void print_spaces(int n);
+
+void print_padded(const char *str, int width);
+
+void print_int_padded(int num, int width);
+
 #endif

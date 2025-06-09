@@ -5,7 +5,7 @@
 
 enum enum_syscalls
 {
-    SYS_WRITE = 0,
+SYS_WRITE = 0,
     SYS_READ,
     SYS_OPEN,
     SYS_CLOSE,
@@ -38,6 +38,7 @@ enum enum_syscalls
     SYS_MEM_INFO,
     SYS_BLOCK,
     SYS_UNBLOCK,
+    SYS_PS,
 };
 
 /**

@@ -138,4 +138,34 @@ int32_t read(int fd, void *buf, uint32_t count);
  */
 int32_t write(int fd, const void *buf, uint32_t count);
 
+
+// Estados de proceso para ps
+typedef enum
+{
+    PS_READY = 0,
+    PS_RUNNING = 1,
+    PS_BLOCKED = 2,
+    PS_TERMINATED = 3
+} ProcessStatePS;
+
+// Estructura para información de proceso (ps)
+typedef struct
+{
+    uint16_t pid;
+    char name[64];
+    ProcessStatePS state;
+    uint8_t priority;
+    uint16_t parent_pid;
+    uint8_t is_foreground;
+} ProcessInfo;
+
+#define MAX_PROCESSES 1024
+/**
+ * @brief Obtiene la lista de procesos
+ * @param buffer Buffer donde se almacenan la informacion  de los procesos
+ * @param size Tamaño del buffer
+ * @return Número de procesos obtenidos o -1 si hubo error
+ */
+int32_t get_ps(ProcessInfo *buffer, uint32_t size);
+
 #endif /* _GNAUNI_H_ */

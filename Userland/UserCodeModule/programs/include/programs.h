@@ -9,7 +9,9 @@ void nice_shell(int argc, char **argv);
 void block_shell(int argc, char **argv);
 void unblock_shell(int argc, char **argv);
 void phylo(int argc, char **argv);
+void ps(int argc, char **argv);
 void help(int argc, char **argv);
+void shell_cmd(int argc, char **argv);
 void exit_shell(int argc, char **argv);
 
 typedef struct

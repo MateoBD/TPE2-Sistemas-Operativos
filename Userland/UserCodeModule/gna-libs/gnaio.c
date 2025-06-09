@@ -287,3 +287,23 @@ void clean_screen(void)
     nprintf(BUFFER_SIZE, output_buffer);
     set_cursor(1, 0);
 }
+
+void print_spaces(int n) {
+    for (int i = 0; i < n; i++) {
+        putchar(' ');
+    }
+}
+
+void print_padded(const char *str, int width) {
+    int len = 0;
+    while (str[len]) len++;
+    printf(str);
+    print_spaces(width - len);
+}
+
+void print_int_padded(int num, int width) {
+    char buf[12];
+    int len = sprintf(buf, "%d", num); // o tu propia itoa
+    printf(buf);
+    print_spaces(width - len);
+}
