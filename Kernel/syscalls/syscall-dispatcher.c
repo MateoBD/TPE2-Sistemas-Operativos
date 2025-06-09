@@ -18,8 +18,6 @@ enum enum_syscalls
     SYS_SET_COLOR,
     SYS_MMAP,
     SYS_MUNMAP,
-    SYS_BRK,
-    SYS_MPROTECT,
     SYS_CREATE_PROCESS,
     SYS_EXIT,
     SYS_WAIT,
@@ -43,6 +41,7 @@ enum enum_syscalls
     SYS_MEM_INFO,
     SYS_BLOCK,
     SYS_UNBLOCK,
+    SYS_TOGGLE_BLOCK,
     SYS_PS,
 };
 
@@ -77,6 +76,7 @@ sys_call_t sys_call_arr[] =
         [SYS_MEM_INFO] = (sys_call_t)sys_mem_info,
         [SYS_BLOCK] = (sys_call_t)sys_block_process,
         [SYS_UNBLOCK] = (sys_call_t)sys_unblock_process,
+        [SYS_TOGGLE_BLOCK] = (sys_call_t)sys_toggle_block,
         [SYS_PS] = (sys_call_t)sys_ps,
 };
 

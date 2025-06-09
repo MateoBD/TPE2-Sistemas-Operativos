@@ -546,6 +546,27 @@ int wake_up_process(pid_t pid)
     return -1; // Proceso no encontrado
 }
 
+int toggle_block_process(pid_t pid)
+{
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == pid)
+        {
+            if (process_table[i].state == BLOCKED)
+            {
+                return wake_up_process(pid);
+            }
+            else if (process_table[i].state == READY || process_table[i].state == RUNNING)
+            {
+                return block_process(pid);
+            }
+            return -1;
+        }
+    }
+
+    return -1;
+}
+
 void stop_system()
 {
     system_running = 0;

@@ -130,6 +130,13 @@ int block_process(pid_t pid);
 int wake_up_process(pid_t pid);
 
 /**
+ * @brief Cambia el estado de un proceso a bloqueado o desbloqueado, o viceversa
+ * @param pid PID del proceso
+ * @return 0 si se cambió correctamente, -1 si hubo error
+ */
+int toggle_block_process(pid_t pid);
+
+/**
  * @brief Verifica si hay procesos en ejecución
  * @return 1 si hay procesos en ejecución, 0 si no
  */

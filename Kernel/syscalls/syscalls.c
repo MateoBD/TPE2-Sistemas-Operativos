@@ -265,6 +265,17 @@ uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, u
     return 0;
 }
 
+uint64_t sys_toggle_block(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+{
+    if (pid >= MAX_PROCESSES || pid == get_current_pid())
+    {
+        return -1; // PID inválido
+    }
+
+    toggle_block_process((pid_t)pid);
+    return 0;
+}
+
 uint64_t sys_ps(uint64_t process_array, uint64_t max_processes, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     if (process_array == 0 || max_processes <= 0)

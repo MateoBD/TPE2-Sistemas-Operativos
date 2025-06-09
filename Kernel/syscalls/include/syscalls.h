@@ -84,6 +84,8 @@ uint64_t sys_block_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uin
 
 uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
+uint64_t sys_toggle_block(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
+
 uint64_t sys_ps(uint64_t process_array, uint64_t max_processes, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 #endif // _SYSCALLS_H_
