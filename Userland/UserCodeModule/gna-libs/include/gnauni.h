@@ -120,4 +120,22 @@ int32_t open(void);
  */
 int32_t close(int fd);
 
+/**
+ * @brief Lee datos de un pipe
+ * @param fd Descriptor de pipe a leer
+ * @param buf Buffer donde se guardarán los datos leídos
+ * @param count Cantidad de bytes a leer
+ * @return Número de bytes leídos o -1 si hubo error
+ */
+int32_t read(int fd, void *buf, uint32_t count);
+
+/**
+ * @brief Escribe datos en un pipe
+ * @param fd Descriptor de pipe a escribir
+ * @param buf Buffer con los datos a escribir
+ * @param count Cantidad de bytes a escribir
+ * @return Número de bytes escritos o -1 si hubo error
+ */
+int32_t write(int fd, const void *buf, uint32_t count);
+
 #endif /* _GNAUNI_H_ */

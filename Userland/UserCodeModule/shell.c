@@ -30,6 +30,7 @@ command_t commands[] = {
     {"nice", nice_shell, "Change the priority of a process by PID"},
     {"block", block_shell, "Block a process by PID"},
     {"unblock", unblock_shell, "Unblock a process by PID"},
+    {"phylo", phylo, "Run the philosophers problem simulation"},
     {"sh", shell, "Start the GNA shell"},
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
