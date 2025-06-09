@@ -344,6 +344,23 @@ int kill_process(uint32_t pid)
                 foreground_process = process_table[i].father->pid;
             }
 
+            // Reasignar los hijos del proceso terminado a su padre (abuelo)
+            PCB *grandfather = process_table[i].father;
+            if (grandfather != NULL)
+            {
+                for (size_t j = 0; j < process_table[i].children_count; j++)
+                {
+                    PCB *child = process_table[i].children[j];
+                    if (child != NULL && grandfather->children_count < MAX_CHILDREN)
+                    {
+                        // Agregar el hijo al abuelo
+                        grandfather->children[grandfather->children_count++] = child;
+                        // Actualizar el padre del hijo
+                        child->father = grandfather;
+                    }
+                }
+            }
+
             if (process_table[i].sem_wait_id != -1)
             {
                 sem_post(process_table[i].sem_wait_id);
