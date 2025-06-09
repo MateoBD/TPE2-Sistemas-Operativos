@@ -4,6 +4,7 @@
 #include <gnauni.h>
 #include <process-handler.h>
 #include <shell.h>
+#include <gnastring.h>
 
 #define BUFFER_SIZE 1024
 
@@ -186,23 +187,26 @@ void shell_cmd(int argc, char **argv)
 }
 
 
-void cat_cmd(int argc, char **argv) {
-  int c;
-  char buff[BUFFER_SIZE];
-  uint16_t count = 0;
-  while ((c = getchar()) != CHAR_EOF) {
-    printf("%c",c);
-    buff[count++] = c;
-    if (c == '\n' || count - 1 >= BUFFER_SIZE) {
-      buff[count] = 0;
-      printf("%s", buff);
-      count = 0;
+void cat_cmd(int argc, char **argv) 
+{
+    int c;
+    char buff[BUFFER_SIZE];
+    uint16_t count = 0;
+    while ((c = getchar()) != CHAR_EOF) 
+    {
+        printf("%c",c);
+        buff[count++] = c;
+        if (c == '\n' || count - 1 >= BUFFER_SIZE) 
+        {
+            buff[count] = 0;
+            printf("%s", buff);
+            count = 0;
+        }
     }
-  }
-  buff[count] = 0;
-  printf("%s", buff);
-  count = 0;
-  exit(0); // Exit after processing input
+    buff[count] = 0;
+    printf("%s\n", buff);
+    count = 0;
+    exit(0); 
 }
 
 void cat(int argc, char **argv)
@@ -212,9 +216,59 @@ void cat(int argc, char **argv)
 
 void wc_cmd(int argc, char **argv)
 {
-    printf("wc command is not implemented yet.\n");
-    exit(0); // Placeholder for wc command implementation
+    int show_lines = 0, show_words = 0, show_chars = 0;
+
+    // Parse flags
+    if (argc == 1)
+    {
+        // Sin flags, mostrar todo
+        show_lines = show_words = show_chars = 1;
+    }
+    else
+    {
+        for (int i = 1; i < argc; i++)
+        {
+            if (strcmp(argv[i], "-l") == 0) show_lines = 1;
+            else if (strcmp(argv[i], "-w") == 0) show_words = 1;
+            else if (strcmp(argv[i], "-c") == 0) show_chars = 1;
+        }
+    }
+
+    int c;
+    uint16_t count_lines = 0;
+    uint16_t count_words = 0;
+    uint16_t count_chars = 0;
+    int in_word = 0;
+
+    while ((c = getchar()) != CHAR_EOF)
+    {
+        printf("%c", c);
+        count_chars++;
+
+        if (c == '\n') count_lines++;
+
+        if (c == ' ' || c == '\n' || c == '\t')
+        {
+            in_word = 0;
+        }
+        else if (!in_word)
+        {
+            count_words++;
+            in_word = 1;
+        }
+    }
+
+    // Mostrar resultados según flags
+    printf("\n");
+    if (show_lines)  printf("Lines: %d ", count_lines);
+    if (show_words)  printf("Words: %d ", count_words);
+    if (show_chars)  printf("Chars: %d ", count_chars);
+    printf("\n");
+
+    exit(0);
 }
+
+
 
 void wc(int argc, char **argv)
 {
