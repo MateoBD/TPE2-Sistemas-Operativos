@@ -5,7 +5,9 @@
 #define MAX_SEMAPHORES 512
 #define NOT_A_PROCESS 1025
 
-#define CHECK_INICIALIZED() if (!initialized) init_sem_manager()
+#define CHECK_INICIALIZED() \
+    if (!initialized)       \
+    init_sem_manager()
 #define INVALID_SEM(sem) (sem >= MAX_SEMAPHORES || sem_queue.sem[sem].state == SEMAPHORE_FREE)
 
 // Estados de semáforo
@@ -105,6 +107,12 @@ void sem_wait(uint32_t sem)
     // Decrementar el valor del semáforo
     while (!sem_queue.sem[sem].value)
     {
+        // Verificar si el semáforo sigue siendo válido antes de bloquear
+        if (INVALID_SEM(sem))
+        {
+            return; // El semáforo fue destruido mientras esperábamos
+        }
+
         // Agregar el proceso a la cola de espera
         pid_t current_pid = get_current_pid();
         sem_queue.sem[sem].waiting_processes[sem_queue.sem[sem].last_index] = current_pid;
@@ -112,7 +120,20 @@ void sem_wait(uint32_t sem)
         sem_queue.sem[sem].last_index %= MAX_PROCESSES;
         block_process(current_pid);
         call_int_20();
+
+        // Después de despertar, verificar si el semáforo sigue siendo válido
+        if (INVALID_SEM(sem))
+        {
+            return; // El semáforo fue destruido mientras estábamos bloqueados
+        }
     }
+
+    // Verificar una vez más antes de decrementar
+    if (INVALID_SEM(sem))
+    {
+        return;
+    }
+
     sem_queue.sem[sem].value--;
 }
 
@@ -132,15 +153,46 @@ void sem_post(uint32_t sem)
     {
         // Despertar el primer proceso en espera
         pid_t pid_to_wake = sem_queue.sem[sem].waiting_processes[sem_queue.sem[sem].current_index];
-        sem_queue.sem[sem].waiting_processes[sem_queue.sem[sem].current_index] = 0;
+        sem_queue.sem[sem].waiting_processes[sem_queue.sem[sem].current_index] = NOT_A_PROCESS;
         sem_queue.sem[sem].current_index++;
         sem_queue.sem[sem].current_index %= MAX_PROCESSES;
         wake_up_process(pid_to_wake);
     }
 }
 
-// Intenta realizar una operación wait en el semáforo sin bloquear
-// Retorna 0 si pudo decrementar el semáforo, -1 si no pudo
+// Destruye un semáforo
+void destroy_sem(uint32_t sem)
+{
+    CHECK_INICIALIZED();
+
+    if (INVALID_SEM(sem))
+    {
+        return; // Semáforo no válido
+    }
+
+    if (sem_queue.sem[sem].state == SEMAPHORE_USED)
+    {
+        // Despertar todos los procesos que están esperando en este semáforo
+        while (sem_queue.sem[sem].current_index != sem_queue.sem[sem].last_index)
+        {
+            pid_t pid_to_wake = sem_queue.sem[sem].waiting_processes[sem_queue.sem[sem].current_index];
+            if (pid_to_wake != NOT_A_PROCESS)
+            {
+                wake_up_process(pid_to_wake);
+            }
+            sem_queue.sem[sem].current_index++;
+            sem_queue.sem[sem].current_index %= MAX_PROCESSES;
+        }
+
+        // Resetear el semáforo
+        sem_queue.sem[sem].state = SEMAPHORE_FREE;
+        sem_queue.sem[sem].value = 0;
+        sem_queue.sem[sem].current_index = 0;
+        sem_queue.sem[sem].last_index = 0;
+        initialize_sem_queue(sem);
+    }
+}
+
 int32_t sem_trywait(uint32_t sem)
 {
     CHECK_INICIALIZED();
@@ -156,22 +208,8 @@ int32_t sem_trywait(uint32_t sem)
         sem_queue.sem[sem].value--;
         return 0; // Éxito
     }
-    
+
     return -1; // No se pudo decrementar sin bloquear
-}
-
-// Destruye un semáforo
-void destroy_sem(uint32_t sem)
-{
-    CHECK_INICIALIZED();
-
-    if (sem_queue.sem[sem].state == SEMAPHORE_USED)
-    {
-        sem_queue.sem[sem].state = SEMAPHORE_FREE;
-        sem_queue.sem[sem].current_index = 0;
-        sem_queue.sem[sem].last_index = 0;
-        initialize_sem_queue(sem);
-    }
 }
 
 uint32_t get_sem_value(uint32_t sem)

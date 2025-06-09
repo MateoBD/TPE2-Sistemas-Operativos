@@ -336,16 +336,22 @@ void kd_handler()
         if (ctrl && shifted_ascii[(uint8_t)key] == 'C')
         {
             kill_foreground_process();
+            kd_clear_buffer();
             c = CHAR_INTERRUPT; // Ctrl + C
         }
         else if (ctrl && shifted_ascii[(uint8_t)key] == 'D')
         {
-            c = CHAR_EOF; // Ctrl + D
+            c = CHAR_EOF;
         }
         else
         {
             c = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
         }
-        write_pipe(STDIN, &c, 1);
+        write_pipe_nonblocking(STDIN, &c, 1);
     }
+}
+
+int kd_clear_buffer(void)
+{
+    return clear_pipe(STDIN);
 }

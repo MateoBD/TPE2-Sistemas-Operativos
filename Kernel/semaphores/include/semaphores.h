@@ -31,6 +31,13 @@ void sem_post(uint32_t sem);
 void destroy_sem(uint32_t sem);
 
 /**
+ * @brief [Funcion interna para el kernel] Intenta realizar una operación wait en el semáforo sin bloquear
+ * @param sem Identificador del semáforo
+ * @return 0 si pudo decrementar el semáforo, -1 si no pudo
+ */
+int32_t sem_trywait(uint32_t sem);
+
+/**
  * @brief Obtiene el valor actual de un semáforo
  * @param sem Identificador del semáforo
  * @return Valor actual del semáforo o 0 si no existe

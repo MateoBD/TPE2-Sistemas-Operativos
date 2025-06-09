@@ -71,4 +71,46 @@ int read_pipe(uint16_t fd, int8_t *buffer, int count);
  */
 int write_pipe(int fd, const int8_t *buffer, int count);
 
+/**
+ * @brief Reads data from a pipe without blocking.
+ *
+ * Attempts to read up to 'count' bytes from the specified pipe into the provided buffer.
+ * This operation does not block if no data is available. Returns immediately with
+ * the number of bytes actually read (may be 0 if no data available).
+ * Cannot read from STDOUT or STDERR pipes.
+ *
+ * @param fd File descriptor of the pipe to read from.
+ * @param buffer Buffer to store the read data.
+ * @param count Maximum number of bytes to read.
+ * @return Number of bytes actually read on success (may be 0), -1 on error.
+ */
+int read_pipe_nonblocking(uint16_t fd, int8_t *buffer, int count);
+
+/**
+ * @brief Writes data to a pipe without blocking.
+ *
+ * Attempts to write up to 'count' bytes from the provided buffer to the specified pipe.
+ * This operation does not block if the pipe buffer is full. Returns immediately with
+ * the number of bytes actually written (may be 0 if buffer is full).
+ * Cannot write to STDIN pipe.
+ *
+ * @param fd File descriptor of the pipe to write to.
+ * @param buffer Buffer containing the data to write.
+ * @param count Number of bytes to write.
+ * @return Number of bytes actually written on success (may be 0), -1 on error.
+ */
+int write_pipe_nonblocking(int fd, const int8_t *buffer, int count);
+
+/**
+ * @brief Clears a pipe buffer completely.
+ *
+ * This function resets a pipe to its initial empty state by clearing the buffer
+ * and resetting the read/write positions and semaphores. This is useful for
+ * clearing input buffers like STDIN.
+ *
+ * @param fd File descriptor of the pipe to clear.
+ * @return 0 on success, -1 on error (invalid pipe).
+ */
+int clear_pipe(uint16_t fd);
+
 #endif /* _PIPES_H_ */
