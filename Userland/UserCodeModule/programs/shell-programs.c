@@ -16,6 +16,7 @@ void cmd_echo(int argc, char **argv) {
         }
     }
     putchar('\n');
+    putchar(CHAR_EOF);
     exit(0);
 }
 
@@ -34,6 +35,7 @@ void cmd_help(int argc, char **argv) {
     for (int i = 0; commands[i].name != NULL; i++) {
         printf("  %s - %s\n", commands[i].name, commands[i].description);
     }
+    putchar(CHAR_EOF);
     exit(0);
 }
 
@@ -122,7 +124,7 @@ void cmd_ps(int argc, char **argv)
         set_color(lightGrey,black);
         putchar('\n');
     }
-
+    putchar(CHAR_EOF);
     exit(0);
 }
 
@@ -157,6 +159,7 @@ void cat_cmd(int argc, char **argv)
     buff[count] = 0;
     printf("%s\n", buff);
     count = 0;
+    putchar(CHAR_EOF);
     exit(0); 
 }
 
@@ -190,11 +193,13 @@ void wc_cmd(int argc, char **argv)
                 printf("  -w    Count words\n");
                 printf("  -c    Count characters\n");
                 printf("  --help, -h    Show this help message\n");
+                putchar(CHAR_EOF);
                 exit(0);
             }
             else
             {
                 printf("Unknown option: %s\n", argv[i]);
+                putchar(CHAR_EOF);
                 exit(1);
             }
         }
@@ -230,7 +235,7 @@ void wc_cmd(int argc, char **argv)
     if (show_words)  printf("Words: %d ", count_words);
     if (show_chars)  printf("Chars: %d ", count_chars);
     printf("\n");
-
+    putchar(CHAR_EOF);
     exit(0);
 }
 
@@ -256,7 +261,7 @@ void filter_cmd(int argc, char **argv)
     }
     buff[count] = 0; // Asegurar terminación null
     printf("%s\n", buff);
-
+    putchar(CHAR_EOF);
     exit(0); 
 }
 
@@ -288,6 +293,7 @@ void toggle_block_run(int argc, char **argv, uint16_t * fds)
     {
         printf("Process %d block state toggled successfully.\n", pid);
     }
+    putchar(CHAR_EOF);
     exit(0);
 }
 
@@ -316,7 +322,7 @@ void nice_cmd(int argc, char **argv)
     {
         printf("Process %d priority changed to %d successfully.\n", pid, priority);
     }
-    
+    putchar(CHAR_EOF);
     exit(0);
 }
 void nice_shell(int argc, char **argv, uint16_t * fds)
