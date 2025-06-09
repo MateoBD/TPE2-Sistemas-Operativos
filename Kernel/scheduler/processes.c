@@ -552,3 +552,49 @@ int has_running_processes()
 {
     return system_running && (process_count > 1); // Más que solo el proceso idle
 }
+
+int get_processes_info(ProcessInfo *process_array, int max_processes)
+{
+    if (process_array == NULL || max_processes <= 0)
+    {
+        return -1;
+    }
+
+    int count = 0;
+
+    for (int i = 0; i < MAX_PROCESSES && count < max_processes; i++)
+    {
+        if (process_table[i].state != TERMINATED)
+        {
+            // Copiar información del proceso
+            process_array[count].pid = process_table[i].pid;
+            strncpy(process_array[count].name, process_table[i].name, MAX_PROCESS_NAME_LENGTH - 1);
+            process_array[count].name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
+
+            // Mapear estados internos a estados de PS
+            switch (process_table[i].state)
+            {
+            case READY:
+                process_array[count].state = PS_READY;
+                break;
+            case RUNNING:
+                process_array[count].state = PS_RUNNING;
+                break;
+            case BLOCKED:
+                process_array[count].state = PS_BLOCKED;
+                break;
+            default:
+                process_array[count].state = PS_TERMINATED;
+                break;
+            }
+
+            process_array[count].priority = process_table[i].priority;
+            process_array[count].parent_pid = (process_table[i].father != NULL) ? process_table[i].father->pid : 0;
+            process_array[count].is_foreground = process_table[i].is_foreground;
+
+            count++;
+        }
+    }
+
+    return count;
+}

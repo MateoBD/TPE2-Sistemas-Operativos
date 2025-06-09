@@ -10,6 +10,26 @@ enum
     STDERR = 2
 };
 
+// Estados de proceso para ps
+typedef enum
+{
+    PS_READY = 0,
+    PS_RUNNING = 1,
+    PS_BLOCKED = 2,
+    PS_TERMINATED = 3
+} ProcessStatePS;
+
+// Estructura para información de proceso (ps)
+typedef struct
+{
+    uint16_t pid;
+    char name[64];
+    ProcessStatePS state;
+    uint8_t priority;
+    uint16_t parent_pid;
+    uint8_t is_foreground;
+} ProcessInfo;
+
 uint64_t sys_write(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4, uint64_t unused5, uint64_t unused6);
@@ -63,5 +83,7 @@ uint64_t sys_mem_info(uint64_t info_struct, uint64_t unused2, uint64_t unused3, 
 uint64_t sys_block_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
+
+uint64_t sys_ps(uint64_t process_array, uint64_t max_processes, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 #endif // _SYSCALLS_H_

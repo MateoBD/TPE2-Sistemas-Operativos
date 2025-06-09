@@ -90,11 +90,11 @@ uint64_t sys_close(uint64_t fd, uint64_t unused2, uint64_t unused3, uint64_t unu
 {
     if (fd == STDIN || fd == STDOUT || fd == STDERR)
     {
-        return -1; 
+        return -1;
     }
     if (close_pipe((uint16_t)fd) == -1)
     {
-        return -1; 
+        return -1;
     }
     return 0;
 }
@@ -123,7 +123,7 @@ uint64_t sys_munmap(uint64_t addr, uint64_t unused2, uint64_t unused3, uint64_t 
 
 uint64_t sys_create_process(uint64_t name, uint64_t entry_point, uint64_t argc, uint64_t argv, uint64_t fds, uint64_t is_foreground)
 {
-    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, (int)argc, (char **)argv, (uint16_t *) fds, (char)is_foreground);
+    uint32_t new_pid = create_process((const char *)name, (void *)entry_point, (int)argc, (char **)argv, (uint16_t *)fds, (char)is_foreground);
     if (is_foreground)
     {
         int8_t exit_status = -1;
@@ -260,3 +260,15 @@ uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, u
     return 0;
 }
 
+uint64_t sys_ps(uint64_t process_array, uint64_t max_processes, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
+{
+    if (process_array == 0 || max_processes <= 0)
+    {
+        return -1; // Parámetros inválidos
+    }
+
+    ProcessInfo *proc_array = (ProcessInfo *)process_array;
+    int count = get_processes_info(proc_array, (int)max_processes);
+
+    return (uint64_t)count;
+}

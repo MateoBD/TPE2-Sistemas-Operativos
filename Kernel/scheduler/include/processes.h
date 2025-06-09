@@ -2,6 +2,7 @@
 #define _PROCESSES_H_
 
 #include <stdint.h>
+#include <syscalls.h>
 
 #define MAX_PROCESSES 1024
 typedef uint16_t pid_t;
@@ -139,5 +140,13 @@ int is_system_running();
  * Esta función detiene todos los procesos y libera los recursos del sistema.
  */
 void stop_system();
+
+/**
+ * @brief Obtiene información de todos los procesos activos
+ * @param process_array Array donde se guardará la información de los procesos
+ * @param max_processes Tamaño máximo del array
+ * @return Número de procesos encontrados, -1 si hubo error
+ */
+int get_processes_info(ProcessInfo *process_array, int max_processes);
 
 #endif /* PROCESSES_H */
