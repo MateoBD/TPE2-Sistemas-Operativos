@@ -6,6 +6,8 @@
 #include <shell.h>
 #include <gnastring.h>
 
+#define BUFFER_SIZE 1024
+
 void cmd_echo(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         printf("%s", argv[i]);
