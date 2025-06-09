@@ -37,7 +37,7 @@ typedef struct process_control_block
     size_t children_count;
     int8_t exit_status;
     int32_t sem_wait_id;
-    int8_t is_foreground; // Indica si el proceso es de primer plano (1) o fondo (0)
+    uint8_t is_foreground;
 } PCB;
 
 // Variables de control del scheduler
@@ -45,13 +45,52 @@ static PCB process_table[MAX_PROCESSES];
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
 static PCBQueueADT terminated_processes_queue;
 static PCB *current_process = &process_table[0]; // Proceso idle
-static pid_t next_pid = 1;
+static pid_t next_pid = 0;
 static uint32_t process_count = 1;
 static uint8_t initialized = 0;
 uint8_t system_running = 1;
+static pid_t foreground_process = 0;
 
 extern void *set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
 extern void idle_process(); // Proceso idle
+
+static PCB set_new_process(const char *name, uint16_t *fds, uint8_t is_foreground)
+{
+    PCB new_process;
+    new_process.pid = next_pid++;
+
+    // Copiar el nombre del proceso, asegurando que no exceda el límite
+    if (name != NULL)
+    {
+        strncpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
+        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0'; // Asegurar terminación null
+    }
+    else
+    {
+        strncpy(new_process.name, "unnamed", MAX_PROCESS_NAME_LENGTH - 1);
+        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
+    }
+
+    new_process.state = READY;
+    new_process.priority = 0;
+    new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
+    new_process.stack = new_process.stack_base;
+    new_process.father = current_process;
+    new_process.fds[STDIN] = (fds != NULL && fds[STDIN] != 0) ? fds[STDIN] : STDIN;
+    new_process.fds[STDOUT] = (fds != NULL && fds[STDOUT] != 0) ? fds[STDOUT] : STDOUT;
+    new_process.children_count = 0;
+
+    for (int i = 0; i < MAX_CHILDREN; i++)
+    {
+        new_process.children[i] = NULL;
+    }
+
+    new_process.exit_status = -1;
+    new_process.sem_wait_id = -1;
+    new_process.is_foreground = is_foreground;
+
+    return new_process;
+}
 
 int processes_initialized()
 {
@@ -87,17 +126,8 @@ int init_processes()
 
     initialized = 1;
 
+    process_table[0] = set_new_process("init", NULL, 1);
     PCB *idle_process_pcb = &process_table[0];
-    idle_process_pcb->pid = 0;
-    strncpy(idle_process_pcb->name, "init", MAX_PROCESS_NAME_LENGTH - 1);
-    idle_process_pcb->name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
-    idle_process_pcb->state = READY;
-    idle_process_pcb->priority = 0;
-    idle_process_pcb->fds[STDIN] = STDIN;
-    idle_process_pcb->fds[STDOUT] = STDOUT;
-    idle_process_pcb->exit_status = -1;
-    idle_process_pcb->sem_wait_id = -1;
-    idle_process_pcb->stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
 
     process_count = 1;
 
@@ -214,43 +244,6 @@ void *get_next_process()
     return current_process->stack;
 }
 
-static PCB set_new_process(const char *name, uint16_t *fds)
-{
-    PCB new_process;
-    new_process.pid = next_pid++;
-
-    // Copiar el nombre del proceso, asegurando que no exceda el límite
-    if (name != NULL)
-    {
-        strncpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
-        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0'; // Asegurar terminación null
-    }
-    else
-    {
-        strncpy(new_process.name, "unnamed", MAX_PROCESS_NAME_LENGTH - 1);
-        new_process.name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
-    }
-
-    new_process.state = READY;
-    new_process.priority = 0;
-    new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
-    new_process.stack = new_process.stack_base;
-    new_process.father = current_process;
-    new_process.fds[STDIN] = (fds != NULL && fds[STDIN] != 0) ? fds[STDIN] : STDIN;
-    new_process.fds[STDOUT] = (fds != NULL && fds[STDOUT] != 0) ? fds[STDOUT] : STDOUT;
-    new_process.children_count = 0;
-
-    for (int i = 0; i < MAX_CHILDREN; i++)
-    {
-        new_process.children[i] = NULL;
-    }
-
-    new_process.exit_status = -1;
-    new_process.sem_wait_id = -1;
-
-    return new_process;
-}
-
 // Crea un nuevo proceso
 pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, uint8_t is_foreground)
 {
@@ -276,7 +269,20 @@ pid_t create_process(const char *name, void *entry_point, int argc, char **argv,
         return -1; // No hay espacio para un nuevo proceso
     }
 
-    process_table[index] = set_new_process(name, fds);
+    if (is_foreground)
+    {
+        if (!current_process->is_foreground)
+        {
+            is_foreground = 0; // Solo es foreground si el padre lo es
+        }
+        else
+        {
+            current_process->is_foreground = 0;
+            foreground_process = next_pid;
+        }
+    }
+
+    process_table[index] = set_new_process(name, fds, is_foreground);
     PCB *new_process = &process_table[index];
 
     if (new_process->stack_base == NULL)
@@ -331,10 +337,18 @@ int kill_process(uint32_t pid)
         if (process_table[i].pid == pid)
         {
             process_table[i].state = TERMINATED;
+
+            if (process_table[i].is_foreground)
+            {
+                process_table[i].father->is_foreground = 1;
+                foreground_process = process_table[i].father->pid;
+            }
+
             if (process_table[i].sem_wait_id != -1)
             {
                 sem_post(process_table[i].sem_wait_id);
             }
+
             enqueue_process(terminated_processes_queue, &process_table[i]);
             return 0;
         }
@@ -345,15 +359,11 @@ int kill_process(uint32_t pid)
 
 int kill_foreground_process()
 {
-    for (uint32_t i = 0; i < process_count; i++)
+    if (foreground_process <= 1)
     {
-        if (process_table[i].pid == current_process->pid && process_table[i].is_foreground)
-        {
-            return kill_process(process_table[i].pid);
-        }
+        return -1;
     }
-
-    return -1; // El proceso actual no es de primer plano
+    return kill_process(foreground_process);
 }
 
 // Obtiene el PID del proceso actual

@@ -27,8 +27,7 @@ b _start
 # b sem_wait
 # b sem_post
 
-b sys_sleep
-b cmd_loop
+b kill_foreground_process
 
 
 define debug_scheduler

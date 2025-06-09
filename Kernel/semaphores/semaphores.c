@@ -139,6 +139,27 @@ void sem_post(uint32_t sem)
     }
 }
 
+// Intenta realizar una operación wait en el semáforo sin bloquear
+// Retorna 0 si pudo decrementar el semáforo, -1 si no pudo
+int32_t sem_trywait(uint32_t sem)
+{
+    CHECK_INICIALIZED();
+
+    if (INVALID_SEM(sem))
+    {
+        return -1; // Semáforo no encontrado o no inicializado
+    }
+
+    // Si el semáforo tiene valor disponible, decrementarlo
+    if (sem_queue.sem[sem].value > 0)
+    {
+        sem_queue.sem[sem].value--;
+        return 0; // Éxito
+    }
+    
+    return -1; // No se pudo decrementar sin bloquear
+}
+
 // Destruye un semáforo
 void destroy_sem(uint32_t sem)
 {
