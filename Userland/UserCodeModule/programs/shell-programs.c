@@ -231,6 +231,21 @@ void wc_cmd(int argc, char **argv)
             if (strcmp(argv[i], "-l") == 0) show_lines = 1;
             else if (strcmp(argv[i], "-w") == 0) show_words = 1;
             else if (strcmp(argv[i], "-c") == 0) show_chars = 1;
+            else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
+            {
+                printf("Usage: wc [options]\n");
+                printf("Options:\n");
+                printf("  -l    Count lines\n");
+                printf("  -w    Count words\n");
+                printf("  -c    Count characters\n");
+                printf("  --help, -h    Show this help message\n");
+                exit(0);
+            }
+            else
+            {
+                printf("Unknown option: %s\n", argv[i]);
+                exit(1);
+            }
         }
     }
 
