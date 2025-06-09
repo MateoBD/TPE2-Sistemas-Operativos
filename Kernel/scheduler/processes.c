@@ -248,6 +248,14 @@ void *get_next_process()
 pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, uint8_t is_foreground)
 {
 
+    if (!initialized)
+    {
+        if (init_processes() == -1)
+        {
+            return -1;
+        }
+    }
+
     if (process_count >= MAX_PROCESSES)
     {
         return -1;

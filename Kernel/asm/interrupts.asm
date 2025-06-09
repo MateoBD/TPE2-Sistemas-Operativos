@@ -244,9 +244,19 @@ _irq01Handler:
     .donot_save_registers:
     iretq
 
-;Cascade pic never called
+;Forzar un cambio de contexto (sin llamar a timer_handler)
 _irq02Handler:
-	irq_handler_master 2
+	push_state
+
+    mov rdi, rsp
+    call scheduler
+    mov rsp, rax
+
+	signal_eoi
+
+	pop_state
+
+    iretq
 
 ;Serial Port 2 and 4
 _irq03Handler:

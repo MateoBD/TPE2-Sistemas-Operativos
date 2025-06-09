@@ -2,7 +2,10 @@
 #define _TIME_H_
 #include <stdint.h>
 
-typedef struct {
+#define TICKS_PER_SECOND 18
+
+typedef struct
+{
     char day;
     char month;
     char year;
@@ -18,7 +21,13 @@ typedef struct {
  */
 void timer_handler();
 
-unsigned long get_ticks();
+/**
+ * @brief Initializes the time module.
+ *
+ * This function initializes the time module, setting the start-up time and
+ * preparing the timer for tick counting.
+ */
+uint64_t get_ticks();
 
 /**
  * @brief Retrieves the number of ticks elapsed since the system started.

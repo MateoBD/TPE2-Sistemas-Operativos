@@ -33,7 +33,13 @@ b kill_foreground_process
 define debug_scheduler
     b _irq00Handler
     b scheduler
-    b interrupts.asm:225
+    b interrupts.asm:228
+end
+
+define undebug_scheduler
+    clear _irq00Handler
+    clear scheduler
+    clear interrupts.asm:228
 end
 
 define debug_int21
@@ -41,6 +47,24 @@ define debug_int21
     b kd_handler
     b interrupts.asm:245
 end
+
+define undebug_int21
+    clear _irq01Handler
+    clear kd_handler
+    clear interrupts.asm:245
+end
+
+define debug_fscheduler
+    b force_scheduling
+    b scheduler
+    b scheduler-asm.asm:136
+end
+
+define undebug_fscheduler
+    clear force_scheduling
+    clear scheduler
+    clear scheduler-asm.asm:139
+end 
 
 
 

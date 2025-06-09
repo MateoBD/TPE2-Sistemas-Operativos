@@ -2,21 +2,22 @@
 #include <processes.h>
 #include <time.h>
 
-typedef struct {
+typedef struct
+{
     pid_t pid;
     uint64_t sleep_time;
 } SleepProcess;
 
 static SleepProcess sleep_queue[MAX_PROCESSES] = {0};
 
-static int32_t set_sleep_process(pid_t pid, uint64_t seconds)
+static int32_t set_sleep_process(pid_t pid, uint64_t ticks)
 {
     for (int i = 0; i < MAX_PROCESSES; i++)
     {
         if (sleep_queue[i].pid == 0)
         {
             sleep_queue[i].pid = pid;
-            sleep_queue[i].sleep_time = seconds_elapsed() + seconds;
+            sleep_queue[i].sleep_time = get_ticks() + ticks;
             return i;
         }
     }
@@ -25,7 +26,7 @@ static int32_t set_sleep_process(pid_t pid, uint64_t seconds)
 
 int32_t sleep(uint64_t seconds)
 {
-    if (seconds== 0)
+    if (seconds == 0)
     {
         return -1;
     }
@@ -41,7 +42,9 @@ int32_t sleep(uint64_t seconds)
         return -1;
     }
 
-    if (set_sleep_process(current, seconds) == -1)
+    // Convert seconds to ticks (18 Hz timer frequency)
+    uint64_t ticks = seconds * TICKS_PER_SECOND;
+    if (set_sleep_process(current, ticks) == -1)
     {
         return -1;
     }
@@ -52,7 +55,7 @@ int32_t sleep(uint64_t seconds)
 
 void wake_up_sleeping_processes()
 {
-    uint64_t current_time = seconds_elapsed();
+    uint64_t current_time = get_ticks();
 
     for (int i = 0; i < MAX_PROCESSES; i++)
     {

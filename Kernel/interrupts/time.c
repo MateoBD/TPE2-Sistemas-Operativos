@@ -5,11 +5,17 @@
 
 static time_struct_t start_up_time;
 static int initialized = 0;
+static uint64_t ticks = 0;
+
+unsigned long get_ticks()
+{
+    return ticks;
+}
 
 void init_time()
 {
     // Inicializa el tiempo de inicio
-    start_up_time= get_time();
+    start_up_time = get_time();
     initialized = 1;
 }
 
@@ -19,36 +25,43 @@ void timer_handler()
     {
         init_time();
     }
+    ticks++;
 }
 
-static int is_leap_year(int year) {
+static int is_leap_year(int year)
+{
     return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }
 
-static int days_in_month(int month, int year) {
-    static const int days[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+static int days_in_month(int month, int year)
+{
+    static const int days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     if (month == 2 && is_leap_year(year))
         return 29;
     return days[month - 1];
 }
 
-static uint32_t date_to_days(int day, int month, int year) {
+static uint32_t date_to_days(int day, int month, int year)
+{
     uint32_t days = day - 1;
 
     // Meses del año actual
-    for (int m = 1; m < month; m++) {
+    for (int m = 1; m < month; m++)
+    {
         days += days_in_month(m, year);
     }
 
     // Años completos anteriores
-    for (int y = 0; y < year; y++) {
+    for (int y = 0; y < year; y++)
+    {
         days += 365 + is_leap_year(y);
     }
 
     return days;
 }
 
-uint64_t time_to_epoch_seconds(time_struct_t t) {
+uint64_t time_to_epoch_seconds(time_struct_t t)
+{
     uint32_t total_days = date_to_days(t.day, t.month, t.year);
     return (uint64_t)total_days * 86400 +
            (uint64_t)t.hour * 3600 +
@@ -56,7 +69,8 @@ uint64_t time_to_epoch_seconds(time_struct_t t) {
            (uint64_t)t.sec;
 }
 
-uint64_t seconds_elapsed() {
+uint64_t seconds_elapsed()
+{
     uint64_t t1 = time_to_epoch_seconds(start_up_time);
     uint64_t t2 = time_to_epoch_seconds(get_time());
     return (t2 > t1) ? (t2 - t1) : (t1 - t2);
