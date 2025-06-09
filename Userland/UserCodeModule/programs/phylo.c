@@ -9,11 +9,10 @@
 #define MAX_PHILOSOPHERS 10
 #define MIN_PHILOSOPHERS 3
 #define INVALID_PID -1
-#define GLOBAL_SEM_ID 100
 #define CMD_ADD 'a'
 #define CMD_REMOVE 'r'
 #define CMD_QUIT 'q'
-#define SEM_FOR_PHILOSOPHER(x) (GLOBAL_SEM_ID + (x) + 1)
+
 #define RIGHT_OF(x) (((x) + 1) % philosopher_count)
 #define LEFT_OF(x) (((x) + philosopher_count - 1) % philosopher_count)
 
@@ -27,6 +26,8 @@ static char *philosopher_names[] = {"Alonso",     "Verstappen", "Senna", "Colapi
 
 static PhilosopherState philosopher_states[MAX_PHILOSOPHERS];
 static int16_t philosopher_pids[MAX_PHILOSOPHERS];
+static int philosopher_semaphores[MAX_PHILOSOPHERS];  // IDs de semáforos por filósofo
+static int global_semaphore = -1;
 static uint8_t philosopher_count = 0;
 
 void print_philosopher_states() {
@@ -43,35 +44,35 @@ void print_philosopher_states() {
 }
 
 void put_down_forks(uint8_t idx) {
-  sem_wait(GLOBAL_SEM_ID);
+  sem_wait(global_semaphore);
   philosopher_states[idx] = PHILO_THINKING;
   if (philosopher_states[LEFT_OF(idx)] == PHILO_HUNGRY &&
       philosopher_states[LEFT_OF(LEFT_OF(idx))] != PHILO_EATING) {
     philosopher_states[LEFT_OF(idx)] = PHILO_EATING;
-    sem_post(SEM_FOR_PHILOSOPHER(LEFT_OF(idx)));
+    sem_post(philosopher_semaphores[LEFT_OF(idx)]);
     print_philosopher_states();
   }
 
   if (philosopher_states[RIGHT_OF(idx)] == PHILO_HUNGRY &&
       philosopher_states[RIGHT_OF(RIGHT_OF(idx))] != PHILO_EATING) {
     philosopher_states[RIGHT_OF(idx)] = PHILO_EATING;
-    sem_post(SEM_FOR_PHILOSOPHER(RIGHT_OF(idx)));
+    sem_post(philosopher_semaphores[RIGHT_OF(idx)]);
     print_philosopher_states();
   }
-  sem_post(GLOBAL_SEM_ID);
+  sem_post(global_semaphore);
 }
 
 void pick_up_forks(uint8_t idx) {
-  sem_wait(GLOBAL_SEM_ID);
+  sem_wait(global_semaphore);
   philosopher_states[idx] = PHILO_HUNGRY;
   if (philosopher_states[LEFT_OF(idx)] != PHILO_EATING &&
       philosopher_states[RIGHT_OF(idx)] != PHILO_EATING) {
     philosopher_states[idx] = PHILO_EATING;
-    sem_post(SEM_FOR_PHILOSOPHER(idx));
+    sem_post(philosopher_semaphores[idx]);
     print_philosopher_states();
   }
-  sem_post(GLOBAL_SEM_ID);
-  sem_wait(SEM_FOR_PHILOSOPHER(idx));
+  sem_post(global_semaphore);
+  sem_wait(philosopher_semaphores[idx]);
 }
 
 void philosopher_process(uint8_t argc, char *argv[]) {
@@ -89,47 +90,67 @@ void philosopher_process(uint8_t argc, char *argv[]) {
 }
 
 int8_t create_philosopher(uint8_t idx) {
-  sem_wait(GLOBAL_SEM_ID);
-  if (sem_init(0) == -1) {
+  sem_wait(global_semaphore);
+
+  int sem_id = sem_init(0);
+  if (sem_id == -1) {
+    sem_post(global_semaphore);
     return -1;
   }
 
+  philosopher_semaphores[idx] = sem_id;
+
   char **argv = my_malloc(sizeof(char *) * 2);
-  argv[0] = "                   ";
-  itoa(idx, argv[0],10,20);
+  argv[0] = (char *)my_malloc(sizeof(char) * 6);
+  itoa(idx, argv[0], 10, 6);
   argv[1] = NULL;
-  philosopher_pids[idx] = create_process(philosopher_names[idx],philosopher_process, 1, argv, 0,0);
+
+  philosopher_pids[idx] = create_process(philosopher_names[idx], philosopher_process, 1, argv, 0, 0);
 
   if (philosopher_pids[idx] != INVALID_PID) {
     philosopher_count++;
+  } else {
+    sem_close(sem_id);
+    my_free((void*)argv[0]);
+    my_free((void*)argv);
+    sem_post(global_semaphore);
+    return -1;
   }
+
   print_philosopher_states();
-  sem_post(GLOBAL_SEM_ID);
-  return philosopher_pids[idx] != INVALID_PID ? 0 : -1;
+  sem_post(global_semaphore);
+  return 0;
 }
 
 void remove_philosopher(uint8_t idx) {
-  sem_wait(GLOBAL_SEM_ID);
+  sem_wait(global_semaphore);
   printf("%s leaves the table.\n", philosopher_names[idx]);
+
   while (philosopher_states[LEFT_OF(idx)] == PHILO_EATING &&
          philosopher_states[RIGHT_OF(idx)] == PHILO_EATING) {
-    sem_post(GLOBAL_SEM_ID);
-    sem_wait(SEM_FOR_PHILOSOPHER(idx));
-    sem_wait(GLOBAL_SEM_ID);
+    sem_post(global_semaphore);
+    sem_wait(philosopher_semaphores[idx]);
+    sem_wait(global_semaphore);
   }
+
   kill(philosopher_pids[idx]);
   int8_t status;
   wait(philosopher_pids[idx], &status);
-  sem_close(SEM_FOR_PHILOSOPHER(idx));
+  sem_close(philosopher_semaphores[idx]);
+
   philosopher_pids[idx] = INVALID_PID;
   philosopher_states[idx] = PHILO_NONE;
+  philosopher_semaphores[idx] = -1;
   philosopher_count--;
-  sem_post(GLOBAL_SEM_ID);
+
+  sem_post(global_semaphore);
 }
 
 void remove_all_philosophers(int max) {
-  for (int i = 0; i < max; i++) {
-    remove_philosopher(i);
+  for (int i = max - 1; i >= 0; i--) {
+    if (philosopher_states[i] != PHILO_NONE) {
+      remove_philosopher(i);
+    }
   }
 }
 
@@ -137,20 +158,23 @@ void run_philosophers(int argc, char *argv[]) {
   printf("Dining Philosophers Problem.\nEach philosopher needs two forks to eat.\n"
          "Press 'a' to add a philosopher, 'r' to remove one, or 'q' to quit.\n");
 
-  if (sem_init(1) == -1) {
-    printf("Failed to initialize semaphore.\n");
+  global_semaphore = sem_init(1);
+  if (global_semaphore == -1) {
+    printf("Failed to initialize global semaphore.\n");
     exit(-1);
   }
 
   for (uint8_t i = 0; i < MAX_PHILOSOPHERS; i++) {
     philosopher_states[i] = PHILO_NONE;
     philosopher_pids[i] = INVALID_PID;
+    philosopher_semaphores[i] = -1;
   }
 
   for (int i = 0; i < MIN_PHILOSOPHERS; i++) {
     if (create_philosopher(i) == -1) {
       printf("Failed to start philosopher.\n");
       remove_all_philosophers(i);
+      sem_close(global_semaphore);
       exit(-1);
     }
   }
@@ -178,7 +202,7 @@ void run_philosophers(int argc, char *argv[]) {
   }
 
   remove_all_philosophers(philosopher_count);
-  sem_close(GLOBAL_SEM_ID);
+  sem_close(global_semaphore);
   printf("\n");
   exit(0);
 }
