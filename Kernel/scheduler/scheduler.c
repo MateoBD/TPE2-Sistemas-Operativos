@@ -1,6 +1,7 @@
 #include <processes.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <sleep-manager.h>
 
 void * scheduler(void * current_stack)
 {
@@ -13,6 +14,8 @@ void * scheduler(void * current_stack)
     {
         return get_idle_process_stack();
     }
+
+    wake_up_sleeping_processes();
 
     free_terminated_processes();
 

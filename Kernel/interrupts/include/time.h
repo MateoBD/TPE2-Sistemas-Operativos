@@ -36,18 +36,7 @@ int ticks_elapsed();
  *
  * @return The number of seconds elapsed.
  */
-int seconds_elapsed();
-
-/**
- * @brief Suspends the execution of the calling thread for a specified duration.
- *
- * This function causes the calling thread to sleep for the specified number of seconds.
- * During this time, the thread will not execute any instructions.
- *
- * @param seconds The number of seconds for which the thread should sleep.
- */
-
-void sleep(uint64_t ticks);
+uint64_t seconds_elapsed();
 
 /**
  * @brief Retrieves the current system time.

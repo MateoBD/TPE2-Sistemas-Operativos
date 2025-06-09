@@ -9,8 +9,7 @@
 #include <semaphores.h>
 #include <pipes.h>
 #include <lib.h>
-#include <time.h>
-#include <times.h>
+#include <sleep-manager.h>
 
 #define RED 0x0C
 
@@ -186,7 +185,11 @@ uint64_t sys_sched_yield(uint64_t unused1, uint64_t unused2, uint64_t unused3, u
 
 uint64_t sys_sleep(uint64_t seconds, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
-    sleep((int)seconds);
+    if (sleep((int)seconds) == -1)
+    {
+        return (uint64_t)-1;
+    }
+    call_int_20();
     return 0;
 }
 

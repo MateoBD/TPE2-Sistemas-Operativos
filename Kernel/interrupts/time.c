@@ -56,26 +56,11 @@ uint64_t time_to_epoch_seconds(time_struct_t t) {
            (uint64_t)t.sec;
 }
 
-uint64_t elapsed_seconds() {
+uint64_t seconds_elapsed() {
     uint64_t t1 = time_to_epoch_seconds(start_up_time);
     uint64_t t2 = time_to_epoch_seconds(get_time());
     return (t2 > t1) ? (t2 - t1) : (t1 - t2);
 }
-
-int seconds_elapsed()
-{
-    return elapsed_seconds();
-}
-
-void sleep(uint64_t seconds_elapsed)
-{
-    uint64_t start = elapsed_seconds();
-    while (elapsed_seconds() - start < seconds_elapsed)
-    {
-        call_int_20(); // Llamada a la interrupción de timer
-    };
-}
-
 
 time_struct_t get_time()
 {
