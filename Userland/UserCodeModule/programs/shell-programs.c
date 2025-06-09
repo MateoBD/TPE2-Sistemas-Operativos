@@ -5,6 +5,8 @@
 #include <process-handler.h>
 #include <shell.h>
 
+#define BUFFER_SIZE 1024
+
 void cmd_echo(int argc, char **argv)
 {
     for (int i = 1; i < argc; i++)
@@ -231,4 +233,49 @@ void shell_cmd(int argc, char **argv)
 {
     // Start the shell program
     process_handler("shell", shell, argc, argv);
+}
+
+
+void cat_cmd(int argc, char **argv) {
+  int c;
+  char buff[BUFFER_SIZE];
+  uint16_t count = 0;
+  while ((c = getchar()) != EOF) {
+    buff[count++] = c;
+    if (c == '\n' || count - 1 >= BUFFER_SIZE) {
+      buff[count] = 0;
+      printf("%s", buff);
+      count = 0;
+    }
+  }
+  buff[count] = 0;
+  printf("%s", buff);
+  count = 0;
+}
+
+void cat(int argc, char **argv)
+{
+    process_handler("cat", cat_cmd, argc, argv);
+}
+
+void wc_cmd(int argc, char **argv)
+{
+    printf("wc command is not implemented yet.\n");
+    exit(0); // Placeholder for wc command implementation
+}
+
+void wc(int argc, char **argv)
+{
+    process_handler("wc", wc_cmd, argc, argv);
+}
+
+void filter_cmd(int argc, char **argv)
+{
+    printf("filter command is not implemented yet.\n");
+    exit(0); // Placeholder for filter command implementation
+}
+
+void filter(int argc, char **argv)
+{
+    process_handler("filter", filter_cmd, argc, argv);
 }

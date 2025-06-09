@@ -35,6 +35,7 @@ command_t commands[] = {
     {"sh", shell_cmd, "Start the GNA shell"},
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
+    {"cat", cat, "Concatenate and print files to stdout"},
     {"test", test_command, "Run tests (use 'test help' for options)"},
     {NULL, NULL, NULL} // Sentinel
 };
