@@ -20,8 +20,6 @@ static void read_line(char *buffer, int max_len);
 static void skip_whitespace(char **str);
 static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int right_argc);
 
-static command_t history[MAX_SAVED_COMMANDS] = {0};
-static int history_count = 0;
 
 command_t commands[] = {
     {"echo", echo, "Print arguments to stdout"},
@@ -298,8 +296,6 @@ void shell(int argc, char **argv)
             cmd = find_command(args[0]);
             if (cmd != NULL)
             {
-                history[history_count % MAX_SAVED_COMMANDS] = *cmd; // Guardar comando en el historial
-                history_count++;
                 cmd->handler(arg_count, args, NULL);
             }
             else
