@@ -180,6 +180,10 @@ static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int
     *pipe_pos = '\0';
     char *left_str = input;
     char *right_str = pipe_pos + 1;
+    uint32_t right_len = strlen(right_str);
+    right_str[right_len] = ' ';
+    right_str[right_len+1] = '&';
+    right_str[right_len+2] = '\0';
 
     // Parse left command
     *left_argc = parse_command(left_str, left_cmd);
@@ -237,9 +241,9 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
     right_fds[0] = pipe_fd; // STDIN comes from pipe
     right_fds[1] = 1;       // STDOUT
 
-    left_command->handler(left_argc, left_cmd, left_fds);
-
     right_command->handler(right_argc, right_cmd, right_fds);
+
+    left_command->handler(left_argc, left_cmd, left_fds);
 
 
     close(pipe_fd);
@@ -249,7 +253,7 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
 
 void shell(int argc, char **argv)
 {
-    char input[MAX_CMD_LENGTH];
+    char input[MAX_CMD_LENGTH+2];
     char *left_args[MAX_ARGS];
     char *right_args[MAX_ARGS];
     int left_argc, right_argc;
