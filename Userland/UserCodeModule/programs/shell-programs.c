@@ -290,3 +290,36 @@ void toggle_block_run(int argc, char **argv, uint16_t * fds)
     }
     exit(0);
 }
+
+void nice_cmd(int argc, char **argv)
+{
+    if (argc < 3)
+    {
+        printf("Usage: nice <pid> <priority>\n");
+        return;
+    }
+
+    uint16_t pid = atoi(argv[1]);
+    int priority = atoi(argv[2]);
+
+    if (pid == 0 || priority < 0 || priority > 20)
+    {
+        printf("Invalid arguments: %s %s\n", argv[1], argv[2]);
+        return;
+    }
+
+    if (nice(pid, priority) == -1)
+    {
+        printf("Failed to change priority of process %d\n", pid);
+    }
+    else
+    {
+        printf("Process %d priority changed to %d successfully.\n", pid, priority);
+    }
+    
+    exit(0);
+}
+void nice_shell(int argc, char **argv, uint16_t * fds)
+{
+    process_handler("nice", nice_cmd, argc, argv, fds);
+}

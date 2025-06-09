@@ -29,7 +29,7 @@ command_t commands[] = {
     {"mem", mem, "Print memory state"},
     {"clear", clear, "Clear the screen"},
     {"kill", kill_shell, "Terminate a process by PID"},
-    //{"nice", nice_shell, "Change the priority of a process by PID"},
+    {"nice", nice_shell, "Change the priority of a process by PID"},
     {"block", toggle_block_run, "Toggle block/unblock a process by PID"},
     {"phylo", phylo, "Run the philosophers problem simulation"},
     {"ps", ps, "Show current processes"},
