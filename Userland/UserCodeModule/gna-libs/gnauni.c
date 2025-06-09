@@ -103,3 +103,13 @@ int32_t close(int fd)
 {
     return (int32_t)sys_call(SYS_CLOSE, fd, 0, 0, 0, 0, 0);
 }
+
+int32_t read(int fd, void *buffer, uint32_t size)
+{
+    return (int32_t)sys_call(SYS_READ, fd, (uint64_t)buffer, size, 0, 0, 0);
+}
+
+int32_t write(int fd, const void *buffer, uint32_t size)
+{
+    return (int32_t)sys_call(SYS_WRITE, fd, (uint64_t)buffer, size, 0, 0, 0);
+}
