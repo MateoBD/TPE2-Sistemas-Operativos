@@ -118,3 +118,9 @@ int isalnum(int c)
 {
     return isalpha(c) || isdigit(c);
 }
+
+int is_vowel(int c)
+{
+    c = tolower(c);
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
+}

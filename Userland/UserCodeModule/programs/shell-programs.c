@@ -277,8 +277,21 @@ void wc(int argc, char **argv)
 
 void filter_cmd(int argc, char **argv)
 {
-    printf("filter command is not implemented yet.\n");
-    exit(0); // Placeholder for filter command implementation
+    int c;
+    char buff[BUFFER_SIZE];
+    uint16_t count = 0;
+    while ((c = getchar()) != CHAR_EOF) 
+    {
+        printf("%c",c);
+        if (!is_vowel(c))
+        {
+            buff[count++] = c;
+        }
+    }
+    buff[count] = 0; // Asegurar terminación null
+    printf("%s\n", buff);
+
+    exit(0); 
 }
 
 void filter(int argc, char **argv)
