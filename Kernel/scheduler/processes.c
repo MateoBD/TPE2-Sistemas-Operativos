@@ -344,20 +344,15 @@ int kill_process(uint32_t pid)
                 foreground_process = process_table[i].father->pid;
             }
 
-            // Reasignar los hijos del proceso terminado a su padre (abuelo)
-            PCB *grandfather = process_table[i].father;
-            if (grandfather != NULL)
+            PCB * idle_process = &process_table[0];
+
+            for (size_t j = 0; j < process_table[i].children_count; j++)
             {
-                for (size_t j = 0; j < process_table[i].children_count; j++)
+                PCB *child = process_table[i].children[j];
+                if (child != NULL && idle_process->children_count < MAX_CHILDREN)
                 {
-                    PCB *child = process_table[i].children[j];
-                    if (child != NULL && grandfather->children_count < MAX_CHILDREN)
-                    {
-                        // Agregar el hijo al abuelo
-                        grandfather->children[grandfather->children_count++] = child;
-                        // Actualizar el padre del hijo
-                        child->father = grandfather;
-                    }
+                    idle_process->children[idle_process->children_count++] = child;
+                    child->father = idle_process;
                 }
             }
 
@@ -391,6 +386,11 @@ pid_t get_current_pid()
         return 0;
     }
     return current_process->pid;
+}
+
+int is_foreground(pid_t pid)
+{
+    return pid == foreground_process;
 }
 
 void wait_process(pid_t pid, int8_t *status)

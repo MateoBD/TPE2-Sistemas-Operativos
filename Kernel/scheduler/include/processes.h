@@ -77,6 +77,12 @@ int kill_foreground_process();
 pid_t get_current_pid();
 
 /**
+ * @brief Verifica si el proceso actual es de primer plano
+ * @return 1 si es de primer plano, 0 si no
+ */
+int is_foreground(pid_t pid);
+
+/**
  * @brief Espera a que un proceso termine
  * @param pid PID del proceso a esperar
  */

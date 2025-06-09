@@ -57,6 +57,11 @@ uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4
     get_current_fds(fds);
     fd = (fd == STDIN) ? fds[STDIN] : fd;
 
+    if (fd == STDIN && !is_foreground(get_current_pid()))
+    {
+        return -1;
+    }
+
     while (bytes_read < count)
     {
         int8_t c = 0;

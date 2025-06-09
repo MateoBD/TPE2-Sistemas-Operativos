@@ -193,25 +193,6 @@ void destroy_sem(uint32_t sem)
     }
 }
 
-int32_t sem_trywait(uint32_t sem)
-{
-    CHECK_INICIALIZED();
-
-    if (INVALID_SEM(sem))
-    {
-        return -1; // Semáforo no encontrado o no inicializado
-    }
-
-    // Si el semáforo tiene valor disponible, decrementarlo
-    if (sem_queue.sem[sem].value > 0)
-    {
-        sem_queue.sem[sem].value--;
-        return 0; // Éxito
-    }
-
-    return -1; // No se pudo decrementar sin bloquear
-}
-
 uint32_t get_sem_value(uint32_t sem)
 {
     CHECK_INICIALIZED();

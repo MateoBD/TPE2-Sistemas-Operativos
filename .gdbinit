@@ -142,68 +142,73 @@ end
 
 define print_processes
     if $argc == 0
-        echo === PROCESS LIST (Positions 3-6) ===\n
+        echo === ACTIVE PROCESSES ===\n
         
         # Check if processes are initialized
         if initialized == 0
             printf "ERROR: Process manager not initialized\n"
         else
-            set $pos = 3
-            while $pos <= 6
-                printf "Position %d:\n", $pos
+            echo PID  | NAME             | STATE     | PRIO | FG\n
+            echo -----+------------------+-----------+------+----\n
+            
+            set $pos = 0
+            set $count = 0
+            while $pos < 1024
+                # Get process data
+                set $pid = process_table[$pos].pid
+                set $state = process_table[$pos].state
+                set $priority = process_table[$pos].priority
+                set $is_fg = process_table[$pos].is_foreground
                 
-                # Check if position is within bounds
-                if $pos >= 1024
-                    printf "  ERROR: Position out of bounds (max 1023)\n"
-                else
-                    # Get process data
-                    set $pid = process_table[$pos].pid
-                    set $state = process_table[$pos].state
-                    set $priority = process_table[$pos].priority
+                # Only show non-terminated processes
+                if $state != 3
+                    # Print PID
+                    printf "%4d | ", $pid
                     
-                    printf "  PID: %d\n", $pid
+                    # Print name (truncated to 16 chars)
+                    printf "%.16s", process_table[$pos].name
+                    # Pad to 16 characters
+                    set $name_len = 0
+                    set $temp_name = process_table[$pos].name
+                    while $name_len < 16 && *(char*)($temp_name + $name_len) != 0
+                        set $name_len = $name_len + 1
+                    end
+                    while $name_len < 16
+                        printf " "
+                        set $name_len = $name_len + 1
+                    end
+                    printf " | "
                     
-                    # Print process name (first 16 characters to avoid buffer issues)
-                    printf "  Name: %.16s\n", process_table[$pos].name
-                    
-                    # Convert state to string
+                    # Print state
                     if $state == 0
-                        printf "  State: READY\n"
+                        printf "READY     "
                     else
                         if $state == 1
-                            printf "  State: RUNNING\n"
+                            printf "RUNNING   "
                         else
                             if $state == 2
-                                printf "  State: BLOCKED\n"
+                                printf "BLOCKED   "
                             else
-                                if $state == 3
-                                    printf "  State: SLEEPING\n"
-                                else
-                                    if $state == 4
-                                        printf "  State: TERMINATED\n"
-                                    else
-                                        printf "  State: UNKNOWN (%d)\n", $state
-                                    end
-                                end
+                                printf "UNKNOWN   "
                             end
                         end
                     end
                     
-                    printf "  Priority: %d\n", $priority
-                    printf "  Stack Base: %p\n", process_table[$pos].stack_base
-                    printf "  Stack: %p\n", process_table[$pos].stack
-                    printf "  FDs: stdin=%d, stdout=%d\n", process_table[$pos].fds[0], process_table[$pos].fds[1]
-                    
-                    # Show sleep info if sleeping
-                    if $state == 3
-                        printf "  Sleep Until: %lu\n", process_table[$pos].sleep_until
-                        printf "  Is Sleeping: %d\n", process_table[$pos].is_sleeping
+                    # Print priority and foreground
+                    printf "| %4d | ", $priority
+                    if $is_fg == 1
+                        printf "Y\n"
+                    else
+                        printf "N\n"
                     end
+                    
+                    set $count = $count + 1
                 end
                 
-                printf "\n"
                 set $pos = $pos + 1
             end
+            
+            printf "\nTotal active processes: %d\n", $count
         end
     else
         if $argc == 1
@@ -241,13 +246,9 @@ define print_processes
                                     printf "  State: BLOCKED\n"
                                 else
                                     if $state == 3
-                                        printf "  State: SLEEPING\n"
+                                        printf "  State: TERMINATED\n"
                                     else
-                                        if $state == 4
-                                            printf "  State: TERMINATED\n"
-                                        else
-                                            printf "  State: UNKNOWN (%d)\n", $state
-                                        end
+                                        printf "  State: UNKNOWN (%d)\n", $state
                                     end
                                 end
                             end
@@ -260,12 +261,6 @@ define print_processes
                         printf "  Exit Status: %d\n", process_table[$i].exit_status
                         printf "  Sem Wait ID: %d\n", process_table[$i].sem_wait_id
                         printf "  Is Foreground: %d\n", process_table[$i].is_foreground
-                        
-                        # Show sleep info if sleeping
-                        if $state == 3
-                            printf "  Sleep Until: %lu\n", process_table[$i].sleep_until
-                            printf "  Is Sleeping: %d\n", process_table[$i].is_sleeping
-                        end
                     end
                     set $i = $i + 1
                 end
@@ -292,13 +287,9 @@ define print_processes
                                     printf "  State: BLOCKED\n"
                                 else
                                     if $state == 3
-                                        printf "  State: SLEEPING\n"
+                                        printf "  State: TERMINATED\n"
                                     else
-                                        if $state == 4
-                                            printf "  State: TERMINATED\n"
-                                        else
-                                            printf "  State: UNKNOWN (%d)\n", $state
-                                        end
+                                        printf "  State: UNKNOWN (%d)\n", $state
                                     end
                                 end
                             end
@@ -311,12 +302,6 @@ define print_processes
                         printf "  Exit Status: %d\n", process_table[$target].exit_status
                         printf "  Sem Wait ID: %d\n", process_table[$target].sem_wait_id
                         printf "  Is Foreground: %d\n", process_table[$target].is_foreground
-                        
-                        # Show sleep info if sleeping
-                        if $state == 3
-                            printf "  Sleep Until: %lu\n", process_table[$target].sleep_until
-                            printf "  Is Sleeping: %d\n", process_table[$target].is_sleeping
-                        end
                     else
                         printf "ERROR: Invalid position %d (max 1023)\n", $target
                     end

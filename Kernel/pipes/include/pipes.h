@@ -101,16 +101,4 @@ int read_pipe_nonblocking(uint16_t fd, int8_t *buffer, int count);
  */
 int write_pipe_nonblocking(int fd, const int8_t *buffer, int count);
 
-/**
- * @brief Clears a pipe buffer completely.
- *
- * This function resets a pipe to its initial empty state by clearing the buffer
- * and resetting the read/write positions and semaphores. This is useful for
- * clearing input buffers like STDIN.
- *
- * @param fd File descriptor of the pipe to clear.
- * @return 0 on success, -1 on error (invalid pipe).
- */
-int clear_pipe(uint16_t fd);
-
 #endif /* _PIPES_H_ */

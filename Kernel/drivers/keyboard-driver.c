@@ -336,7 +336,6 @@ void kd_handler()
         if (ctrl && shifted_ascii[(uint8_t)key] == 'C')
         {
             kill_foreground_process();
-            kd_clear_buffer();
             c = CHAR_INTERRUPT; // Ctrl + C
         }
         else if (ctrl && shifted_ascii[(uint8_t)key] == 'D')
@@ -349,9 +348,4 @@ void kd_handler()
         }
         write_pipe_nonblocking(STDIN, &c, 1);
     }
-}
-
-int kd_clear_buffer(void)
-{
-    return clear_pipe(STDIN);
 }

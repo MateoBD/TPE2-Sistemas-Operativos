@@ -226,13 +226,11 @@ int read_pipe_nonblocking(uint16_t fd, int8_t *buffer, int count)
     int bytes_read = 0;
     while (bytes_read < count)
     {
-        // Intentar leer sin bloquear
-        if (sem_trywait(pipe->read_sem) != 0)
+        if (get_sem_value(pipe->read_sem) <= 0)
         {
-            // No hay datos disponibles, retornar lo que se pudo leer
             break;
         }
-
+        sem_wait(pipe->read_sem);
         buffer[bytes_read] = pipe->buffer[pipe->read_pos];
         pipe->read_pos = (pipe->read_pos + 1) % PIPE_BUFFER_SIZE;
         bytes_read++;
@@ -262,13 +260,11 @@ int write_pipe_nonblocking(int fd, const int8_t *buffer, int count)
     int bytes_written = 0;
     while (bytes_written < count)
     {
-        // Intentar escribir sin bloquear
-        if (sem_trywait(pipe->write_sem) != 0)
+        if (get_sem_value(pipe->write_sem) <= 0)
         {
-            // Buffer lleno, retornar lo que se pudo escribir
             break;
         }
-
+        sem_wait(pipe->write_sem);
         pipe->buffer[pipe->write_pos] = buffer[bytes_written];
         pipe->write_pos = (pipe->write_pos + 1) % PIPE_BUFFER_SIZE;
         bytes_written++;
@@ -276,48 +272,4 @@ int write_pipe_nonblocking(int fd, const int8_t *buffer, int count)
     }
 
     return bytes_written;
-}
-
-// Limpia completamente un pipe, reseteando buffer y semáforos
-int clear_pipe(uint16_t fd)
-{
-    CHECK_INITIALIZED();
-
-    if (INVALID_PIPE(fd))
-    {
-        return -1;
-    }
-
-    pipe_t *pipe = &global_pipe_manager.pipes[fd];
-
-    // Guardar los IDs de los semáforos antes de destruirlos
-    uint32_t old_read_sem = pipe->read_sem;
-    uint32_t old_write_sem = pipe->write_sem;
-
-    // Reset buffer positions
-    pipe->read_pos = 0;
-    pipe->write_pos = 0;
-
-    // Clear buffer content
-    clean_buffer(fd);
-
-    // Create new semaphores with initial values BEFORE destroying old ones
-    // read_sem = 0 (no data available to read)
-    // write_sem = PIPE_BUFFER_SIZE - 1 (buffer is empty, can write)
-    pipe->read_sem = create_sem(0);
-    pipe->write_sem = create_sem(PIPE_BUFFER_SIZE - 1);
-
-    if (pipe->read_sem == -1 || pipe->write_sem == -1)
-    {
-        // Si falla la creación, restaurar los semáforos originales
-        pipe->read_sem = old_read_sem;
-        pipe->write_sem = old_write_sem;
-        return -1;
-    }
-
-    // Ahora destruir los semáforos antiguos (esto despierta procesos bloqueados)
-    destroy_sem(old_read_sem);
-    destroy_sem(old_write_sem);
-
-    return 0;
 }

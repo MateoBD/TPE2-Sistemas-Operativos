@@ -48,7 +48,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
     uint32_t count = 0;
     uint32_t i = 0;
     char c;
-    char temp[128];
+    char temp[128] = {0};
 
     while ((c = format[i++]) != 0 && (size == 0 || count < size - 1))
     {
@@ -302,7 +302,7 @@ void print_padded(const char *str, int width) {
 }
 
 void print_int_padded(int num, int width) {
-    char buf[12];
+    char buf[12] = {0};
     int len = sprintf(buf, "%d", num); // o tu propia itoa
     printf(buf);
     print_spaces(width - len);
