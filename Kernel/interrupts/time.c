@@ -2,6 +2,7 @@
 #include <times.h>
 #include <libasm.h>
 #include <processes.h>
+#include <sleep-manager.h>
 
 static time_struct_t start_up_time;
 static int initialized = 0;
@@ -26,6 +27,9 @@ void timer_handler()
         init_time();
     }
     ticks++;
+
+    // Despertar procesos que han terminado de dormir
+    wake_up_sleeping_processes();
 }
 
 static int is_leap_year(int year)

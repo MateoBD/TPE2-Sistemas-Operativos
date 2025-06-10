@@ -130,6 +130,27 @@ int block_process(pid_t pid);
 int wake_up_process(pid_t pid);
 
 /**
+ * @brief Verifica si un proceso está bloqueado
+ * @param pid PID del proceso
+ * @return 1 si está bloqueado, 0 si no
+ */
+int32_t is_sleeping(pid_t pid);
+
+/**
+ * @brief Cambia el estado de un proceso a durmiendo
+ * @param pid PID del proceso
+ * @return 0 si se durmió correctamente, -1 si hubo error
+ */
+int32_t sleep_process(pid_t pid);
+
+/**
+ * @brief Despierta un proceso que estaba durmiendo
+ * @param pid PID del proceso
+ * @return 0 si se despertó correctamente, -1 si hubo error
+ */
+int32_t unsleep_process(pid_t pid);
+
+/**
  * @brief Cambia el estado de un proceso a bloqueado o desbloqueado, o viceversa
  * @param pid PID del proceso
  * @return 0 si se cambió correctamente, -1 si hubo error

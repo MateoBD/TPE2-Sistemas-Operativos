@@ -10,16 +10,15 @@ enum
     STDERR = 2
 };
 
-// Estados de proceso para ps
 typedef enum
 {
     PS_READY = 0,
     PS_RUNNING = 1,
     PS_BLOCKED = 2,
-    PS_TERMINATED = 3
+    PS_SLEEPING = 3,
+    PS_TERMINATED = 4
 } ProcessStatePS;
 
-// Estructura para información de proceso (ps)
 typedef struct
 {
     uint16_t pid;

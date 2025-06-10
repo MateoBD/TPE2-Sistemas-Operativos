@@ -41,15 +41,14 @@ int32_t sleep(uint64_t seconds)
     {
         return -1;
     }
-
-    // Convert seconds to ticks (18 Hz timer frequency)
+    
     uint64_t ticks = seconds * TICKS_PER_SECOND;
     if (set_sleep_process(current, ticks) == -1)
     {
         return -1;
     }
 
-    block_process(current);
+    sleep_process(current);
     return 0;
 }
 
@@ -59,13 +58,33 @@ void wake_up_sleeping_processes()
 
     for (int i = 0; i < MAX_PROCESSES; i++)
     {
-        if (sleep_queue[i].pid != 0 && sleep_queue[i].sleep_time <= current_time)
+        if (sleep_queue[i].pid != 0 && sleep_queue[i].sleep_time <= current_time && is_sleeping(sleep_queue[i].pid))
         {
             pid_t pid = sleep_queue[i].pid;
             sleep_queue[i].pid = 0;
             sleep_queue[i].sleep_time = 0;
 
-            wake_up_process(pid);
+            unsleep_process(pid);
         }
     }
+}
+
+int32_t is_sleeping_time_expired(pid_t pid)
+{
+    uint64_t current_time = get_ticks();
+
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (sleep_queue[i].pid == pid)
+        {
+            if (sleep_queue[i].sleep_time <= current_time)
+            {
+                sleep_queue[i].pid = 0;
+                sleep_queue[i].sleep_time = 0;
+                return 1;
+            }
+            return 0; 
+        }
+    }
+    return 1;
 }

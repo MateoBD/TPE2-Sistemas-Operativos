@@ -7,6 +7,7 @@
 #include <syscalls.h>
 #include <semaphores.h>
 #include <random.h>
+#include <sleep-manager.h>
 
 #define MAX_CHILDREN 64
 #define PRIORITY_LEVELS 3
@@ -19,15 +20,16 @@ typedef enum ProcessState
     READY,
     RUNNING,
     BLOCKED,
+    SLEEPING,
     TERMINATED
 } ProcessState;
 
-// PCB - Process Control Block
 typedef struct process_control_block
 {
     pid_t pid;
     char name[MAX_PROCESS_NAME_LENGTH];
     ProcessState state;
+    ProcessState previous;
     uint8_t priority;
     void *stack_base;
     void *stack;
@@ -40,7 +42,7 @@ typedef struct process_control_block
     uint8_t is_foreground;
 } PCB;
 
-// Variables de control del scheduler
+
 static PCB process_table[MAX_PROCESSES];
 static PCBQueueADT process_queues[PRIORITY_LEVELS];
 static PCBQueueADT terminated_processes_queue;
@@ -52,14 +54,13 @@ uint8_t system_running = 1;
 static pid_t foreground_process = 0;
 
 extern void *set_process_stack(int argc, char **argv, void *stack, void *entryPoint);
-extern void idle_process(); // Proceso idle
+extern void idle_process(); 
 
 static PCB set_new_process(const char *name, uint16_t *fds, uint8_t is_foreground)
 {
     PCB new_process;
     new_process.pid = next_pid++;
 
-    // Copiar el nombre del proceso, asegurando que no exceda el límite
     if (name != NULL)
     {
         strncpy(new_process.name, name, MAX_PROCESS_NAME_LENGTH - 1);
@@ -72,6 +73,7 @@ static PCB set_new_process(const char *name, uint16_t *fds, uint8_t is_foregroun
     }
 
     new_process.state = READY;
+    new_process.previous = TERMINATED;
     new_process.priority = 0;
     new_process.stack_base = (void *)memory_alloc(memory_manager, STACK_SIZE);
     new_process.stack = new_process.stack_base;
@@ -133,7 +135,7 @@ int init_processes()
 
     if (idle_process_pcb->stack_base == NULL)
     {
-        return -1; // Error al asignar memoria para el proceso idle
+        return -1;
     }
 
     idle_process_pcb->stack = set_process_stack(0, NULL, idle_process_pcb->stack_base + STACK_SIZE - 0x08, idle_process);
@@ -159,7 +161,6 @@ void set_next_process(void *current_stack)
 
     if (current_process->pid != 0 && current_process->state == RUNNING)
     {
-        // Si el proceso actual está en ejecución, lo pasamos a READY
         current_process->state = READY;
         enqueue_process(process_queues[current_process->priority], current_process);
     }
@@ -172,21 +173,15 @@ void *get_idle_process_stack()
 
 static uint8_t get_random_priority()
 {
-    // Sistema de pesos ponderados dinámico basado en PRIORITY_LEVELS
-    // Las prioridades más altas (valores menores) tienen más peso
-    // Fórmula: peso de prioridad i = (PRIORITY_LEVELS - i)
 
-    // Calcular peso total para normalización
     uint32_t total_weight = 0;
     for (uint8_t i = 0; i < PRIORITY_LEVELS; i++)
     {
         total_weight += (PRIORITY_LEVELS - i) * (PRIORITY_LEVELS - i);
     }
 
-    // Generar número aleatorio en el rango [0, total_weight-1]
     uint32_t random_value = randInt(0, total_weight - 1);
 
-    // Encontrar la prioridad correspondiente
     uint32_t accumulated_weight = 0;
     for (uint8_t priority = 0; priority < PRIORITY_LEVELS; priority++)
     {
@@ -197,7 +192,6 @@ static uint8_t get_random_priority()
         }
     }
 
-    // Fallback (no debería llegar aquí)
     return PRIORITY_LEVELS - 1;
 }
 
@@ -231,20 +225,17 @@ void *get_next_process()
         priority = (priority + 1) % PRIORITY_LEVELS;
     }
 
-    // Si no se encontró ningún proceso en ninguna prioridad, usar el proceso idle
     if (next_process == NULL)
     {
-        next_process = &process_table[0]; // Proceso idle
+        next_process = &process_table[0];
     }
 
-    // Actualizar el proceso actual y su estado
     current_process = next_process;
     current_process->state = RUNNING;
 
     return current_process->stack;
 }
 
-// Crea un nuevo proceso
 pid_t create_process(const char *name, void *entry_point, int argc, char **argv, uint16_t *fds, uint8_t is_foreground)
 {
 
@@ -274,14 +265,14 @@ pid_t create_process(const char *name, void *entry_point, int argc, char **argv,
 
     if (index == -1)
     {
-        return -1; // No hay espacio para un nuevo proceso
+        return -1; 
     }
 
     if (is_foreground)
     {
         if (!current_process->is_foreground)
         {
-            is_foreground = 0; // Solo es foreground si el padre lo es
+            is_foreground = 0; 
         }
         else
         {
@@ -295,12 +286,12 @@ pid_t create_process(const char *name, void *entry_point, int argc, char **argv,
 
     if (new_process->stack_base == NULL)
     {
-        return -1; // Error al asignar memoria para el stack del proceso
+        return -1; 
     }
 
     if (current_process->children_count >= MAX_CHILDREN)
     {
-        return -1; // El proceso padre ya tiene el maximo de hijos
+        return -1; 
     }
 
     current_process->children[current_process->children_count++] = new_process;
@@ -324,7 +315,7 @@ void free_terminated_processes(void)
     {
         terminated_process->state = TERMINATED;
         process_count--;
-        // Liberar la memoria del stack del proceso terminado
+
         if (terminated_process->stack_base != NULL)
         {
             memory_free(memory_manager, terminated_process->stack_base);
@@ -332,7 +323,7 @@ void free_terminated_processes(void)
         }
     }
 }
-// Elimina un proceso
+
 int kill_process(uint32_t pid)
 {
     if (pid == 0)
@@ -352,7 +343,7 @@ int kill_process(uint32_t pid)
                 foreground_process = process_table[i].father->pid;
             }
 
-            PCB * idle_process = &process_table[0];
+            PCB *idle_process = &process_table[0];
 
             for (size_t j = 0; j < process_table[i].children_count; j++)
             {
@@ -374,7 +365,7 @@ int kill_process(uint32_t pid)
         }
     }
 
-    return -1; // Proceso no encontrado
+    return -1;
 }
 
 int kill_foreground_process()
@@ -386,7 +377,6 @@ int kill_foreground_process()
     return kill_process(foreground_process);
 }
 
-// Obtiene el PID del proceso actual
 pid_t get_current_pid()
 {
     if (current_process == NULL)
@@ -405,7 +395,7 @@ void wait_process(pid_t pid, int8_t *status)
 {
     if (pid == 0)
     {
-        return; // No se puede esperar al proceso idle
+        return; 
     }
 
     for (int i = 0; i < MAX_PROCESSES; i++)
@@ -484,7 +474,6 @@ int change_priority(uint32_t pid, uint8_t newPriority)
 
             process_table[i].priority = newPriority;
 
-            // Si el proceso está en estado READY, necesitamos encolarlo en la nueva cola
             if (process_table[i].state == READY)
             {
                 enqueue_process(process_queues[newPriority], &process_table[i]);
@@ -494,7 +483,7 @@ int change_priority(uint32_t pid, uint8_t newPriority)
         }
     }
 
-    return -1; // Proceso no encontrado
+    return -1;
 }
 
 void set_exit_status(int8_t status)
@@ -515,15 +504,16 @@ int block_process(pid_t pid)
         {
             if (process_table[i].state == TERMINATED || process_table[i].state == BLOCKED)
             {
-                return -1; // El proceso ya está bloqueado
+                return -1;
             }
 
+            process_table[i].previous = process_table[i].state != RUNNING ? process_table[i].state : READY;
             process_table[i].state = BLOCKED;
             return 0;
         }
     }
 
-    return -1; // Proceso no encontrado
+    return -1; 
 }
 
 int wake_up_process(pid_t pid)
@@ -534,16 +524,34 @@ int wake_up_process(pid_t pid)
         {
             if (process_table[i].state == TERMINATED || process_table[i].state != BLOCKED)
             {
-                return -1; // El proceso no está bloqueado
+                return -1;
             }
 
-            process_table[i].state = READY;
-            enqueue_process(process_queues[process_table[i].priority], &process_table[i]);
+            if (process_table[i].previous == SLEEPING)
+            {
+                if (is_sleeping_time_expired(pid))
+                {
+                    process_table[i].state = READY;
+                    enqueue_process(process_queues[process_table[i].priority], &process_table[i]);
+                }
+                else
+                {
+                    process_table[i].state = SLEEPING;
+                }
+            }
+            else
+            {
+                process_table[i].state = process_table[i].previous;
+                if (process_table[i].state == READY)
+                {
+                    enqueue_process(process_queues[process_table[i].priority], &process_table[i]);
+                }
+            }
             return 0;
         }
     }
 
-    return -1; // Proceso no encontrado
+    return -1;
 }
 
 int toggle_block_process(pid_t pid)
@@ -556,7 +564,7 @@ int toggle_block_process(pid_t pid)
             {
                 return wake_up_process(pid);
             }
-            else if (process_table[i].state == READY || process_table[i].state == RUNNING)
+            else if (process_table[i].state != TERMINATED)
             {
                 return block_process(pid);
             }
@@ -564,6 +572,63 @@ int toggle_block_process(pid_t pid)
         }
     }
 
+    return -1;
+}
+
+int32_t is_sleeping(pid_t pid)
+{
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == pid)
+        {
+            return process_table[i].state == SLEEPING;
+        }
+    }
+    return 0;
+}
+
+int32_t sleep_process(pid_t pid)
+{
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == pid)
+        {
+            if (process_table[i].state == TERMINATED || process_table[i].state == SLEEPING)
+            {
+                return -1;
+            }
+
+            process_table[i].previous = process_table[i].state != RUNNING ? process_table[i].state : READY; // Me guardo su estado anterior (no guardo running)
+            process_table[i].state = SLEEPING;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int32_t unsleep_process(pid_t pid)
+{
+    for (int i = 0; i < MAX_PROCESSES; i++)
+    {
+        if (process_table[i].pid == pid)
+        {
+            if (process_table[i].state == TERMINATED || process_table[i].state != SLEEPING)
+            {
+                return -1;
+            }
+
+            // Restaurar el estado anterior
+            process_table[i].state = process_table[i].previous;
+
+            // Si el estado anterior era READY, encolarlo en la cola correspondiente
+            if (process_table[i].state == READY)
+            {
+                enqueue_process(process_queues[process_table[i].priority], &process_table[i]);
+            }
+
+            return 0;
+        }
+    }
     return -1;
 }
 
@@ -611,6 +676,9 @@ int get_processes_info(ProcessInfo *process_array, int max_processes)
                 break;
             case BLOCKED:
                 process_array[count].state = PS_BLOCKED;
+                break;
+            case SLEEPING:
+                process_array[count].state = PS_SLEEPING;
                 break;
             default:
                 process_array[count].state = PS_TERMINATED;

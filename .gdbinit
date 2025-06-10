@@ -27,7 +27,7 @@ b _start
 # b sem_wait
 # b sem_post
 
-b kill_foreground_process
+# b kill_foreground_process
 
 
 define debug_scheduler
@@ -185,7 +185,7 @@ define print_processes
                 set $is_fg = process_table[$pos].is_foreground
                 
                 # Only show non-terminated processes
-                if $state != 3
+                if $state != 4
                     # Print PID
                     printf "%4d | ", $pid
                     
@@ -213,7 +213,12 @@ define print_processes
                             if $state == 2
                                 printf "BLOCKED   "
                             else
+                                if $state == 3
+                                    printf "SLEEPING"
+                                else
+                                    # Unknown state
                                 printf "UNKNOWN   "
+                                end
                             end
                         end
                     end

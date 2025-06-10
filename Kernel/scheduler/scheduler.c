@@ -15,8 +15,6 @@ void * scheduler(void * current_stack)
         return get_idle_process_stack();
     }
 
-    wake_up_sleeping_processes();
-
     free_terminated_processes();
 
     if (!has_running_processes()) {

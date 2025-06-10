@@ -86,6 +86,7 @@ static const char *process_state_to_string(int state)
     case PS_READY: return "READY";
     case PS_RUNNING: return "RUNNING";
     case PS_BLOCKED: return "BLOCKED";
+    case PS_SLEEPING: return "SLEEPING";
     case PS_TERMINATED: return "TERMINATED";
     default: return "UNKNOWN";
     }
@@ -294,7 +295,6 @@ void toggle_block_run(int argc, char **argv, uint16_t * fds)
         printf("Process %d block state toggled successfully.\n", pid);
     }
     putchar(CHAR_EOF);
-    exit(0);
 }
 
 void nice_cmd(int argc, char **argv)
