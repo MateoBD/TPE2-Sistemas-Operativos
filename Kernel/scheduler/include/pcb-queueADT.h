@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-/* Tipo opaco. Los clientes no conocen la implementación interna */
 typedef struct PCBQueueCDT *PCBQueueADT;
 
 /**

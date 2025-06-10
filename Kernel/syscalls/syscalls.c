@@ -1,7 +1,6 @@
 #include <syscalls.h>
 #include <video-driver.h>
 #include <keyboard-driver.h>
-#include <pc-speaker-driver.h>
 #include <stdint.h>
 #include <memory-manager.h>
 #include <processes.h>
@@ -17,7 +16,7 @@ uint64_t sys_write(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused
 {
     if (fd < 0 || (char *)buffer == NULL || count <= 0)
     {
-        return -1; // Descriptor de archivo o buffer inválido
+        return -1;
     }
 
     uint16_t fds[2];
@@ -46,7 +45,7 @@ uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4
 {
     if (fd < 0 || (int8_t *)buffer == NULL || count <= 0)
     {
-        return -1; // Descriptor de archivo o buffer inválido
+        return -1; 
     }
 
     int8_t *buf = (int8_t *)buffer;
@@ -68,7 +67,7 @@ uint64_t sys_read(uint64_t fd, uint64_t buffer, uint64_t count, uint64_t unused4
         int result = read_pipe(fd, &c, 1);
         if (result == -1)
         {
-            return bytes_read > 0 ? bytes_read : -1; // Retornar bytes leídos o error
+            return bytes_read > 0 ? bytes_read : -1;
         }
 
         if (c == CHAR_INTERRUPT || c == CHAR_EOF)
@@ -86,7 +85,7 @@ uint64_t sys_open(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t
     int fd = create_pipe();
     if (fd == -1)
     {
-        return -1; // Error al crear el pipe
+        return -1; 
     }
     return (uint64_t)fd;
 }
@@ -142,7 +141,7 @@ uint64_t sys_exit(uint64_t status, uint64_t unused2, uint64_t unused3, uint64_t 
 {
     set_exit_status(status);
     kill_process(get_current_pid());
-    call_int_20(); // Disparar un cambio de contexto
+    call_int_20();
     return 0;
 }
 
@@ -168,7 +167,7 @@ uint64_t sys_getpid(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64
 uint64_t sys_kill(uint64_t pid, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
 {
     kill_process((pid_t)pid);
-    call_int_20(); // Disparar un cambio de contexto
+    call_int_20(); 
     return 0;
 }
 
@@ -195,18 +194,6 @@ uint64_t sys_sleep(uint64_t seconds, uint64_t unused2, uint64_t unused3, uint64_
         return (uint64_t)-1;
     }
     call_int_20();
-    return 0;
-}
-
-uint64_t sys_play_sound(uint64_t frequency, uint64_t duration, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_play_sound
-    return 0;
-}
-
-uint64_t sys_stop_sound(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6)
-{
-    // Implementación de sys_stop_sound
     return 0;
 }
 
@@ -249,7 +236,7 @@ uint64_t sys_block_process(uint64_t pid, uint64_t unused2, uint64_t unused3, uin
 {
     if (pid >= MAX_PROCESSES || pid == get_current_pid())
     {
-        return -1; // PID inválido
+        return -1; 
     }
     block_process((pid_t)pid);
     return 0;
@@ -259,7 +246,7 @@ uint64_t sys_unblock_process(uint64_t pid, uint64_t unused2, uint64_t unused3, u
 {
     if (pid >= MAX_PROCESSES || pid == get_current_pid())
     {
-        return -1; // PID inválido
+        return -1;
     }
     wake_up_process((pid_t)pid);
     return 0;
@@ -269,7 +256,7 @@ uint64_t sys_toggle_block(uint64_t pid, uint64_t unused2, uint64_t unused3, uint
 {
     if (pid >= MAX_PROCESSES || pid == get_current_pid())
     {
-        return -1; // PID inválido
+        return -1; 
     }
 
     toggle_block_process((pid_t)pid);
@@ -280,7 +267,7 @@ uint64_t sys_ps(uint64_t process_array, uint64_t max_processes, uint64_t unused3
 {
     if (process_array == 0 || max_processes <= 0)
     {
-        return -1; // Parámetros inválidos
+        return -1;
     }
 
     ProcessInfo *proc_array = (ProcessInfo *)process_array;

@@ -26,17 +26,14 @@ MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void 
 {
     MemoryManagerADT new_memory_manager = (MemoryManagerADT) manager_memory;
     
-    // Calcular dirección alineada a 8 bytes
     uint64_t managed_addr = (uint64_t)managed_memory;
     uint64_t aligned_addr = (managed_addr + 7) & ~7;  // Alinear a 8 bytes
 
     new_memory_manager->start_of_memory = (void *)aligned_addr;
     
-    // Configurar estructuras del gestor de memoria
     new_memory_manager->page_frames = (MemoryFragment*) (manager_memory + sizeof(struct MemoryManagerCDT));
     new_memory_manager->page_frames_dim = 0;
     
-    // Configurar el primer page_frame con la dirección alineada
     new_memory_manager->page_frames[0].start = new_memory_manager->start_of_memory;
 
     new_memory_manager->info.total_memory = MEMORY_END - MEMORY_START;
@@ -73,21 +70,17 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
                 uint64_t start_addr = (uint64_t)self->page_frames[i].start;
                 uint64_t aligned_start = (start_addr + 7) & ~7;  // Alinear a 8 bytes
                 
-                // Ajustar por la diferencia si hubo alineación
-                // uint64_t alignment_offset = aligned_start - start_addr;
-                
                 self->page_frames[i].start = (void *)aligned_start;
                 self->page_frames[i].size = aligned_size;
                 self->page_frames[i+1].start = (void *)(aligned_start + aligned_size);
                 self->page_frames_dim++;
             }
             
-            // Asegurar que la dirección devuelta esté alineada
             uint64_t addr = (uint64_t)self->page_frames[i].start;
             uint64_t aligned_addr = (addr + 7) & ~7;
             
-            if (aligned_addr != addr) {
-                // Si necesitamos alinear, ajustar el fragmento
+            if (aligned_addr != addr)
+            {
                 uint64_t offset = aligned_addr - addr;
                 self->page_frames[i].start = (void *)aligned_addr;
                 self->page_frames[i].size -= offset;

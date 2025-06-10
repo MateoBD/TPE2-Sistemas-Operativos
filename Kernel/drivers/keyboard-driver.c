@@ -288,7 +288,7 @@ static int shifted_ascii[] = {
     [0x7F] = NOT_DRAWBLE  // (keypad) . no es imprimible
 };
 
-char kd_is_special_key(char scancode)
+static char kd_is_special_key(char scancode)
 {
     return (scancode == LSHIFT) || (scancode == RSHIFT) ||
            (scancode == LCTRL) || (scancode == RCTRL) ||

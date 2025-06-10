@@ -3,7 +3,6 @@
 #include <time.h>
 #include <video-driver.h>
 #include <keyboard-driver.h>
-#include <pc-speaker-driver.h>
 #include <stdint.h>
 
 extern uint64_t *getRegisters();
@@ -27,8 +26,6 @@ enum enum_syscalls
     SYS_SETPRIORITY,
     SYS_SCHED_YIELD,
     SYS_SLEEP,
-    SYS_PLAY_SOUND,
-    SYS_STOP_SOUND,
     SYS_SEM_OPEN,
     SYS_SEM_CLOSE,
     SYS_SEM_WAIT,
@@ -66,8 +63,6 @@ sys_call_t sys_call_arr[] =
         [SYS_SETPRIORITY] = (sys_call_t)sys_setpriority,
         [SYS_SCHED_YIELD] = (sys_call_t)sys_sched_yield,
         [SYS_SLEEP] = (sys_call_t)sys_sleep,
-        [SYS_PLAY_SOUND] = (sys_call_t)sys_play_sound,
-        [SYS_STOP_SOUND] = (sys_call_t)sys_stop_sound,
         [SYS_SEM_OPEN] = (sys_call_t)sys_sem_open,
         [SYS_SEM_CLOSE] = (sys_call_t)sys_sem_close,
         [SYS_SEM_WAIT] = (sys_call_t)sys_sem_wait,
@@ -85,7 +80,7 @@ uint64_t syscall_dispatcher(uint64_t rax, uint64_t rdi, uint64_t rsi, uint64_t r
     uint64_t ret;
     if (rax >= sizeof(sys_call_arr) / sizeof(sys_call_t))
     {
-        return -1; // Número de syscall inválido
+        return -1;
     }
     ret = sys_call_arr[rax](rdi, rsi, rdx, r10, r8, r9);
 

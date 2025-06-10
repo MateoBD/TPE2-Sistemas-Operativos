@@ -15,7 +15,6 @@ unsigned long get_ticks()
 
 void init_time()
 {
-    // Inicializa el tiempo de inicio
     start_up_time = get_time();
     initialized = 1;
 }
@@ -28,7 +27,6 @@ void timer_handler()
     }
     ticks++;
 
-    // Despertar procesos que han terminado de dormir
     wake_up_sleeping_processes();
 }
 
@@ -49,13 +47,11 @@ static uint32_t date_to_days(int day, int month, int year)
 {
     uint32_t days = day - 1;
 
-    // Meses del año actual
     for (int m = 1; m < month; m++)
     {
         days += days_in_month(m, year);
     }
 
-    // Años completos anteriores
     for (int y = 0; y < year; y++)
     {
         days += 365 + is_leap_year(y);

@@ -55,5 +55,5 @@ uint64_t seconds_elapsed();
  * @return A time structure containing the current system time.
  */
 time_struct_t get_time();
-// char * getTime();
-#endif
+
+#endif // _TIME_H_

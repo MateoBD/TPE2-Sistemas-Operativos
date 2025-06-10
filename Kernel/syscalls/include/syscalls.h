@@ -63,10 +63,6 @@ uint64_t sys_sched_yield(uint64_t unused1, uint64_t unused2, uint64_t unused3, u
 
 uint64_t sys_sleep(uint64_t seconds, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
-uint64_t sys_play_sound(uint64_t frequency, uint64_t duration, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
-uint64_t sys_stop_sound(uint64_t unused1, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
-
 uint64_t sys_sem_open(uint64_t value, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);
 
 uint64_t sys_sem_close(uint64_t sem_id, uint64_t unused2, uint64_t unused3, uint64_t unused4, uint64_t unused5, uint64_t unused6);

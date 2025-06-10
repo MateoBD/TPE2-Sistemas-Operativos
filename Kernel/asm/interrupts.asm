@@ -19,9 +19,6 @@ GLOBAL _irq05Handler
 
 GLOBAL _int80Handler
 
-GLOBAL _exception0Handler
-GLOBAL _exception6Handler
-
 EXTERN irq_dispatcher
 EXTERN syscall_dispatcher
 EXTERN exception_dispatcher
@@ -162,7 +159,7 @@ SECTION .text
     add rax, 8
     mov qword rdi, [rsp+16]   ; rflags
     mov qword [rax], rdi
-    mov byte [registers_saved], 1   ; seteo flag de que se guardaron registros [ESTO ESTABA MAL]
+    mov byte [registers_saved], 1  
 %endmacro
 
 %macro exception_handler 1
@@ -298,16 +295,6 @@ _int80Handler:
     mov rsp, rbp
     pop rbp
     iretq
-
-
-
-;Zero Division Exception
-_exception0Handler:
-	exception_handler 0
-
-;Zero Division Exception
-_exception6Handler:
-	exception_handler 6
     
 haltcpu:
 	cli
