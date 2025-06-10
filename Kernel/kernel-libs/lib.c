@@ -48,3 +48,32 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+uint32_t strlen(const char * str)
+{
+    uint32_t len = 0;
+
+    while (*str++)
+        len++;
+
+    return len;
+}
+
+uint32_t strncpy(char * destination, const char * source, uint32_t length)
+{
+    uint32_t i;
+
+    for (i = 0; i < length && source[i] != '\0'; i++)
+    {
+        destination[i] = source[i];
+    }
+
+    // Null-terminate if we reached the end of the source string
+    if (i < length)
+    {
+        destination[i] = '\0';
+    }
+
+    return i; // Return the number of characters copied
+}
+

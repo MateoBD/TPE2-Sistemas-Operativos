@@ -2,7 +2,7 @@ include Makefile.inc
 
 KERNEL=kernel.bin
 ELF_KERNEL=kernel.elf
-MODULES= . drivers scheduler syscalls memory-manager interrupts
+MODULES= . drivers scheduler syscalls memory-manager interrupts semaphores pipes kernel-libs
 SOURCES=$(foreach mod, $(MODULES), $(wildcard $(mod)/*.c))
 INCLUDES=$(addprefix -I, $(addsuffix /include, $(MODULES)))
 ifeq ($(BUDDY),1)

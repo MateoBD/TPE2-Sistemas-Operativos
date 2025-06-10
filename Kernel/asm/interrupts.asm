@@ -244,9 +244,19 @@ _irq01Handler:
     .donot_save_registers:
     iretq
 
-;Cascade pic never called
+;Forzar un cambio de contexto (sin llamar a timer_handler)
 _irq02Handler:
-	irq_handler_master 2
+	push_state
+
+    mov rdi, rsp
+    call scheduler
+    mov rsp, rax
+
+	signal_eoi
+
+	pop_state
+
+    iretq
 
 ;Serial Port 2 and 4
 _irq03Handler:
@@ -266,9 +276,8 @@ _int80Handler:
 
     push_state_no_rax
 
-    ; dejar el valor que está en [rsp] (7mo arg) intacto
-    ; por eso no tocamos rsp
-
+    push r9
+    push r11
     mov r9, r8
     mov r8, r10
     mov rcx, rdx
@@ -277,6 +286,9 @@ _int80Handler:
     mov rdi, rax
 
     call syscall_dispatcher
+
+    pop r11
+    pop r9
 
     signal_eoi
 

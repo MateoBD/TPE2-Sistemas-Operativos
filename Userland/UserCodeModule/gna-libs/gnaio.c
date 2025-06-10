@@ -48,7 +48,7 @@ static int process_format(char *buf, uint32_t *out_size, uint32_t size, const ch
     uint32_t count = 0;
     uint32_t i = 0;
     char c;
-    char temp[128];
+    char temp[128] = {0};
 
     while ((c = format[i++]) != 0 && (size == 0 || count < size - 1))
     {
@@ -253,18 +253,19 @@ int putc(int fd, char c)
 
 int getchar(void)
 {
-    // This should call the system's character input function
-    int c = -1;
-    if (( c = getc(FD_STDIN)) > 0)
-        return c;
-    return EOF;
+    return getc(FD_STDIN);
 }
 
 int getc(int fd)
 {
     char c;
     if (sys_call(SYS_READ, fd, (uint64_t)&c, 1, 0, 0, 0) > 0)
-        return c;
+    {
+        if (c == CHAR_INTERRUPT || c == CHAR_EOF)
+            return (int)c;
+        
+        return (unsigned char)c;
+    }
     return EOF;
 }
 
@@ -284,5 +285,25 @@ void clean_screen(void)
     for (int i = 0; i < BUFFER_SIZE; i++)
         output_buffer[i] = 0;
     nprintf(BUFFER_SIZE, output_buffer);
-    set_cursor(0, 0);
+    set_cursor(1, 0);
+}
+
+void print_spaces(int n) {
+    for (int i = 0; i < n; i++) {
+        putchar(' ');
+    }
+}
+
+void print_padded(const char *str, int width) {
+    int len = 0;
+    while (str[len]) len++;
+    printf(str);
+    print_spaces(width - len);
+}
+
+void print_int_padded(int num, int width) {
+    char buf[12] = {0};
+    int len = sprintf(buf, "%d", num); // o tu propia itoa
+    printf(buf);
+    print_spaces(width - len);
 }

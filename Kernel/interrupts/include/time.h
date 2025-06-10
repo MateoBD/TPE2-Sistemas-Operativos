@@ -2,7 +2,10 @@
 #define _TIME_H_
 #include <stdint.h>
 
-typedef struct {
+#define TICKS_PER_SECOND 18
+
+typedef struct
+{
     char day;
     char month;
     char year;
@@ -18,7 +21,13 @@ typedef struct {
  */
 void timer_handler();
 
-unsigned long get_ticks();
+/**
+ * @brief Initializes the time module.
+ *
+ * This function initializes the time module, setting the start-up time and
+ * preparing the timer for tick counting.
+ */
+uint64_t get_ticks();
 
 /**
  * @brief Retrieves the number of ticks elapsed since the system started.
@@ -36,18 +45,7 @@ int ticks_elapsed();
  *
  * @return The number of seconds elapsed.
  */
-int seconds_elapsed();
-
-/**
- * @brief Suspends the execution of the calling thread for a specified duration.
- *
- * This function causes the calling thread to sleep for the specified number of seconds.
- * During this time, the thread will not execute any instructions.
- *
- * @param seconds The number of seconds for which the thread should sleep.
- */
-
-void sleep(uint64_t ticks);
+uint64_t seconds_elapsed();
 
 /**
  * @brief Retrieves the current system time.

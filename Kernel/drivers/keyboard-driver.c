@@ -1,5 +1,9 @@
 #include <keyboard-driver.h>
 #include <interrupts.h>
+#include <semaphores.h>
+#include <pipes.h>
+#include <syscalls.h>
+#include <processes.h>
 
 #define ESC 0x01
 #define CAPSLOCK 0x3A
@@ -13,12 +17,8 @@
 #define F_10 0x44
 #define F_11 0x57
 #define F_12 0x58
-#define CHAR_BUFFER_DIM 64
+// #define CHAR_BUFFER_DIM 64
 
-static char char_buffer[CHAR_BUFFER_DIM] = {0};
-static uint16_t chars_at_buffer = 0;
-static int char_buffer_index = 0;
-static uint16_t getter_index = 0;
 static char capslock = 0;
 static char shift = 0;
 static char ctrl = 0;
@@ -29,7 +29,8 @@ extern char get_key();
 
 static int not_shifted_ascii[] = {
     [0x00] = NOT_DRAWBLE, // Esc
-    [0x02] = NOT_DRAWBLE,
+    [0x01] = NOT_DRAWBLE, // Esc (duplicate entry)
+    [0x02] = '1',
     [0x03] = '2',
     [0x04] = '3',
     [0x05] = '4',
@@ -287,26 +288,7 @@ static int shifted_ascii[] = {
     [0x7F] = NOT_DRAWBLE  // (keypad) . no es imprimible
 };
 
-char has_next_key()
-{
-    return chars_at_buffer > 0;
-}
-
-int next_key()
-{
-    int ret;
-    if (!has_next_key())
-    {
-        return NOT_KEY;
-    }
-    chars_at_buffer--;
-    ret = char_buffer[getter_index];
-    getter_index++;
-    getter_index = getter_index % CHAR_BUFFER_DIM;
-    return ret;
-}
-
-char is_special_key(char scancode)
+char kd_is_special_key(char scancode)
 {
     return (scancode == LSHIFT) || (scancode == RSHIFT) ||
            (scancode == LCTRL) || (scancode == RCTRL) ||
@@ -316,43 +298,54 @@ char is_special_key(char scancode)
            ((scancode >= F_01) && (scancode <= F_10));
 }
 
-void keyboard_handler()
+void kd_handler()
 {
     char scancode = get_key();
-    char release = scancode;
-    release = release >> 7;
+    char release = (scancode & 0x80) != 0; // 1 if key is released, 0 if pressed
     char key = scancode & 0x7F;
-    if (scancode == ESC)
+
+    if (key == ESC)
     {
         return;
     }
-    if (scancode == CAPSLOCK)
+
+    // CAPSLOCK solo cambia en key press, no en release
+    if (key == CAPSLOCK && !release)
     {
         capslock = !capslock;
         return;
     }
     else if (key == LSHIFT || key == RSHIFT)
     {
-        shift = !release;
+        shift = !release; // shift activo cuando no está liberado
         return;
     }
     else if (key == LCTRL || key == RCTRL)
     {
-        ctrl = !release;
+        ctrl = !release; // ctrl activo cuando no está liberado
         return;
     }
     else if (key == LALT || key == RALT)
     {
-        alt = !release;
+        alt = !release; // alt activo cuando no está liberado
         return;
     }
-    else
+    else if (!kd_is_special_key(key) && !release)
     {
-        if (chars_at_buffer <= CHAR_BUFFER_DIM && !is_special_key(scancode) && !release)
+        int8_t c = -1;
+        if (ctrl && shifted_ascii[(uint8_t)key] == 'C')
         {
-            char_buffer[char_buffer_index++] = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
-            char_buffer_index = char_buffer_index % CHAR_BUFFER_DIM;
-            chars_at_buffer++;
+            kill_foreground_process();
+            c = CHAR_INTERRUPT; // Ctrl + C
         }
+        else if (ctrl && shifted_ascii[(uint8_t)key] == 'D')
+        {
+            c = CHAR_EOF;
+        }
+        else
+        {
+            c = (shift ^ capslock) ? shifted_ascii[(uint8_t)key] : not_shifted_ascii[(uint8_t)key];
+        }
+        write_pipe_nonblocking(STDIN, &c, 1);
     }
 }

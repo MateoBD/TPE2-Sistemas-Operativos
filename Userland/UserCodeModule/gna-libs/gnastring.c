@@ -1,4 +1,5 @@
 #include <gnastring.h>
+#include <gnalib.h>
 
 int strlen(const char *str)
 {
@@ -60,6 +61,26 @@ int strncmp(const char *s1, const char *s2, int n)
     return (n < 0) ? 0 : *(unsigned char *)s1 - *(unsigned char *)s2;
 }
 
+char *strchr(const char *str, int c)
+{
+    while (*str != '\0')
+    {
+        if (*str == c)
+        {
+            return (char *)str;
+        }
+        str++;
+    }
+
+    // Check if we're looking for the null terminator
+    if (c == '\0')
+    {
+        return (char *)str;
+    }
+
+    return NULL;
+}
+
 int tolower(int c)
 {
     if (c >= 'A' && c <= 'Z')
@@ -117,4 +138,10 @@ int isdigit(int c)
 int isalnum(int c)
 {
     return isalpha(c) || isdigit(c);
+}
+
+int is_vowel(int c)
+{
+    c = tolower(c);
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
 }

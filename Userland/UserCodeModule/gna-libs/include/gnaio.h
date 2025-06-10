@@ -7,6 +7,8 @@
 #include <stdint.h>
 
 #define EOF -1
+#define CHAR_INTERRUPT -3
+#define CHAR_EOF -4
 #define FD_STDIN 0
 #define FD_STDOUT 1
 #define FD_STDERR 2
@@ -67,5 +69,11 @@ int set_cursor(uint8_t x, uint8_t y);
 void set_color(uint8_t fg_color, uint8_t bg_color);
 
 void clean_screen(void);
+
+void print_spaces(int n);
+
+void print_padded(const char *str, int width);
+
+void print_int_padded(int num, int width);
 
 #endif

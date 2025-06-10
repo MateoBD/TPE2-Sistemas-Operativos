@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <video-driver.h>
 #include <stddef.h>
+#include <lib.h>
 
 MemoryManagerADT memory_manager;
 
@@ -40,11 +41,7 @@ MemoryManagerADT memory_manager_init(void * const restrict manager_memory, void 
 
     new_memory_manager->info.total_memory = MEMORY_END - MEMORY_START;
     new_memory_manager->info.used_memory = 0;
-    char *type = "GNAMM";
-    for (size_t i = 0; i < 6; i++)
-    {
-        new_memory_manager->info.mm_type[i] = type[i];
-    }
+    strncpy(new_memory_manager->info.mm_type, "gnamem", 6);
     return new_memory_manager;
 }
 

@@ -3,7 +3,6 @@
 #include <libasm.h>
 #include <stdint.h>
 
-
 uint64_t get_ticks()
 {
     uint64_t ticks = 0;
@@ -41,7 +40,7 @@ uint64_t time()
     for (int m = 1; m < t.month; m++)
     {
         days += days_in_month[m];
-        
+
         if (m == 2 && IS_LEAP_YEAR(t.year))
         {
             days++;
@@ -68,35 +67,61 @@ time_t get_time()
 int itoa(uint64_t value, char *buffer, int base, int n)
 {
     char *p = buffer;
-	char *p1, *p2;
-	uint32_t digits = 0;
+    char *p1, *p2;
+    uint32_t digits = 0;
 
-	//Calculate characters for each digit
-	do
-	{
-		uint32_t remainder = value % base;
-		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
-		digits++;
-	}
-	while (value /= base);
+    // Calculate characters for each digit
+    do
+    {
+        uint32_t remainder = value % base;
+        *p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+        digits++;
+    } while (value /= base);
 
-	// Terminate string in buffer.
-	*p = 0;
+    // Terminate string in buffer.
+    *p = 0;
 
-	//Reverse string in buffer.
-	p1 = buffer;
-	p2 = p - 1;
-	while (p1 < p2)
-	{
-		char tmp = *p1;
-		*p1 = *p2;
-		*p2 = tmp;
-		p1++;
-		p2--;
-	}
+    // Reverse string in buffer.
+    p1 = buffer;
+    p2 = p - 1;
+    while (p1 < p2)
+    {
+        char tmp = *p1;
+        *p1 = *p2;
+        *p2 = tmp;
+        p1++;
+        p2--;
+    }
 
-	return digits;
+    return digits;
 }
+
+int atoi(const char* str) {
+    int result = 0;
+    int sign = 1;
+
+    // Saltar espacios iniciales
+    while (*str == ' ' || *str == '\t') {
+        str++;
+    }
+
+    // Signo opcional
+    if (*str == '-') {
+        sign = -1;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Convertir los dígitos
+    while (*str >= '0' && *str <= '9') {
+        result = result * 10 + (*str - '0');
+        str++;
+    }
+
+    return result * sign;
+}
+
 
 void sleep(uint64_t ticks)
 {
@@ -117,39 +142,30 @@ uint32_t rand(void)
     return random_next;
 }
 
-uint64_t create_process(void * function, int argc, char **argv)
-{
-    return sys_call((uint64_t)SYS_CREATE, (uint64_t) function, (uint64_t) argc, (uint64_t) argv, 0, 0, 0);
-}
-
-uint32_t get_pid(void)
-{
-    return sys_call(SYS_GETPID, 0, 0, 0, 0, 0, 0);
-}
-
 void exit(int status)
 {
     sys_call(SYS_EXIT, status, 0, 0, 0, 0, 0);
 }
 
-void * memset(void * destiation, int32_t c, uint64_t length) {
+void *memset(void *destiation, int32_t c, uint64_t length)
+{
     uint8_t chr = (uint8_t)c;
-    char * dst = (char*)destiation;
+    char *dst = (char *)destiation;
 
-    while(length--)
+    while (length--)
         dst[length] = chr;
 
     return destiation;
 }
 
-void * my_malloc(uint64_t size)
+void *my_malloc(uint64_t size)
 {
-    return (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+    return (void *)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
 }
 
-void * my_calloc(uint64_t size)
+void *my_calloc(uint64_t size)
 {
-    void *ptr = (void*)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
+    void *ptr = (void *)sys_call(SYS_MMAP, size, 0, 0, 0, 0, 0);
     if (ptr != NULL)
     {
         memset(ptr, 0, size);

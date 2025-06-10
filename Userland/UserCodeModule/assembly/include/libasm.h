@@ -3,19 +3,17 @@
 
 #include <stdint.h>
 
-enum enum_syscalls 
+enum enum_syscalls
 {
-    SYS_WRITE = 0,
+SYS_WRITE = 0,
     SYS_READ,
-    SYS_PIPE,
+    SYS_OPEN,
     SYS_CLOSE,
     SYS_SET_CURSOR,
     SYS_SET_COLOR,
     SYS_MMAP,
     SYS_MUNMAP,
-    SYS_BRK,
-    SYS_MPROTECT,
-    SYS_CREATE,
+    SYS_CREATE_PROCESS,
     SYS_EXIT,
     SYS_WAIT,
     SYS_GETPID,
@@ -28,7 +26,6 @@ enum enum_syscalls
     SYS_STOP_SOUND,
     SYS_SEM_OPEN,
     SYS_SEM_CLOSE,
-    SYS_SEM_UNLINK,
     SYS_SEM_WAIT,
     SYS_SEM_POST,
     SYS_SEM_GETVALUE,
@@ -37,6 +34,10 @@ enum enum_syscalls
     SYS_SHM_MAP,
     SYS_SHM_UNMAP,
     SYS_MEM_INFO,
+    SYS_BLOCK,
+    SYS_UNBLOCK,
+    SYS_TOGGLE_BLOCK,
+    SYS_PS,
 };
 
 /**

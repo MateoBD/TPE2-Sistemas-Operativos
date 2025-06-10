@@ -16,12 +16,10 @@ sys_call:
     mov rdx, rcx        ; arg3
     mov r10, r8         ; arg4
     mov r8,  r9         ; arg5
-    mov r9,  [rbp]      ; arg6
-    mov r11, [rbp+8]    ; arg7 → pasaremos en stack manualmente
+    mov r9,  [rbp+8]      ; arg6
+    mov r11, [rbp+16]    ; arg7 → pasaremos en stack manualmente
 
-    push r11            ; 7mo arg se pasa como stack (lo espera C)
     int 0x80
-    add rsp, 8          ; limpiar
 
     mov rsp, rbp
     pop rbp

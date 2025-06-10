@@ -1,31 +1,35 @@
 GLOBAL set_process_stack
 GLOBAL idle_process
 GLOBAL call_int_20
+EXTERN system_running
+EXTERN scheduler
 
 %macro set_inicial_stack 0
+
+    ; Stack frame para same-privilege interrupt (no SS pushed by CPU)
+    ; Interrupt frame para iretq (orden: RSP -> RFLAGS -> CS -> RIP):
+
+    push rdx       ; RSP
+    push 0x202     ; RFLAGS
+    push 0x08      ; CS 
+    push rcx       ; RIP
     
-    push 0x00 ; Aling
-    push 0x00 ; SS
-    push rdx ; RSP
-    push 0x202 ; RFLAGS
-    push 0x08 ; CS
-    push rcx ; RIP
-    
-	push 0x00
-	push rbx
-	push rcx
-	push rdx
-	push rbp
-	push rdi ; RDI -> argc
-	push rsi ; RSI -> argv
-	push 0x00
-	push r9
-	push r10
-	push r11
-	push r12
-	push r13
-	push r14
-	push r15
+    ; Ahora los registros en el orden exacto de push_state:
+    push 0x00      ; rax
+    push rbx      
+    push rcx  
+    push rdx   
+    push rbp       
+    push rdi       ; rdi (argc)
+    push rsi       ; rsi (argv)
+    push 0x00     
+    push 0x00     
+    push 0x00      
+    push 0x00      
+    push 0x00      
+    push 0x00      
+    push 0x00      
+    push 0x00      
 
 %endmacro
 
@@ -51,10 +55,16 @@ set_process_stack:
     ret
 
 idle_process:
-    _hlt
-    jmp idle_process
+.loop:
+    mov rax, [system_running]
+    cmp rax, 1
+    je .no_cli
+    cli
+.no_cli:
+    hlt
+    jmp .loop
 
 call_int_20:
-    int 0x20
+    int 0x22 ; Llamo a cambio de contexto (No timer tick)
     ret
 
