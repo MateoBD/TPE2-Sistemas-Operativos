@@ -6,8 +6,8 @@ int8_t process_handler(char* name, void (*process)(int, char**), int argc, char 
     uint8_t foreground = 1;
     if (argc > 0 && argv[argc - 1] != NULL && argv[argc - 1][0] == '&')
     {
-        foreground = 0; // Run in background
-        argc--; // Remove the '&' argument
+        foreground = 0;
+        argc--;
     }
     return create_process(name, process, argc, argv, fds, foreground);
 }

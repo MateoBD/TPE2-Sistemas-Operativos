@@ -9,7 +9,6 @@
 #define BUFFER_SIZE 5120
 static char output_buffer[BUFFER_SIZE];
 
-// Helper function to calculate the number of digits in a number
 static int calc_amount_of_digits(int num, int base)
 {
     int count = 0;
@@ -24,7 +23,6 @@ static int calc_amount_of_digits(int num, int base)
     return count;
 }
 
-// Helper function to process format string
 static int process_format(char *buf, uint32_t *out_size, uint32_t size, const char *format, va_list args)
 {
     if (out_size)
@@ -204,8 +202,6 @@ int fprintf(int fd, const char *format, ...)
 
     int count = process_format(output_buffer, &out_size, BUFFER_SIZE, format, args);
 
-    // Write to the specified file descriptor
-
     va_end(args);
     return count;
 }
@@ -303,7 +299,7 @@ void print_padded(const char *str, int width) {
 
 void print_int_padded(int num, int width) {
     char buf[12] = {0};
-    int len = sprintf(buf, "%d", num); // o tu propia itoa
+    int len = sprintf(buf, "%d", num);
     printf(buf);
     print_spaces(width - len);
 }

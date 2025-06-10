@@ -59,7 +59,6 @@ uint64_t time()
 time_t get_time()
 {
     time_t t = {0};
-    // syscall
     return t;
 }
 
@@ -68,19 +67,13 @@ int itoa(uint64_t value, char *buffer, int base, int n)
     char *p = buffer;
     char *p1, *p2;
     uint32_t digits = 0;
-
-    // Calculate characters for each digit
     do
     {
         uint32_t remainder = value % base;
         *p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
         digits++;
     } while (value /= base);
-
-    // Terminate string in buffer.
     *p = 0;
-
-    // Reverse string in buffer.
     p1 = buffer;
     p2 = p - 1;
     while (p1 < p2)
@@ -99,12 +92,10 @@ int atoi(const char* str) {
     int result = 0;
     int sign = 1;
 
-    // Saltar espacios iniciales
     while (*str == ' ' || *str == '\t') {
         str++;
     }
 
-    // Signo opcional
     if (*str == '-') {
         sign = -1;
         str++;
@@ -112,7 +103,6 @@ int atoi(const char* str) {
         str++;
     }
 
-    // Convertir los dígitos
     while (*str >= '0' && *str <= '9') {
         result = result * 10 + (*str - '0');
         str++;

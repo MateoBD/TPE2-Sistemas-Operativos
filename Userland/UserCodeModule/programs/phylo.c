@@ -32,7 +32,7 @@ static char *philosopher_names[] = {"Jesus", "Mateo", "Juan", "Pedro",
 
 static PhilosopherState philosopher_states[MAX_PHILOSOPHERS];
 static int16_t philosopher_pids[MAX_PHILOSOPHERS];
-static int philosopher_semaphores[MAX_PHILOSOPHERS]; // IDs de semáforos por filósofo
+static int philosopher_semaphores[MAX_PHILOSOPHERS];
 static int global_semaphore = -1;
 static uint8_t philosopher_count = 0;
 
@@ -249,13 +249,10 @@ void run_philosophers(int argc, char *argv[])
 
 void phylo(int argc, char *argv[], uint16_t *fds)
 {
-    // Verificar si el último argumento es '&' y eliminarlo
-    // para forzar que phylo siempre se ejecute en foreground
     if (argc > 0 && argv[argc - 1] != NULL && argv[argc - 1][0] == '&' && argv[argc - 1][1] == '\0')
     {
         printf("phylo: Cannot run in background. Running in foreground instead.\n");
-        argc--; // Remover el '&'
+        argc--; 
     }
-
     process_handler("philo", run_philosophers, argc, argv, fds);
 }

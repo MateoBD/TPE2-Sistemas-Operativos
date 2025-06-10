@@ -106,7 +106,7 @@ void cmd_test_help(int argc, char **argv)
     printf("  test prio                      - Test priority-based scheduling\n");
     printf("  test sync <n> <use_sem> <id>   - Test semaphore synchronization\n");
     printf("  test mm_basic                  - Run basic memory test with default settings\n");
-    printf("  test --help                    - Show this help message\n");
+    printf("  test --help or -h              - Show this help message\n");
     printf("\nExamples:\n");
     printf("  test processes 5               - Create up to 5 test processes\n");
     printf("  test mm 2048                   - Test memory allocation up to 2048 bytes\n");
@@ -114,7 +114,6 @@ void cmd_test_help(int argc, char **argv)
     exit(0);
 }
 
-// Public wrapper functions for shell integration
 void test_processes_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_processes", cmd_test_processes, argc, argv, fds);
@@ -145,7 +144,6 @@ void test_help_wrapper(int argc, char **argv, uint16_t *fds)
     process_handler("test_help", cmd_test_help, argc, argv, fds);
 }
 
-// Unified test command function
 void test_command(int argc, char **argv, uint16_t *fds)
 {
     if (argc < 2)

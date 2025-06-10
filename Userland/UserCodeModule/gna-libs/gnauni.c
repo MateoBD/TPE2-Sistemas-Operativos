@@ -1,25 +1,3 @@
-/*
- * Ejemplo de uso de semáforos:
- *
- * // Crear un semáforo con valor inicial 1 (mutex)
- * int32_t mutex = sem_open(1);
- * if (mutex == -1) {
- *     // Error al crear semáforo
- *     return;
- * }
- *
- * // Entrar en sección crítica
- * sem_wait(mutex);
- * // ... código de sección crítica ...
- * sem_post(mutex);
- *
- * // Obtener valor actual
- * int32_t value = sem_getvalue(mutex);
- *
- * // Destruir semáforo cuando ya no se necesite
- * sem_close(mutex);
- */
-
 #include <gnauni.h>
 #include <libasm.h>
 #include <stdint.h>
