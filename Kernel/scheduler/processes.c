@@ -14,7 +14,6 @@
 #define STACK_SIZE 0x1000 // Tamaño del stack 4KB
 #define MAX_PROCESS_NAME_LENGTH 64
 
-// Estados de proceso
 typedef enum ProcessState
 {
     READY,
@@ -620,10 +619,8 @@ int32_t unsleep_process(pid_t pid)
                 return -1;
             }
 
-            // Restaurar el estado anterior
             process_table[i].state = process_table[i].previous;
 
-            // Si el estado anterior era READY, encolarlo en la cola correspondiente
             if (process_table[i].state == READY)
             {
                 enqueue_process(process_queues[process_table[i].priority], &process_table[i]);
@@ -663,12 +660,10 @@ int get_processes_info(ProcessInfo *process_array, int max_processes)
     {
         if (process_table[i].state != TERMINATED)
         {
-            // Copiar información del proceso
             process_array[count].pid = process_table[i].pid;
             strncpy(process_array[count].name, process_table[i].name, MAX_PROCESS_NAME_LENGTH - 1);
             process_array[count].name[MAX_PROCESS_NAME_LENGTH - 1] = '\0';
 
-            // Mapear estados internos a estados de PS
             switch (process_table[i].state)
             {
             case READY:

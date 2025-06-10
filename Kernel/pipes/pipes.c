@@ -31,18 +31,15 @@ typedef struct
     uint32_t write_sem;
 } pipe_t;
 
-// Estructura del manager de pipes
 typedef struct
 {
     pipe_t pipes[MAX_AMOUNT_PIPES];
     uint16_t pipe_count;
 } pipe_manager_t;
 
-// Variables de control de pipes
 static pipe_manager_t global_pipe_manager;
 static uint8_t initialized = 0;
 
-// Inicializa el manager de pipes
 void init_pipe_manager()
 {
     global_pipe_manager.pipe_count = 0;
@@ -52,7 +49,7 @@ void init_pipe_manager()
             .read_pos = 0,
             .write_pos = 0,
             .buffer = {0},
-            .state = (i < KERNEL_PIPES_START) ? PIPE_USED : PIPE_FREE // Mark first 3 pipes as used for stdin, stdout, stderr)
+            .state = (i < KERNEL_PIPES_START) ? PIPE_USED : PIPE_FREE
         };
     }
 

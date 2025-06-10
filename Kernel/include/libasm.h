@@ -1,7 +1,11 @@
+#ifndef _LIBASM_H_
+#define _LIBASM_H_
+
 /**
  * @file libasm.h
  * @brief Header file for assembly-related functions and system calls.
  */
+
 
 void _hlt(void);
 void _sti(void);
@@ -33,3 +37,5 @@ void test_sys_call(void);
 void get_registers(unsigned long *registers);
 
 void haltcpu(void);
+
+#endif // _LIBASM_H_

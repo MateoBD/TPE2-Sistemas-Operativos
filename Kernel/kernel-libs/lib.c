@@ -68,12 +68,11 @@ uint32_t strncpy(char * destination, const char * source, uint32_t length)
         destination[i] = source[i];
     }
 
-    // Null-terminate if we reached the end of the source string
     if (i < length)
     {
         destination[i] = '\0';
     }
 
-    return i; // Return the number of characters copied
+    return i;
 }
 

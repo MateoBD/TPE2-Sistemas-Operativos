@@ -6,9 +6,6 @@ EXTERN scheduler
 
 %macro set_inicial_stack 0
 
-    ; Stack frame para same-privilege interrupt (no SS pushed by CPU)
-    ; Interrupt frame para iretq (orden: RSP -> RFLAGS -> CS -> RIP):
-
     push rdx       ; RSP
     push 0x202     ; RFLAGS
     push 0x08      ; CS 

@@ -1,10 +1,11 @@
 #include <video-driver.h>
+#include <keyboard-driver.h>
 
 #define LEFT_MARGIN 1
 
 static uint8_t *const video = (uint8_t *)0xB8000;
-static uint8_t *current_video = (uint8_t *)0xB8000 + (LEFT_MARGIN * 2); // Start with left margin
-static uint8_t current_color = 0x07; // White on black
+static uint8_t *current_video = (uint8_t *)0xB8000 + (LEFT_MARGIN * 2); 
+static uint8_t current_color = 0x07; // Fondo negro, letra blanca
 
 #define NEW_LINE() do { \
     uint32_t current_line = ((current_video - video) / 2) / WIDTH; \
@@ -40,27 +41,24 @@ void vd_nprint(const char *string, uint32_t n)
 
 void vd_draw_char(char character)
 {
-    // Check if we need to scroll before drawing
     if (current_video >= video + (WIDTH * HEIGHT * 2))
     {
         vd_scroll_up();
-        current_video = video + ((HEIGHT - 1) * WIDTH + LEFT_MARGIN) * 2; // Move to last line with margin
+        current_video = video + ((HEIGHT - 1) * WIDTH + LEFT_MARGIN) * 2;
     }
     
     if (character == '\n')
     {
         NEW_LINE();
-        // Check if newline caused us to go past the screen
         if (current_video >= video + (WIDTH * HEIGHT * 2))
         {
             vd_scroll_up();
-            current_video = video + ((HEIGHT - 1) * WIDTH + LEFT_MARGIN) * 2; // Move to last line with margin
+            current_video = video + ((HEIGHT - 1) * WIDTH + LEFT_MARGIN) * 2;
         }
         return;
     }
     if (character == '\b')
     {
-        // Don't allow backspace beyond the left margin
         uint32_t current_col = ((current_video - video) / 2) % WIDTH;
         
         if (current_col > LEFT_MARGIN && current_video > video)
@@ -71,15 +69,11 @@ void vd_draw_char(char character)
         }
         return;
     }
-    if (character == -4)
+    if (character == CHAR_EOF)
     {
-        // Handle EOF character
-        // This is a no-op in the video driver, but can be used to signal end of input
         return;
     }
     
-    
-    // Don't allow writing beyond the right edge (leave space for margin)
     uint32_t current_col = ((current_video - video) / 2) % WIDTH;
     if (current_col >= WIDTH - 1)
     {
@@ -102,15 +96,14 @@ void vd_clear_screen()
 
     for (i = 0; i < HEIGHT * WIDTH * 2; i += 2)
     {
-        video[i] = ' ';        // Fill with spaces
+        video[i] = ' ';       
         video[i + 1] = current_color;
     }
-    current_video = video + (LEFT_MARGIN * 2); // Start at left margin
+    current_video = video + (LEFT_MARGIN * 2); 
 }
 
 void vd_set_cursor(uint32_t x, uint32_t y)
 {
-    // Add left margin to x coordinate
     current_video = video + ((x + LEFT_MARGIN) + (y * WIDTH)) * 2;
 }
 
@@ -124,22 +117,18 @@ void vd_set_color(uint8_t new_color)
     current_color = new_color;
 }
 
-// Scroll all lines up by one line
 void vd_scroll_up(void)
 {
     int i;
-    
-    // Move all lines up by one (copy line n+1 to line n)
     for (i = 0; i < (HEIGHT - 1) * WIDTH * 2; i++)
     {
         video[i] = video[i + (WIDTH * 2)];
     }
-    
-    // Clear the last line but preserve margins
+
     for (i = (HEIGHT - 1) * WIDTH * 2; i < HEIGHT * WIDTH * 2; i += 2)
     {
-        video[i] = ' ';           // Character (space)
-        video[i + 1] = current_color; // Attribute
+        video[i] = ' ';          
+        video[i + 1] = current_color;
     }
 }
 
@@ -170,7 +159,6 @@ static uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base)
 	char *p1, *p2;
 	uint32_t digits = 0;
 
-	//Calculate characters for each digit
 	do
 	{
 		uint32_t remainder = value % base;
@@ -179,10 +167,8 @@ static uint32_t uint_to_base(uint64_t value, char * buffer, uint32_t base)
 	}
 	while (value /= base);
 
-	// Terminate string in buffer.
 	*p = 0;
 
-	//Reverse string in buffer.
 	p1 = buffer;
 	p2 = p - 1;
 	while (p1 < p2)

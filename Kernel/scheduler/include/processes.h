@@ -7,7 +7,7 @@
 #define MAX_PROCESSES 1024
 typedef uint16_t pid_t;
 
-extern void call_int_20(); // Interrupción de timer
+extern void call_int_20();
 
 /*
  * @brief Inicializa los procesos y el scheduler
