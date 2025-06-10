@@ -114,7 +114,6 @@ void cmd_test_help(int argc, char **argv)
     exit(0);
 }
 
-// Public wrapper functions for shell integration
 void test_processes_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_processes", cmd_test_processes, argc, argv, fds);
@@ -145,7 +144,6 @@ void test_help_wrapper(int argc, char **argv, uint16_t *fds)
     process_handler("test_help", cmd_test_help, argc, argv, fds);
 }
 
-// Unified test command function
 void test_command(int argc, char **argv, uint16_t *fds)
 {
     if (argc < 2)

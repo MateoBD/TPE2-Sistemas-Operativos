@@ -105,7 +105,6 @@ void cmd_ps(int argc, char **argv)
         return;
     }
 
-    // Header
     printf("PID   Name       State     Priority  Parent  FG\n");
 
     for (int i = 0; i < count; i++)
@@ -136,7 +135,6 @@ void ps(int argc, char **argv, uint16_t * fds)
 
 void shell_cmd(int argc, char **argv, uint16_t * fds)
 {
-    // Start the shell program
     process_handler("shell", shell, argc, argv, fds);
 }
 
