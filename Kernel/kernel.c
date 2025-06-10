@@ -20,15 +20,9 @@ extern uint8_t end_of_kernel;
 
 static const uint64_t page_size = 0x1000;
 
-<<<<<<< HEAD
-static void * const user_code_module_address = (void*)0x400000;
-static void * const user_data_module_address = (void*)0x500000;/* 
-static void * const system_memory_adress = (void*)0x600000; */
-=======
 static void *const user_code_module_address = (void *)0x400000;
 static void *const user_data_module_address = (void *)0x500000;
 static void *const system_memory_adress = (void *)0x600000;
->>>>>>> feature/processes
 
 typedef int (*entry_point)();
 
