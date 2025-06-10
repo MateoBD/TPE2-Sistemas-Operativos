@@ -5,7 +5,7 @@
 
 // Constantes
 #define KERNEL_PIPES_START (STDIN + 1) // El primer pipe es stdin
-#define MAX_AMOUNT_PIPES 1024
+#define MAX_AMOUNT_PIPES 256
 #define PIPE_BUFFER_SIZE 512
 
 #define CHECK_INITIALIZED() \
@@ -73,7 +73,6 @@ static void clean_buffer(uint16_t fd)
     }
 }
 
-// Busca un pipe libre en el array
 static uint16_t find_available_pipe()
 {
     for (uint16_t i = STDERR + 1; i < MAX_AMOUNT_PIPES; i++) // Ignoro los primeros 3 fds
@@ -83,10 +82,9 @@ static uint16_t find_available_pipe()
             return i;
         }
     }
-    return 0; // No available pipe found
+    return 0;
 }
 
-// Crea un nuevo pipe y asigna file descriptors
 int create_pipe()
 {
     CHECK_INITIALIZED();
@@ -112,7 +110,7 @@ int create_pipe()
 
     if (global_pipe_manager.pipes[new_pipe].read_sem == -1 || global_pipe_manager.pipes[new_pipe].write_sem == -1)
     {
-        global_pipe_manager.pipes[new_pipe].state = PIPE_FREE; // Rollback state if semaphore creation fails
+        global_pipe_manager.pipes[new_pipe].state = PIPE_FREE;
         destroy_sem(global_pipe_manager.pipes[new_pipe].read_sem);
         destroy_sem(global_pipe_manager.pipes[new_pipe].write_sem);
         return -1;
@@ -123,7 +121,6 @@ int create_pipe()
     return new_pipe;
 }
 
-// Cierra un pipe dado su file descriptor
 int close_pipe(uint16_t fd)
 {
     CHECK_INITIALIZED();
@@ -146,7 +143,6 @@ int close_pipe(uint16_t fd)
     return 0;
 }
 
-// Lee datos del pipe
 int read_pipe(uint16_t fd, int8_t *buffer, int count)
 {
     CHECK_INITIALIZED();
@@ -176,7 +172,6 @@ int read_pipe(uint16_t fd, int8_t *buffer, int count)
     return bytes_read;
 }
 
-// Escribe datos al pipe
 int write_pipe(int fd, const int8_t *buffer, int count)
 {
     CHECK_INITIALIZED();
@@ -206,7 +201,6 @@ int write_pipe(int fd, const int8_t *buffer, int count)
     return bytes_written;
 }
 
-// Lee datos del pipe sin bloquear
 int read_pipe_nonblocking(uint16_t fd, int8_t *buffer, int count)
 {
     CHECK_INITIALIZED();
@@ -240,7 +234,6 @@ int read_pipe_nonblocking(uint16_t fd, int8_t *buffer, int count)
     return bytes_read;
 }
 
-// Escribe datos al pipe sin bloquear
 int write_pipe_nonblocking(int fd, const int8_t *buffer, int count)
 {
     CHECK_INITIALIZED();
