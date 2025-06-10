@@ -173,10 +173,8 @@ void wc_cmd(int argc, char **argv)
 {
     int show_lines = 0, show_words = 0, show_chars = 0;
 
-    // Parse flags
     if (argc == 1)
     {
-        // Sin flags, mostrar todo
         show_lines = show_words = show_chars = 1;
     }
     else
@@ -230,7 +228,6 @@ void wc_cmd(int argc, char **argv)
         }
     }
 
-    // Mostrar resultados según flags
     printf("\n");
     if (show_lines)  printf("Lines: %d ", count_lines);
     if (show_words)  printf("Words: %d ", count_words);
@@ -260,7 +257,7 @@ void filter_cmd(int argc, char **argv)
             buff[count++] = c;
         }
     }
-    buff[count] = 0; // Asegurar terminación null
+    buff[count] = 0;
     printf("%s\n", buff);
     putchar(CHAR_EOF);
     exit(0); 

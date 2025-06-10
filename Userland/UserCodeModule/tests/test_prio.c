@@ -3,8 +3,8 @@
 #include <test-syscalls.h>
 #include <test_util.h>
 
-#define MINOR_WAIT ((int)1E5) // TODO: Change this value to prevent a process from flooding the screen
-#define WAIT ((int)1E7)      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
+#define MINOR_WAIT ((int)1E5) 
+#define WAIT ((int)1E7)      
 
 #define TOTAL_PROCESSES 3
 

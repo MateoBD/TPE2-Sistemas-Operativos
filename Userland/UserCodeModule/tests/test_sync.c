@@ -7,11 +7,11 @@
 #define SEM_ID "sem"
 #define TOTAL_PAIR_PROCESSES 2
 
-int64_t global; // shared memory
+int64_t global; 
 
 void slowInc(int64_t *p, int64_t inc) {
     uint64_t aux = *p;
-    my_yield(); // This makes the race condition highly probable
+    my_yield(); 
     aux += inc;
     *p = aux;
 }
@@ -38,13 +38,12 @@ void my_process_inc(uint64_t argc, char *argv[]) {
         slowInc(&global, inc);
         if (sem)
             my_sem_post(sem);
-        // my_yield();
     }
 
     exit(0);
 }
 
-int64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem}
+int64_t test_sync(uint64_t argc, char *argv[]) {
     uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
     if (argc != 2)
@@ -79,19 +78,6 @@ int64_t test_sync(uint64_t argc, char *argv[]) { //{n, use_sem}
         pids[i] = my_create_process("my_process_inc", my_process_inc, 3, argvDec);
         pids[i + TOTAL_PAIR_PROCESSES] = my_create_process("my_process_inc", my_process_inc, 3, argvInc);
     }
-
-    // for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-    //     my_nice(pids[i], 2); // Set lower priority for decrementing processes
-    //     if (pids[i] == -1) {
-    //         printf("test_sync: ERROR creating decrementing process\n");
-    //         return -1;
-    //     }
-    //     my_nice(pids[i + TOTAL_PAIR_PROCESSES], 1); // Set higher priority for incrementing processes
-    //     if (pids[i + TOTAL_PAIR_PROCESSES] == -1) {
-    //         printf("test_sync: ERROR creating incrementing process\n");
-    //         return -1;
-    //     }
-    // }
 
     int8_t exit_value = -1;
 

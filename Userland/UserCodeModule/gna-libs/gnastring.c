@@ -72,7 +72,6 @@ char *strchr(const char *str, int c)
         str++;
     }
 
-    // Check if we're looking for the null terminator
     if (c == '\0')
     {
         return (char *)str;

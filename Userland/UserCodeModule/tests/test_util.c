@@ -3,7 +3,6 @@
 #include <gnaio.h>
 #include <test-syscalls.h>
 
-// Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;
 
@@ -18,7 +17,6 @@ uint32_t GetUniform(uint32_t max) {
   return (u + 1.0) * 2.328306435454494e-10 * max;
 }
 
-// Memory
 uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
   uint8_t *p = (uint8_t *)start;
   uint32_t i;
@@ -30,7 +28,6 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
   return 1;
 }
 
-// Parameters
 int64_t satoi(char *str) {
   uint64_t i = 0;
   int64_t res = 0;
@@ -53,7 +50,6 @@ int64_t satoi(char *str) {
   return res * sign;
 }
 
-// Dummies
 void bussy_wait(uint64_t n) {
   uint64_t i;
   for (i = 0; i < n; i++)

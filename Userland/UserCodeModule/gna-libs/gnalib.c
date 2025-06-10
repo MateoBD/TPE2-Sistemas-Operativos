@@ -6,7 +6,6 @@
 uint64_t get_ticks()
 {
     uint64_t ticks = 0;
-    // syscall
     return ticks;
 }
 

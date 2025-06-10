@@ -12,7 +12,8 @@
 #define MAX_ARGS 16
 #define MAX_SAVED_COMMANDS 16
 
-// Function prototypes
+#define IS_PRINTABLE(c) ((c) >= ' ' && (c) <= '~')
+
 static int parse_command(char *input, char **argv);
 static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int *left_argc, int *right_argc);
 static command_t *find_command(const char *name);
@@ -37,10 +38,9 @@ command_t commands[] = {
     {"wc", wc, "Count lines, words, and characters in input (use 'wc -h' for options)"},
     {"filter", filter, "Filter out vowels from input"},
     {"test", test_command, "Run tests (use 'test -h' or 'test --help' for options)"},
-    {NULL, NULL, NULL} // Sentinel
+    {NULL, NULL, NULL} 
 };
 
-// Analizar línea de comandos en argumentos
 static int parse_command(char *input, char **argv)
 {
     int argc = 0;
@@ -52,13 +52,11 @@ static int parse_command(char *input, char **argv)
     {
         token_start = input;
 
-        // Encontrar el final del token actual
-        while (*input != '\0' && *input != ' ' && *input != '\t')
+        while ((*input != '\0') && (*input != ' '))
         {
             input++;
         }
 
-        // Terminar el token con null
         if (*input != '\0')
         {
             *input = '\0';
@@ -73,7 +71,6 @@ static int parse_command(char *input, char **argv)
     return argc;
 }
 
-// Buscar comando en tabla de comandos
 static command_t *find_command(const char *name)
 {
     for (int i = 0; commands[i].name != NULL; i++)
@@ -86,94 +83,70 @@ static command_t *find_command(const char *name)
     return NULL;
 }
 
-// Leer una línea de entrada
 static void read_line(char *buffer, int max_len)
 {
     int pos = 0;
     int c;
 
-    while (pos < max_len - 1)
+    while ((pos < max_len - 1) && (c = getchar()) != '\n')
     {
-        c = getchar();
-
-        // Handle Ctrl+C signal
         if (c == CHAR_INTERRUPT)
         {
             printf("^C\n");
-            buffer[0] = '\0'; // Limpiar el buffer
+            buffer[0] = '\0'; 
             return;
         }
 
-        // Handle Ctrl+D signal
-        if (c == CHAR_EOF)
+        if ((c == CHAR_EOF) && (pos == 0))
         {
-            if (pos == 0)
-            {
                 printf("^D\n");
                 printf("Type 'exit' to quit the shell.\n");
-                buffer[0] = '\0'; // Limpiar el buffer
+                buffer[0] = '\0'; 
                 return;
-            }
-            else
-            {
-                // Si hay texto en el buffer, simplemente ignorar Ctrl+D
-                continue;
-            }
         }
 
-        if (c == '\n' || c == '\r')
+        if (c == '\b')
         {
-            break;
-        }
-
-        if (c == '\b' || c == 127)
-        { // Backspace or DEL
             if (pos > 0)
             {
                 pos--;
                 putchar('\b');
-                putchar(' ');
-                putchar('\b');
             }
         }
-        else if (c >= 32 && c <= 126)
-        { // Printable characters
+
+        if (IS_PRINTABLE(c))
+        {
             buffer[pos++] = c;
             putchar(c);
         }
     }
-
     buffer[pos] = '\0';
     putchar('\n');
 }
 
-// Skip whitespace characters
 static void skip_whitespace(char **str)
 {
-    while (**str == ' ' || **str == '\t')
+    while (**str == ' ')
     {
         (*str)++;
     }
 }
 
-// Parse a simple pipe between two commands (cmd1 | cmd2)
 static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int *left_argc, int *right_argc)
 {
     char *pipe_pos = strchr(input, '|');
 
     if (!pipe_pos)
     {
-        return -1; // No pipe found
+        return -1; 
     }
 
-    // Check for multiple pipes
     if (strchr(pipe_pos + 1, '|') != NULL)
     {
         printf("Error: Only one pipe supported at a time\n");
         return -1;
     }
 
-    // Split the input at the pipe
     *pipe_pos = '\0';
     char *left_str = input;
     char *right_str = pipe_pos + 1;
@@ -182,7 +155,6 @@ static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int
     right_str[right_len + 1] = '&';
     right_str[right_len + 2] = '\0';
 
-    // Parse left command
     *left_argc = parse_command(left_str, left_cmd);
     if (*left_argc == 0)
     {
@@ -190,7 +162,6 @@ static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int
         return -1;
     }
 
-    // Parse right command
     *right_argc = parse_command(right_str, right_cmd);
     if (*right_argc == 0)
     {
@@ -201,10 +172,8 @@ static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int
     return 0;
 }
 
-// Execute a simple pipe between two commands
 static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int right_argc)
 {
-    // Find both commands
     command_t *left_command = find_command(left_cmd[0]);
     command_t *right_command = find_command(right_cmd[0]);
 
@@ -220,7 +189,6 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
         return -1;
     }
 
-    // Create pipe
     int pipe_fd = open();
     if (pipe_fd == -1)
     {
@@ -228,15 +196,13 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
         return -1;
     }
 
-    // Set up file descriptors for left process (writes to pipe)
     uint16_t left_fds[2];
-    left_fds[0] = 0;       // STDIN
-    left_fds[1] = pipe_fd; // STDOUT goes to pipe
+    left_fds[0] = 0;
+    left_fds[1] = pipe_fd; 
 
-    // Set up file descriptors for right process (reads from pipe)
     uint16_t right_fds[2];
-    right_fds[0] = pipe_fd; // STDIN comes from pipe
-    right_fds[1] = 1;       // STDOUT
+    right_fds[0] = pipe_fd;
+    right_fds[1] = 1;
 
     right_command->handler(right_argc, right_cmd, right_fds);
 
@@ -264,43 +230,24 @@ void shell(int argc, char **argv)
         printf("gna> ");
         read_line(input, MAX_CMD_LENGTH);
 
-        // Skip empty lines
         if (strlen(input) == 0)
         {
+            continue;   
+        }     
+        if ((strchr(input, '|') != NULL) && (parse_simple_pipe(input, left_args, right_args, &left_argc, &right_argc) == 0))
+        {
+            execute_pipe(left_args, right_args, left_argc, right_argc);
             continue;
         }
+        char *args[MAX_ARGS];
+        int arg_count = parse_command(input, args);
 
-        // Check if the input contains a pipe
-        if (strchr(input, '|') != NULL)
+        if ((arg_count != 0) && (cmd = find_command(args[0])) != NULL)
         {
-            // Parse and execute simple pipe
-            if (parse_simple_pipe(input, left_args, right_args, &left_argc, &right_argc) == 0)
-            {
-                execute_pipe(left_args, right_args, left_argc, right_argc);
-            }
+            cmd->handler(arg_count, args, NULL);
+            continue;
         }
-        else
-        {
-            // Single command, parse and execute normally
-            char *args[MAX_ARGS];
-            int arg_count = parse_command(input, args);
-
-            if (arg_count == 0)
-            {
-                continue;
-            }
-
-            // Buscar y ejecutar comando
-            cmd = find_command(args[0]);
-            if (cmd != NULL)
-            {
-                cmd->handler(arg_count, args, NULL);
-            }
-            else
-            {
-                printf("Unknown command: %s\n", args[0]);
-                printf("Type 'help' for available commands.\n");
-            }
-        }
+        printf("Unknown command: %s\n", args[0]);
+        printf("Type 'help' for available commands.\n");
     }
 }

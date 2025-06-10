@@ -5,13 +5,11 @@
 #include <test-syscalls.h>
 #include <process-handler.h>
 
-// Forward declarations of test functions
 int64_t test_processes(uint64_t argc, char *argv[]);
 uint64_t test_mm(uint64_t argc, char *argv[]);
 void test_prio();
 uint64_t test_sync(uint64_t argc, char *argv[]);
 
-// Command wrapper functions that will be executed as processes
 void cmd_test_processes(int argc, char **argv)
 {
     if (argc < 2)
@@ -86,7 +84,6 @@ void cmd_test_sync(int argc, char **argv)
 
 void cmd_test_mm_basic(int argc, char **argv)
 {
-    // Basic memory test with default values
     char *test_argv[1] = {"1024"};
     printf("Running basic memory test with 1024 bytes...\n");
     uint64_t result = test_mm(1, test_argv);
