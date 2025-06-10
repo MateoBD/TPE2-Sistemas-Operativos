@@ -20,7 +20,6 @@ static void read_line(char *buffer, int max_len);
 static void skip_whitespace(char **str);
 static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int right_argc);
 
-
 command_t commands[] = {
     {"echo", echo, "Print arguments to stdout"},
     {"loop", loop, "Run a process in an infinite loop"},
@@ -35,9 +34,9 @@ command_t commands[] = {
     {"help", help, "Show available commands"},
     {"exit", exit_shell, "Exit the shell"},
     {"cat", cat, "Concatenate and print files to stdout"},
-    {"wc", wc, "Count lines, words, and characters in input (use 'wc --h' for options)"},
+    {"wc", wc, "Count lines, words, and characters in input (use 'wc -h' for options)"},
     {"filter", filter, "Filter out vowels from input"},
-    {"test", test_command, "Run tests (use 'test help' for options)"},
+    {"test", test_command, "Run tests (use 'test -h' or 'test --help' for options)"},
     {NULL, NULL, NULL} // Sentinel
 };
 
@@ -180,8 +179,8 @@ static int parse_simple_pipe(char *input, char **left_cmd, char **right_cmd, int
     char *right_str = pipe_pos + 1;
     uint32_t right_len = strlen(right_str);
     right_str[right_len] = ' ';
-    right_str[right_len+1] = '&';
-    right_str[right_len+2] = '\0';
+    right_str[right_len + 1] = '&';
+    right_str[right_len + 2] = '\0';
 
     // Parse left command
     *left_argc = parse_command(left_str, left_cmd);
@@ -243,7 +242,6 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
 
     left_command->handler(left_argc, left_cmd, left_fds);
 
-
     close(pipe_fd);
 
     return 0;
@@ -251,7 +249,7 @@ static int execute_pipe(char **left_cmd, char **right_cmd, int left_argc, int ri
 
 void shell(int argc, char **argv)
 {
-    char input[MAX_CMD_LENGTH+2];
+    char input[MAX_CMD_LENGTH + 2];
     char *left_args[MAX_ARGS];
     char *right_args[MAX_ARGS];
     int left_argc, right_argc;

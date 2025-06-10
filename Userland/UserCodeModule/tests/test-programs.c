@@ -104,52 +104,52 @@ void cmd_test_mm_basic(int argc, char **argv)
 void cmd_test_help(int argc, char **argv)
 {
     printf("Available test commands:\n");
-    printf("  test_processes <max_processes> - Test process creation and management\n");
-    printf("  test_mm <max_memory>          - Test memory manager allocation/deallocation\n");
-    printf("  test_prio                     - Test priority-based scheduling\n");
-    printf("  test_sync <n> <use_sem> <id>  - Test semaphore synchronization\n");
-    printf("  test_mm_basic                 - Run basic memory test with default settings\n");
-    printf("  test_help                     - Show this help message\n");
+    printf("  test processes <max_processes> - Test process creation and management\n");
+    printf("  test mm <max_memory>           - Test memory manager allocation/deallocation\n");
+    printf("  test prio                      - Test priority-based scheduling\n");
+    printf("  test sync <n> <use_sem> <id>   - Test semaphore synchronization\n");
+    printf("  test mm_basic                  - Run basic memory test with default settings\n");
+    printf("  test --help                    - Show this help message\n");
     printf("\nExamples:\n");
-    printf("  test_processes 5              - Create up to 5 test processes\n");
-    printf("  test_mm 2048                  - Test memory allocation up to 2048 bytes\n");
-    printf("  test_sync 100 1 mysem         - Test sync with 100 iterations, using semaphore 'mysem'\n");
+    printf("  test processes 5               - Create up to 5 test processes\n");
+    printf("  test mm 2048                   - Test memory allocation up to 2048 bytes\n");
+    printf("  test sync 100 1 mysem          - Test sync with 100 iterations, using semaphore 'mysem'\n");
     exit(0);
 }
 
 // Public wrapper functions for shell integration
-void test_processes_wrapper(int argc, char **argv, uint16_t * fds)
+void test_processes_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_processes", cmd_test_processes, argc, argv, fds);
 }
 
-void test_mm_wrapper(int argc, char **argv, uint16_t * fds)
+void test_mm_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_mm", cmd_test_mm, argc, argv, fds);
 }
 
-void test_prio_wrapper(int argc, char **argv, uint16_t * fds)
+void test_prio_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_prio", cmd_test_prio, argc, argv, fds);
 }
 
-void test_sync_wrapper(int argc, char **argv, uint16_t * fds)
+void test_sync_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_sync", cmd_test_sync, argc, argv, fds);
 }
 
-void test_mm_basic_wrapper(int argc, char **argv, uint16_t * fds)
+void test_mm_basic_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_mm_basic", cmd_test_mm_basic, argc, argv, fds);
 }
 
-void test_help_wrapper(int argc, char **argv, uint16_t * fds)
+void test_help_wrapper(int argc, char **argv, uint16_t *fds)
 {
     process_handler("test_help", cmd_test_help, argc, argv, fds);
 }
 
 // Unified test command function
-void test_command(int argc, char **argv, uint16_t * fds)
+void test_command(int argc, char **argv, uint16_t *fds)
 {
     if (argc < 2)
     {
@@ -160,7 +160,7 @@ void test_command(int argc, char **argv, uint16_t * fds)
         printf("  prio                     - Test priority-based scheduling\n");
         printf("  sync [iterations] [use_sem] [sem_id] - Test semaphore synchronization\n");
         printf("  mm_basic                 - Run basic memory test with default settings\n");
-        printf("  help                     - Show this help\n");
+        printf("  -h, --help               - Show this help\n");
         return;
     }
 
@@ -186,13 +186,13 @@ void test_command(int argc, char **argv, uint16_t * fds)
     {
         test_mm_basic_wrapper(argc - 1, &argv[1], fds);
     }
-    else if (strcmp(test_type, "help") == 0)
+    else if (strcmp(test_type, "-h") == 0 || strcmp(test_type, "--help") == 0)
     {
         test_help_wrapper(argc - 1, &argv[1], fds);
     }
     else
     {
         printf("Unknown test type: %s\n", test_type);
-        printf("Use 'test help' to see available tests.\n");
+        printf("Use 'test -h' or 'test --help' to see available tests.\n");
     }
 }
