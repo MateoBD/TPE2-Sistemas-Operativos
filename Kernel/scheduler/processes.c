@@ -159,10 +159,13 @@ void set_next_process(void *current_stack)
 
     current_process->stack = current_stack;
 
-    if (current_process->pid != 0 && current_process->state == RUNNING)
+    if (current_process->state == RUNNING)
     {
         current_process->state = READY;
-        enqueue_process(process_queues[current_process->priority], current_process);
+        if (current_process->pid != 0)
+        {
+            enqueue_process(process_queues[current_process->priority], current_process);
+        }
     }
 }
 
