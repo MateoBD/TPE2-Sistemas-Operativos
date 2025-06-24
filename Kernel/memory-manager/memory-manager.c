@@ -52,6 +52,7 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
     // Calcular el tamaño alineado (redondear hacia arriba al múltiplo de 8 más cercano)
     uint64_t aligned_size = (size + 7) & ~7;  // Alinea a 8 bytes
     
+    
     uint32_t i = 0;
     void * toReturn = NULL;
     
@@ -61,6 +62,12 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
         {
             i++;
         }
+        
+        if (self->page_frames[i].start > (void *)MEMORY_END)
+        {
+            return NULL;
+        }
+        
     
         if (i == self->page_frames_dim || self->page_frames[i].size >= aligned_size)
         {
@@ -69,7 +76,6 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
                 // Asegurar que la dirección de inicio esté alineada
                 uint64_t start_addr = (uint64_t)self->page_frames[i].start;
                 uint64_t aligned_start = (start_addr + 7) & ~7;  // Alinear a 8 bytes
-                
                 self->page_frames[i].start = (void *)aligned_start;
                 self->page_frames[i].size = aligned_size;
                 self->page_frames[i+1].start = (void *)(aligned_start + aligned_size);
@@ -95,7 +101,6 @@ void * memory_alloc(MemoryManagerADT const restrict self, const uint64_t size)
             i++;
         }
     }
-    
     return toReturn;
 }
 
