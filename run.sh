@@ -11,7 +11,7 @@ else
 fi
 
 if [[ "$1" == "gdb" ]]; then
-    GDB="-s -S -d int"
+    GDB="-s -S"
 else
     GDB=""
 fi
@@ -23,4 +23,5 @@ qemu-system-x86_64 \
     -m 512 \
     -audiodev $AUDIO_DRIVER,id=speaker \
     -machine pcspk-audiodev=speaker \
-    $GDB
+    $GDB \
+    -d int 2>&1 | grep "v="

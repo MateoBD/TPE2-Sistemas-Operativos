@@ -6,6 +6,8 @@ EXTERN scheduler
 
 %macro set_inicial_stack 0
 
+    push 0x00      ; Align
+    push 0x00      ; SS
     push rdx       ; RSP
     push 0x202     ; RFLAGS
     push 0x08      ; CS 
